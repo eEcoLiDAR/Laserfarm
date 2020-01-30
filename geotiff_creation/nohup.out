@@ -1,0 +1,13 @@
+ERROR 3: I/O error
+Traceback (most recent call last):
+  File "./create_tile_geotiff.py", line 264, in <module>
+    main()
+  File "./create_tile_geotiff.py", line 251, in main
+    processTilePly(args,tile)
+  File "./create_tile_geotiff.py", line 177, in processTilePly
+    data= plyfile.PlyData.read(file)
+  File "/anaconda3/envs/eEcoLiDAR/lib/python3.6/site-packages/plyfile.py", line 390, in read
+    (must_close, stream) = _open_stream(stream, 'read')
+  File "/anaconda3/envs/eEcoLiDAR/lib/python3.6/site-packages/plyfile.py", line 469, in _open_stream
+    return (True, open(stream, read_or_write[0] + 'b'))
+OSError: [Errno 6] Device not configured: '/Users/eslt0101/Data/eScience/eEcoLiDAR/local/eecolidar_webdav/01_Escience/ALS/Netherlands/ahn3_2019_01_08_1x1m_features_10m/tile_148_181.ply'

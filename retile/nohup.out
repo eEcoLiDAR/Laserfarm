@@ -1,0 +1,97 @@
+/Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_local_repository
+test20190909
+Starting incremental_retile.py...
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp
+processing 2 input tiles
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_local_repository/C_43BN1.LAZ -nc -nv -nco
+Processing C_43BN1.LAZ 165813589 70000.0 418750.0 74999.999 424999.999
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1
+pdal split -i /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_local_repository/C_43BN1.LAZ -o /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1.LAZ --origin_x=-107888.734 --origin_y=203621.0926 --length 2000.0
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_8.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_89_110
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_8.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_89_110/C_43BN1_8.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_9.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_90_107
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_9.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_90_107/C_43BN1_9.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_13.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_107
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_13.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_107/C_43BN1_13.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_12.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_90_110
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_12.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_90_110/C_43BN1_12.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_10.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_90_108
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_10.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_90_108/C_43BN1_10.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_11.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_90_109
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_11.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_90_109/C_43BN1_11.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_15.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_109
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_15.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_109/C_43BN1_15.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_14.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_108
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_14.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_108/C_43BN1_14.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_16.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_110
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_16.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_110/C_43BN1_16.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_4.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_89_108
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_4.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_89_108/C_43BN1_4.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_5.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_88_109
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_5.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_88_109/C_43BN1_5.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_7.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_88_110
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_7.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_88_110/C_43BN1_7.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_6.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_89_109
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_6.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_89_109/C_43BN1_6.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_2.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_88_108
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_2.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_88_108/C_43BN1_2.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_3.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_89_107
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_3.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_89_107/C_43BN1_3.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_1.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_88_107
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/1/C_43BN1_1.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_88_107/C_43BN1_1.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_local_repository/C_43BN2.LAZ -nc -nv -nco
+Processing C_43BN2.LAZ 251157433 75000.0 418750.0 79999.999 424999.999
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0
+pdal split -i /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_local_repository/C_43BN2.LAZ -o /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2.LAZ --origin_x=-107888.734 --origin_y=203621.0926 --length 2000.0
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_9.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_93_107
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_9.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_93_107/C_43BN2_9.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_8.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_92_110
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_8.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_92_110/C_43BN2_8.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_5.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_92_107
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_5.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_92_107/C_43BN2_5.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_4.LAZ -nc -nv -nco
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_4.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_110/C_43BN2_4.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_6.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_92_108
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_6.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_92_108/C_43BN2_6.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_7.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_92_109
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_7.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_92_109/C_43BN2_7.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_3.LAZ -nc -nv -nco
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_3.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_109/C_43BN2_3.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_2.LAZ -nc -nv -nco
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_2.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_108/C_43BN2_2.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_1.LAZ -nc -nv -nco
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_1.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_91_107/C_43BN2_1.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_12.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_93_110
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_12.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_93_110/C_43BN2_12.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_11.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_93_109
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_11.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_93_109/C_43BN2_11.LAZ
+lasinfo /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_10.LAZ -nc -nv -nco
+mkdir -p /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_93_108
+mv /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_temp/0/C_43BN2_10.LAZ /Users/eslt0101/Projects/REPOS/eScience/eEcoLiDAR/downloadAHN/test_directories/test_retile/tile_93_108/C_43BN2_10.LAZ
+Completed 1 of 2 (50.00%)
+Completed 2 of 2 (100.00%)
+Finished in 520.16 seconds

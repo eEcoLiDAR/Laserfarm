@@ -1,0 +1,1 @@
+nohup ./copy_tile_files_noclobber.sh /data/local/eecolidar_webdav/01_Escience/ALS/Netherlands/ahn3_current/ahn3_current_retiled_LAZ_joined_subsetlists/ahn3cj_set__0.txt /data/local/eecolidar_webdav/01_Escience/ALS/Netherlands/ahn3_current/ahn3_current_retiled_LAZ_joined_targets/10m /data/local/eecolidar/rclone/tmp/targets/10m '_targets.laz' > retrieveahn3ud_targ_0.out &
