@@ -1,1 +1,0 @@
-nohup ./define_list_copy_and_split.py -pl /data/local/eecolidar_webdav/01_Escience/ALS/Netherlands/ahn3_current/ahn3_current_retiled_LAZ_joined_subsetlists/ahn3cj_set__0.txt -ed /data/local/eecolidar/rclone/tmp/norm_tiles/1x1m -o /data/local/eecolidar_webdav/01_Escience/ALS/Netherlands/ahn3_current/ahn3_current_retiled_LAZ_joined_subsetlists/ahn3cj_set__0udvegfix1.txt -n 1
