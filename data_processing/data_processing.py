@@ -33,14 +33,19 @@ class DataProcessing(object):
                                load(file, **load_opts))
         return self
 
-    def normalize(self, cell_size):
+    def normalize(self, cell_size, path=None, **export_opts):
         """
         Normalize point cloud heights
 
         :param cell_size:
+        :param path: path where to (optionally) save the normalized point cloud
+        :param export_opts: optional arguments passed to the laserchicken
+        export function
         :return:
         """
         normalize(self.point_cloud, cell_size)
+        if path is not None:
+            export(self.point_cloud, path, **export_opts)
         return self
 
     def extract_features(self, volume_type, volume_size, targets_path,
@@ -53,7 +58,7 @@ class DataProcessing(object):
         :param volume_size: size of the volume-related parameter (in m)
         :param targets_path: path where the target point cloud is located
         :param feature_names: list of the feature names to be computed
-        :param sample_size: sample
+        :param sample_size: sample neighborhoods with a random subset of points
         """
         volume = build_volume(volume_type, volume_size)
         self.targets = load(targets_path)
@@ -79,17 +84,13 @@ class DataProcessing(object):
         :param export_opts: optional arguments passed to the laserchicken
         export function
         """
-        if self.targets is None:
-            point_cloud = self.point_cloud
-        else:
-            point_cloud = self.targets
-        features = [f for f in point_cloud[laserchicken.keys.point].keys()
+        features = [f for f in self.targets[laserchicken.keys.point].keys()
                     if f not in 'xyz'] if attributes == 'all' else attributes
         for file, feature_set in _get_output_file_dict(path,
                                                        features,
                                                        multi_band_files,
                                                        **export_opts).items():
-            export(point_cloud, file, attributes=feature_set, **export_opts)
+            export(self.targets, file, attributes=feature_set, **export_opts)
         return self
 
     def run_pipeline(self, path):
@@ -104,7 +105,7 @@ class DataProcessing(object):
         for task_name in self._PIPELINE:
             if task_name in args:
                 task = getattr(self, task_name)
-                self = task(**args[task_name])
+                task(**args[task_name])
         return self
 
     def __str__(self):
@@ -144,7 +145,7 @@ def _get_output_file_dict(path,
         check_path_exists(p, should_exist=True)
         if features and not multi_band_files:
             files = {str(p.joinpath('.'.join([feature, format]))): feature
-                         for feature in features}
+                     for feature in features}
         else:
             files = {str(p.joinpath('.'.join(['all', format]))): 'all'}
     else:
