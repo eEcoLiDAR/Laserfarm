@@ -13,62 +13,65 @@ from utils import check_path_exists, get_args_from_configfile
 
 
 class DataProcessing(object):
-    """ Read, process and write point cloud data. """
+    """ Read, process and write point cloud data using laserchicken. """
 
     _PIPELINE = ['load', 'normalize', 'extract_features', 'export']
 
     def __init__(self):
-        self.point_cloud = create_point_cloud([], [], [])
-        self.targets = None
+        self._point_cloud = create_point_cloud([], [], [])
+        self._targets = None
 
     def load(self, path, **load_opts):
         """
-        Read point cloud from disk
+        Read point cloud from disk.
 
-        :param path: path where to find point cloud data
-        :param load_opts: arguments passed to laserchicken load function
+        :param path: Path where to find point cloud data
+        :param load_opts: Arguments passed to the laserchicken load function
         """
         for file in _get_input_file_list(path):
-            add_to_point_cloud(self.point_cloud,
+            add_to_point_cloud(self._point_cloud,
                                load(file, **load_opts))
         return self
 
     def normalize(self, cell_size, path=None, **export_opts):
         """
-        Normalize point cloud heights
+        Normalize point cloud heights.
 
-        :param cell_size:
-        :param path: path where to (optionally) save the normalized point cloud
-        :param export_opts: optional arguments passed to the laserchicken
+        :param cell_size: Size of the side of the cell employed for
+        normalization (in m)
+        :param path: Path where to (optionally) save the normalized point cloud
+        :param export_opts: Optional arguments passed to the laserchicken
         export function
         :return:
         """
-        normalize(self.point_cloud, cell_size)
+        normalize(self._point_cloud, cell_size)
         if path is not None:
-            export(self.point_cloud, path, **export_opts)
+            export(self._point_cloud, path, **export_opts)
         return self
 
     def extract_features(self, volume_type, volume_size, targets_path,
-                         feature_names, sample_size=None):
+                         feature_names, sample_size=None, **load_opts):
         """
-        Extract point-cloud features and assign them to a provided target point
-        cloud.
+        Extract point-cloud features and assign them to the specified target
+        point cloud.
 
-        :param volume_type: type of volume used to construct neighborhoods
-        :param volume_size: size of the volume-related parameter (in m)
-        :param targets_path: path where the target point cloud is located
-        :param feature_names: list of the feature names to be computed
-        :param sample_size: sample neighborhoods with a random subset of points
+        :param volume_type: Type of volume used to construct neighborhoods
+        :param volume_size: Size of the volume-related parameter (in m)
+        :param targets_path: Path where the target point cloud is located
+        :param feature_names: List of the feature names to be computed
+        :param sample_size: Sample neighborhoods with a random subset of points
+        :param load_opts: Optional arguments passed to the laserchicken load
+        function when reading targets
         """
         volume = build_volume(volume_type, volume_size)
-        self.targets = load(targets_path)
-        neighborhoods = compute_neighborhoods(self.point_cloud,
-                                              self.targets,
+        self._targets = load(targets_path, **load_opts)
+        neighborhoods = compute_neighborhoods(self._point_cloud,
+                                              self._targets,
                                               volume,
                                               sample_size=sample_size)
-        compute_features(self.point_cloud,
+        compute_features(self._point_cloud,
                          neighborhoods,
-                         self.targets,
+                         self._targets,
                          feature_names,
                          volume)
         return self
@@ -76,30 +79,29 @@ class DataProcessing(object):
     def export(self, path, attributes='all', multi_band_files=True,
                **export_opts):
         """
-        Write point cloud to disk.
+        Write point-cloud data to disk.
 
-        :param path: path where to write point-cloud data
-        :param attributes: list of attributes to be written in the output file
-        :param multi_band_files: if true, write all attributes in one file
-        :param export_opts: optional arguments passed to the laserchicken
+        :param path: Path where to write point-cloud data
+        :param attributes: List of attributes to be written in the output file
+        :param multi_band_files: If true, write all attributes in one file
+        :param export_opts: Optional arguments passed to the laserchicken
         export function
         """
-        features = [f for f in self.targets[laserchicken.keys.point].keys()
+        features = [f for f in self._targets[laserchicken.keys.point].keys()
                     if f not in 'xyz'] if attributes == 'all' else attributes
         for file, feature_set in _get_output_file_dict(path,
                                                        features,
                                                        multi_band_files,
                                                        **export_opts).items():
-            export(self.targets, file, attributes=feature_set, **export_opts)
+            export(self._targets, file, attributes=feature_set, **export_opts)
         return self
 
     def run_pipeline(self, path):
         """
         Run full data-processing pipeline using input from configfile.
-        Only the tasks for which attributes are present in the file will be
-        performed.
+        Only the tasks for which attributes are present will be run.
 
-        :param path: path where the configfile is located
+        :param path: Path where the configfile is located
         """
         args = get_args_from_configfile(path)
         for task_name in self._PIPELINE:
@@ -107,9 +109,6 @@ class DataProcessing(object):
                 task = getattr(self, task_name)
                 task(**args[task_name])
         return self
-
-    def __str__(self):
-        return 'Done!'
 
 
 def _get_required_attributes(features=[]):
