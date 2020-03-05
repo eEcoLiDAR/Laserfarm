@@ -9,17 +9,17 @@ from laserchicken.io import io_handlers
 from laserchicken.normalize import normalize
 from laserchicken.utils import create_point_cloud, add_to_point_cloud
 
-from utils import check_path_exists, get_args_from_configfile
+from pipeline import Pipeline
+from utils import check_path_exists
 
 
-class DataProcessing(object):
+class DataProcessing(Pipeline):
     """ Read, process and write point cloud data using laserchicken. """
 
-    _PIPELINE = ['load', 'normalize', 'extract_features', 'export']
-
     def __init__(self):
-        self._point_cloud = create_point_cloud([], [], [])
-        self._targets = None
+        self.pipeline = ['load', 'normalize', 'extract_features', 'export']
+        self.point_cloud = create_point_cloud([], [], [])
+        self.targets = create_point_cloud([], [], [])
 
     def load(self, path, **load_opts):
         """
@@ -29,7 +29,7 @@ class DataProcessing(object):
         :param load_opts: Arguments passed to the laserchicken load function
         """
         for file in _get_input_file_list(path):
-            add_to_point_cloud(self._point_cloud,
+            add_to_point_cloud(self.point_cloud,
                                load(file, **load_opts))
         return self
 
@@ -44,9 +44,9 @@ class DataProcessing(object):
         export function
         :return:
         """
-        normalize(self._point_cloud, cell_size)
+        normalize(self.point_cloud, cell_size)
         if path is not None:
-            export(self._point_cloud, path, **export_opts)
+            export(self.point_cloud, path, **export_opts)
         return self
 
     def extract_features(self, volume_type, volume_size, targets_path,
@@ -64,14 +64,14 @@ class DataProcessing(object):
         function when reading targets
         """
         volume = build_volume(volume_type, volume_size)
-        self._targets = load(targets_path, **load_opts)
-        neighborhoods = compute_neighborhoods(self._point_cloud,
-                                              self._targets,
+        add_to_point_cloud(self.targets, load(targets_path, **load_opts))
+        neighborhoods = compute_neighborhoods(self.point_cloud,
+                                              self.targets,
                                               volume,
                                               sample_size=sample_size)
-        compute_features(self._point_cloud,
+        compute_features(self.point_cloud,
                          neighborhoods,
-                         self._targets,
+                         self.targets,
                          feature_names,
                          volume)
         return self
@@ -87,27 +87,13 @@ class DataProcessing(object):
         :param export_opts: Optional arguments passed to the laserchicken
         export function
         """
-        features = [f for f in self._targets[laserchicken.keys.point].keys()
+        features = [f for f in self.targets[laserchicken.keys.point].keys()
                     if f not in 'xyz'] if attributes == 'all' else attributes
         for file, feature_set in _get_output_file_dict(path,
                                                        features,
                                                        multi_band_files,
                                                        **export_opts).items():
-            export(self._targets, file, attributes=feature_set, **export_opts)
-        return self
-
-    def run_pipeline(self, path):
-        """
-        Run full data-processing pipeline using input from configfile.
-        Only the tasks for which attributes are present will be run.
-
-        :param path: Path where the configfile is located
-        """
-        args = get_args_from_configfile(path)
-        for task_name in self._PIPELINE:
-            if task_name in args:
-                task = getattr(self, task_name)
-                task(**args[task_name])
+            export(self.targets, file, attributes=feature_set, **export_opts)
         return self
 
 

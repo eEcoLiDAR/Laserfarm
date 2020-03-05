@@ -1,0 +1,19 @@
+{
+  "load": {
+    "path": "/Users/fnattino/Downloads/AHN3_test_data/tmp"
+  },
+  "export": {
+    "path": "tile_101_101_0.ply",
+    "overwrite": true,
+    "attributes": ["coeff_var_normalized_height"]
+  },
+  "normalize": {
+    "cell_size": 1
+  },
+  "extract_features": {
+    "feature_names": ["coeff_var_normalized_height"],
+    "targets_path": "/Users/fnattino/Downloads/AHN3_test_data/targets/10m/tile_101_101_targets.laz",
+    "volume_type": "cell",
+    "volume_size": 10
+  }
+}
