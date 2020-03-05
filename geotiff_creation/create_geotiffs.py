@@ -69,11 +69,9 @@ def getInputFiles_list(ListFile,SourceDirectory):
 
 
 def getInputFiles(args):
-
-    if args.listFlag == False:
+    if args.dataList is None:
         InputTiles = getInputFiles_directory(args.dataDirectory)
-
-    else :
+    else:
         InputTiles = getInputFiles_list(args.dataList, args.dataDirectory)
 
     return InputTiles
@@ -88,7 +86,7 @@ def getFileTemplate(args,fn):
     template = plyfile.PlyData.read(file)
     ChosenElement=0
 
-    FileSize = os.path.getsize(file)
+    # FileSize = os.path.getsize(file)
     LengthDataRecord=len(template.elements[ChosenElement].data)
     ColumnNames=[]
 
@@ -121,42 +119,27 @@ def dataSplit(InputTiles, xSub, ySub):
     xcint = list(map(float,xcoord))
     ycint = list(map(float,ycoord))
     maxxc = max(xcint)
-    #print(maxxc)
     minxc = min(xcint)
-    #print(minxc)
     maxyc = max(ycint)
-    #print(maxyc)
     minyc = min(ycint)
-    #print(minyc)
     xcRange = maxxc - minxc +1
-    #print(xcRange)
     ycRange = maxyc - minyc +1
-    #print(ycRange)
     xcSubRange = numpy.floor(xcRange/xSub)
-    #print(xcSubRange)
-    xcExcess = numpy.mod(xcRange,xSub)
-    #print(xcExcess)
+    # xcExcess = numpy.mod(xcRange,xSub)
     ycSubRange = numpy.floor(ycRange/ySub)
-    #print(ycSubRange)
-    ycExcess = numpy.mod(ycRange,ySub)
-    #print(ycExcess)
+    # ycExcess = numpy.mod(ycRange,ySub)
+
 
     for i in range(xSub):
         for j in range(ySub):
-            #print('i:'+str(i)+'j:'+str(j))
             if i != xSub-1 and j!= ySub-1:
                 subtiles = [f for k,f in enumerate(InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] < (minxc + (i+1)*xcSubRange) and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] < (minyc + (j+1)*ycSubRange) )]
             if i == xSub-1 and j== ySub-1:
                 subtiles = [f for k,f in enumerate(InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] <= maxxc and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] <= maxyc )]
-                #subtiles = [f for k,f in enumerate(InputTiles) if (xcint[k] in range(minxc + i*xcSubRange, maxxc +1) and ycint[k] in range(minyc + i*ycSubRange, maxyc + 1) )]
             if i != xSub-1 and j == ySub-1:
                 subtiles = [f for k,f in enumerate(InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] < (minxc + (i+1)*xcSubRange) and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] <= maxyc )]
-
-#subtiles = [f for k,f in enumerate(InputTiles) if (xcint[k] in range(minxc + i*xcSubRange, minxc + (i+1)*xcSubRange) and ycint[k] in range(minyc + i*ycSubRange, maxyc + 1) )]
             if i == xSub-1 and j != ySub-1:
                 subtiles = [f for k,f in enumerate(InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] <= maxxc and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] < (minyc + (j+1)*ycSubRange) )]
-                #subtiles = [f for k,f in enumerate(InputTiles) if (xcint[k] in range(minxc + i*xcSubRange, maxxc + 1) and ycint[k] in range(minyc + i*ycSubRange, minyc + (i+1)*ycSubRange) )]
-
             subtilelists.append(subtiles)
 
     return subtilelists
@@ -166,7 +149,7 @@ def dataSplit(InputTiles, xSub, ySub):
 def plyIntoNumpyArray(directory, tileList, gridLength, columnList):
     terrainData = numpy.empty((gridLength * len(tileList), len(columnList)))
     for i, file in enumerate(tileList):
-        if i % 25 == 0 :
+        if i % 25 == 0 or i == len(tileList)-1 : # first, every 25, and last
             print('processing tile '+str(i+1)+' of '+str(len(tileList)))
 
         plydata = plyfile.PlyData.read(directory + "/" + file)
@@ -192,126 +175,145 @@ def shiftTerrain(terrainData,xres,yres):
 """
 adpated to accomodate the orientation expected by geotiffs
 """
-def getGeoTransform(terrainData, xres, yres):
-    xmin, ymin, xmax, ymax = [terrainData[:, 0].min(), terrainData[:, 1].min(), terrainData[:, 0].max(), terrainData[:, 1].max()]
+def getGeoTransform(xyData, xres, yres):
+    xmin, ymin, xmax, ymax = [xyData[:, 0].min(), xyData[:, 1].min(), xyData[:, 0].max(), xyData[:, 1].max()]
     ncols = round(((xmax - xmin) / xres) +1)
     nrows = round(((ymax - ymin) / yres) +1)
     geotransform = (xmin, xres, 0, ymax, 0, -1.*yres)
     arrayinfo = (xmin,xmax,xres,ncols,ymin,ymax,yres,nrows)
     return geotransform, arrayinfo
 
+"""
+from point wise data to pixel da
+"""
 
-def combineTerrainFeatures(terrainData, terrainHeader, arrayinfo ):
-    bands = len(terrainHeader) - 3 # removing x, y and z
-    #listX = numpy.unique(terrainData[:, 0])
+def getGeoCoding(xyData, arrayinfo):
     listX = numpy.float32(range(int(arrayinfo[3]))*arrayinfo[2] + arrayinfo[0])
-    dictX = dict(zip(listX, range(len(listX))))
-    #listY = numpy.unique(terrainData[:, 1])
     listY = numpy.float32(range(int(arrayinfo[7]))*arrayinfo[6]*(-1.) + arrayinfo[5])
+    dictX = dict(zip(listX, range(len(listX))))
     dictY = dict(zip(listY, range(len(listY))))
-    arrays = numpy.full((bands, len(listY), len(listX)), numpy.nan)
-    for terrainDatum in terrainData:
-        indexX = dictX[numpy.float32(terrainDatum[0])]
-        indexY = dictY[numpy.float32(terrainDatum[1])]
-        for i in range(bands):
-            arrays[i, indexY, indexX] = terrainDatum[3 + i]
-
-    return arrays, bands #, len(listY), len(listX)
+    xx = numpy.float32(xyData[:,0])
+    yy = numpy.float32(xyData[:,1])
+    indexX = [dictX[x] for x in xx]
+    indexY = [dictY[y] for y in yy]
+    return indexX, indexY
 
 
-def writeGeoTiff(featureArrays, terrainHeader, geoTransform, outputFileName, ncols, nrows, bands):
-    output_raster = gdal.GetDriverByName('GTiff').Create(outputFileName + ".tif", ncols, nrows, bands, gdal.GDT_Float32, ['COMPRESS=LZW'])
-    output_raster.SetMetadata(dict(zip(["band_{:02d}_key".format(i) for i in range(1, 1 + bands)], terrainHeader[3:])))
-    #output_raster.SetMetadata("AREA_OR_POINT=POINT")
+def writeGeoTiff(featureArrays, bandName, geoTransform, outputFileName, ncols, nrows, nbands, EPSG_code=28992): #TODO: READ EPSG_code FROM INPUT PLY
+    output_raster = gdal.GetDriverByName('GTiff').Create(outputFileName + ".tif", ncols, nrows, nbands, gdal.GDT_Float32, ['COMPRESS=LZW'])
     output_raster.SetGeoTransform(geoTransform)
     srs = osr.SpatialReference()
-    srs.ImportFromEPSG(28992)
+    srs.ImportFromEPSG(EPSG_code)
     output_raster.SetProjection(srs.ExportToWkt())
-    for i in range(bands):
-        rb = output_raster.GetRasterBand(1 + i)
-        rb.SetMetadata({"band_key": terrainHeader[3 + i]})
-        rb.WriteArray(featureArrays[i])
+    output_raster.SetMetadata({'band': bandName})
+    rb = output_raster.GetRasterBand(1)
+    rb.SetMetadata({"band_key": bandName})
+    rb.WriteArray(featureArrays)
     output_raster.FlushCache()
 
 
-
-
-def terrainDataToGeoTiff(terrainData, terrainHeader, xres, yres, outputFileName):
-    geoTransform, arrayinfo = getGeoTransform(terrainData,xres,yres)
-    combinedTerrainFeatures, bands = combineTerrainFeatures(terrainData,terrainHeader,arrayinfo)
+def make_geotiff(args,infiles,lengthDataRecord,terrainHeader,xResolution,yResolution,outfile):
+    # Set the coordinate frame
+    xyData = plyIntoNumpyArray(args.dataDirectory, infiles, lengthDataRecord, ['x', 'y'])
+    xyDataShifted = shiftTerrain(xyData,xResolution,yResolution) # Shift the coordinates to the center of the cell
+    geoTransform, arrayinfo = getGeoTransform(xyDataShifted,xResolution,yResolution)
+    indexX, indexY = getGeoCoding(xyDataShifted,arrayinfo) # GeoCoding: get the index of each point in the raster
     ncols = int(arrayinfo[3])
     nrows = int(arrayinfo[7])
-    writeGeoTiff(combinedTerrainFeatures, terrainHeader,geoTransform,outputFileName,ncols,nrows,bands)
 
+    for band_name in terrainHeader:
+        if not band_name in ['x','y']:
+            print('Creating GeoTiff for band {!s}...'.format(band_name))
+            ct0=time.time()
 
+            # Import one band from PLY
+            print('importing data ...')
+            terrainDataOneBand = plyIntoNumpyArray(args.dataDirectory, infiles, lengthDataRecord, [band_name])
+            
+            # Converet from pointcloud to raster
+            RasterData = numpy.full((nrows, ncols), numpy.nan)
+            RasterData[indexY, indexX] = terrainDataOneBand[:,0]
 
-
-def make_geotiff(args,infiles,lengthDataRecord,terrainHeader,xResolution, yResolution,outfile):
-    print('importing data ...')
-    it0=time.time()
-    terrainData = plyIntoNumpyArray(args.dataDirectory, infiles, lengthDataRecord, terrainHeader)
-    it1=time.time()
-    dit = it1 - it0
-    print('imported in '+str(dit)+' seconds')
-    st0=time.time()
-    terrainDataShifted = shiftTerrain(terrainData,xResolution,yResolution)
-    st1=time.time()
-    dst=st1-st0
-    print('Coordinate shift calculated in '+str(dst)+' seconds')
-    print('Creating GeoTiff ...')
-    ct0=time.time()
-    terrainDataToGeoTiff(terrainDataShifted,terrainHeader,xResolution,yResolution,outfile)
-    ct1=time.time()
-    dct=ct1-ct0
-    print('(sub)GeoTiff written in '+str(dct)+' seconds')
-
-
+            # Write the single band to geotiff
+            outfile_band=outfile+"_BAND_"+band_name
+            writeGeoTiff(RasterData,band_name,geoTransform,outfile_band,ncols,nrows,1)
+            ct1=time.time()
+            dct=ct1-ct0
+            print('Tiff created in {!s} seconds. Location: {!s}.tif'.format(str(dct), outfile_band))
 
 
 
 def create_subregion_geotiffs(args, subTileLists, terrainHeader, xresolution, yresolution,lengthDataRecord):
     outfilestem = os.path.join(args.outputdir,args.outputhandle)
+
     for subTiffNumber in range(len(subTileLists)):
         infiles = subTileLists[subTiffNumber]
         print('processing subTiff '+str(subTiffNumber))
         print('      total number of constituent tiles : '+str(len(infiles)))
 
-
         if infiles != []:
-            outfile= args.outputdir+'/'+args.outputhandle+'_'+str(subTiffNumber)
+            outfile= outfilestem+'_TILE_'+str(subTiffNumber)
             make_geotiff(args,infiles,lengthDataRecord,terrainHeader,xresolution,yresolution,outfile)
-
         else:
             print('no data in subTiff: '+str(subTiffNumber))
 
 
 
-def argument_parser():
-    parser=argparse.ArgumentParser()
-    parser.add_argument('-dd','--dataDirectory',default=None,help='data directory conntainig ply files with features')
-    parser.add_argument('-dl','--dataList',default=None,help='file specifying list of tiles to be used. Optional to full directory')
-    parser.add_argument('-lf','--listFlag',default=False,help='boolean flag to specify full directory import (default) or selected tile(s)')
-    parser.add_argument('-xsub','--xSubdivisions',default=1,help='nunmber of x subdivisions')
-    parser.add_argument('-ysub','--ySubdivisions',default=1,help='number of y subdivisions')
-    parser.add_argument('-o','--outputdir',default='.',help='path to output directory')
-    parser.add_argument('-oh','--outputhandle', default=None,help='file handle for output')
-
-    return parser
+def parse_argument():
+    parser=argparse.ArgumentParser(description='Export geotiff files from target points PLY files.')
+    requiredArg = parser.add_argument_group('required arguments')
+    optionalArg = parser.add_argument_group('optional arguments')
+    requiredArg.add_argument('-dd','--dataDirectory',default=None,help='data directory conntainig ply files with features')
+    requiredArg.add_argument('-f','--featureList', default=None,help='list of features to export. Default is all features.')
+    optionalArg.add_argument('-o','--outputdir',default='./GeotiffOutput',help='path to output directory. Default is "./GeotiffOutput/".')
+    optionalArg.add_argument('-oh','--outputhandle', default='Geotiff',help='the output will be named as <outputhandle>_TILE_<tile ID>_BAND_<band name>. Default "Geotiff".')
+    optionalArg.add_argument('-dl','--dataList',default=None,help='file specifying list of tiles in  to be used. By default the full directory will be used.')
+    optionalArg.add_argument('-xsub','--xSubdivisions',default=1,help='nunmber of x subdivisions. Default: 1')
+    optionalArg.add_argument('-ysub','--ySubdivisions',default=1,help='number of y subdivisions. Default: 1') 
+    args = parser.parse_args()
+    # Check two required args: dataDirectory and featureList
+    if (args.dataDirectory is None):
+        print('Missing input argument "DATADIRECTORY".')
+        parser.print_usage() 
+        exit()
+    elif (args.featureList is None):
+        print('Missing input argument "FEATURELIST".')
+        parser.print_usage()
+        exit()
+    return args
 
 def main():
+    # Args loading
+    args = parse_argument()
 
-    args = argument_parser().parse_args()
+    # Data loading
+    InputTiles = getInputFiles(args) # Get list of data to process
+    terrainHeader, lengthDataRecord, xResolution, yResolution = getFileTemplate(args,InputTiles[0])  # Get template of datafiles from the first file
 
-    #Get list of data to process
-    InputTiles = getInputFiles(args)
+    # Input data sanitory check
+    assert ('x' in terrainHeader), "no x coordinates found!"
+    assert ('y' in terrainHeader), "no y coordinates found!"
+    assert (len(terrainHeader)>2), "no feature found other than x and y!"
+    
+    
+    # Check if the features of interest exist in data
+    if args.featureList is not None:
+        fList = ['x', 'y'] # Fetaures which will always be included
+        fListIn = args.featureList.split(',')
+        for ft in fListIn:
+            if ft in terrainHeader:
+                fList.append(ft)
+            else: 
+                print('Skipping feature "{!s}" because it does not exist in the input data.'.format(ft))
+        terrainHeader = fList
+    assert (len(terrainHeader)>2), "All feature specified are not in the input data!"
 
-    #Get template of datafiles
-    terrainHeader, lengthDataRecord, xResolution, yResolution = getFileTemplate(args,InputTiles[0])
-
+    # Re-tile
     subTileLists = dataSplit(InputTiles,numpy.int(args.xSubdivisions),numpy.int(args.ySubdivisions))
 
+    # Make geotiffs for each retiles sub-region
     create_subregion_geotiffs(args, subTileLists, terrainHeader, xResolution, yResolution,lengthDataRecord)
-
+ 
 
 
 if __name__ == '__main__':
