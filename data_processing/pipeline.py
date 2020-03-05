@@ -37,17 +37,16 @@ class Pipeline(object):
     @pipeline.setter
     def pipeline(self, pipeline):
         try:
-            tasks = iter(pipeline)
+            _ = iter(pipeline)
         except TypeError:
             print('The sequence of tasks in the pipeline '
                   'should be provided as an iterable object.')
             raise
-        for task in tasks:
-            if task not in dir(self.__class__):
-                raise AttributeError('Error defining the pipeline: {} method '
-                                     'not found in class {}'.format(task,
-                                                                    self.__class__.__name__))
-        self._pipeline = [s for s in pipeline]
+        for task in pipeline:
+            assert task in dir(self.__class__), \
+                ('Error defining the pipeline: {} method not found'
+                 'in class {}'.format(task, self.__class__.__name__))
+        self._pipeline = [task for task in pipeline]
 
     @property
     def input(self):

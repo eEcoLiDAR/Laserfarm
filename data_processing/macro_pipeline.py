@@ -11,8 +11,8 @@ from pipeline import Pipeline
 class MacroPipeline(object):
     """
     Class to setup macro pipeline workflows. Each MacroPipeline object entails
-    multiple tasks that correspond to Pipeline instances. All the tasks can be
-    run in parallel using dask.
+    multiple tasks that correspond to Pipeline instances. All the tasks are run
+    in parallel using dask.
 
     We implement dask for embarrassingly parallel tasks, see
     https://examples.dask.org/applications/embarrassingly-parallel.html
@@ -34,20 +34,22 @@ class MacroPipeline(object):
 
     @property
     def tasks(self):
-        """ List of Pipeline instances that needs to be run. """
+        """ List of tasks that need to be run. """
         if self._tasks is None:
             self._tasks = []
         return self._tasks
 
     @tasks.setter
     def tasks(self, tasks):
-        if isinstance(tasks, list):
-            if all([isinstance(task, Pipeline) for task in tasks]):
-                self._tasks = tasks
-            else:
-                raise TypeError('All elements in the list should be Pipeline!')
-        else:
-            raise TypeError('List is expected!')
+        try:
+            _ = iter(tasks)
+        except TypeError:
+            print('The collection of tasks should be an iterable object. ')
+            raise
+        for task in tasks:
+            assert isinstance(task, Pipeline), \
+                'Task {} is not a derived Pipeline object'.format(task)
+        self._tasks = [task for task in tasks]
 
     def add_task(self, task):
         """
@@ -68,7 +70,7 @@ class MacroPipeline(object):
             # sys.exc_info() provides info about current exception,
             # thus it must remain in the except block!
             exctype, value = sys.exc_info()[:2]
-        return exctype, value
+        return (exctype, value)
 
     # def run(self):
     #     """ Run the macro pipeline. """
@@ -80,7 +82,8 @@ class MacroPipeline(object):
 
     def run(self):
         """ Run the macro pipeline. """
-        self.client = Client()  # TODO: find best way to setup client (set method?)
+        # TODO: find best way to setup client (set method?)
+        self.client = Client()
         futures = [self.client.submit(self._run_task, task.run)
                    for task in self.tasks]
         return self.client.gather(futures)
