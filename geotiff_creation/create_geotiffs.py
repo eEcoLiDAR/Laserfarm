@@ -26,60 +26,6 @@ def getInputFiles_directory(Directory):
 
 
 
-
-def getInputFiles_list(ListFile,SourceDirectory):
-    InputTiles = []
-    if (os.path.isfile(ListFile) == True and os.path.isdir(SourceDirectory) == True):
-        with open(ListFile) as lf:
-            for line in lf:
-                if line.startswith('#') == False:
-                    if line.split('::')[0].strip() == 'tile':
-                        tn = line.split('::')[1].strip()+'.ply'
-                        if os.path.isfile(SourceDirectory+'/'+tn) == True:
-                            InputTiles.append(tn)
-                        elif line.split('::')[0].strip() == 'tuple':
-                            BoundaryTuple = line.split('::')[1].strip()
-                            xmin=int(BoundaryTuple.split(',')[0].strip())
-                            xmax=int(BoundaryTuple.split(',')[1].strip())
-                            ymin=int(BoundaryTuple.split(',')[2].strip())
-                            ymax=int(BoundaryTuple.split(',')[3].strip())
-                            for i in range(xmin,xmax+1):
-                                for j in range(ymin,ymax+1):
-                                    PossibleTile = 'tile_'+str(i)+'_'+str(j)+'.ply'
-                                    if os.path.isfile(SourceDirectory+'/'+PossibleTile):
-                                        InputTiles.append(PossibleTile)
-                        else :
-                            print('unclear input format:')
-                            print(line)
-
-
-
-                else:
-                    continue
-
-
-    else:
-        InputTiles=[]
-        print('Invalid list and/or directory')
-
-
-    return InputTiles
-
-
-
-
-def getInputFiles(args):
-    if args.dataList is None:
-        InputTiles = getInputFiles_directory(args.dataDirectory)
-    else:
-        InputTiles = getInputFiles_list(args.dataList, args.dataDirectory)
-
-    return InputTiles
-
-
-
-
-
 def getFileTemplate(args,fn):
 
     file=os.path.join(args.dataDirectory,fn)
@@ -267,7 +213,6 @@ def parse_argument():
     requiredArg.add_argument('-f','--featureList', default=None,help='list of features to export.')
     optionalArg.add_argument('-o','--outputdir',default='./GeotiffOutput',help='path to output directory. Default: "./GeotiffOutput/".')
     optionalArg.add_argument('-oh','--outputhandle', default='Geotiff',help='the output will be named as <outputhandle>_TILE_<tile ID>_BAND_<band name>. Default: "Geotiff".')
-    optionalArg.add_argument('-dl','--dataList',default=None,help='file specifying list of tiles in  to be used. By default the full directory will be used.')
     optionalArg.add_argument('-xsub','--xSubdivisions',default=1,help='nunmber of x subdivisions. Default: 1.')
     optionalArg.add_argument('-ysub','--ySubdivisions',default=1,help='number of y subdivisions. Default: 1.') 
     optionalArg.add_argument('-e','--EPSG',default=28992,help='EPSG code of the spatial reference system of the input data. If a different spatial reference system than \
@@ -289,7 +234,7 @@ def main():
     args = parse_argument()
 
     # Data loading
-    InputTiles = getInputFiles(args) # Get list of data to process
+    InputTiles = getInputFiles_directory(args.dataDirectory)
     terrainHeader, lengthDataRecord, xResolution, yResolution = getFileTemplate(args,InputTiles[0])  # Get template of datafiles from the first file
 
     # Input data sanitory check
