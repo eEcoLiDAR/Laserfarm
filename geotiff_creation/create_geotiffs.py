@@ -199,7 +199,7 @@ def getGeoCoding(xyData, arrayinfo):
     return indexX, indexY
 
 
-def writeGeoTiff(featureArrays, bandName, geoTransform, outputFileName, ncols, nrows, nbands, EPSG_code=28992): #TODO: READ EPSG_code FROM INPUT PLY
+def writeGeoTiff(featureArrays, bandName, geoTransform, outputFileName, ncols, nrows, nbands, EPSG_code): #TODO: READ EPSG_code FROM INPUT PLY
     output_raster = gdal.GetDriverByName('GTiff').Create(outputFileName + ".tif", ncols, nrows, nbands, gdal.GDT_Float32, ['COMPRESS=LZW'])
     output_raster.SetGeoTransform(geoTransform)
     srs = osr.SpatialReference()
@@ -236,7 +236,7 @@ def make_geotiff(args,infiles,lengthDataRecord,terrainHeader,xResolution,yResolu
 
             # Write the single band to geotiff
             outfile_band=outfile+"_BAND_"+band_name
-            writeGeoTiff(RasterData,band_name,geoTransform,outfile_band,ncols,nrows,1)
+            writeGeoTiff(RasterData,band_name,geoTransform,outfile_band,ncols,nrows,1,args.EPSG)
             ct1=time.time()
             dct=ct1-ct0
             print('Tiff created in {!s} seconds. Location: {!s}.tif'.format(str(dct), outfile_band))
@@ -263,13 +263,15 @@ def parse_argument():
     parser=argparse.ArgumentParser(description='Export geotiff files from target points PLY files.')
     requiredArg = parser.add_argument_group('required arguments')
     optionalArg = parser.add_argument_group('optional arguments')
-    requiredArg.add_argument('-dd','--dataDirectory',default=None,help='data directory conntainig ply files with features')
-    requiredArg.add_argument('-f','--featureList', default=None,help='list of features to export. Default is all features.')
-    optionalArg.add_argument('-o','--outputdir',default='./GeotiffOutput',help='path to output directory. Default is "./GeotiffOutput/".')
-    optionalArg.add_argument('-oh','--outputhandle', default='Geotiff',help='the output will be named as <outputhandle>_TILE_<tile ID>_BAND_<band name>. Default "Geotiff".')
+    requiredArg.add_argument('-dd','--dataDirectory',default=None,help='data directory conntainig ply files with features.')
+    requiredArg.add_argument('-f','--featureList', default=None,help='list of features to export.')
+    optionalArg.add_argument('-o','--outputdir',default='./GeotiffOutput',help='path to output directory. Default: "./GeotiffOutput/".')
+    optionalArg.add_argument('-oh','--outputhandle', default='Geotiff',help='the output will be named as <outputhandle>_TILE_<tile ID>_BAND_<band name>. Default: "Geotiff".')
     optionalArg.add_argument('-dl','--dataList',default=None,help='file specifying list of tiles in  to be used. By default the full directory will be used.')
-    optionalArg.add_argument('-xsub','--xSubdivisions',default=1,help='nunmber of x subdivisions. Default: 1')
-    optionalArg.add_argument('-ysub','--ySubdivisions',default=1,help='number of y subdivisions. Default: 1') 
+    optionalArg.add_argument('-xsub','--xSubdivisions',default=1,help='nunmber of x subdivisions. Default: 1.')
+    optionalArg.add_argument('-ysub','--ySubdivisions',default=1,help='number of y subdivisions. Default: 1.') 
+    optionalArg.add_argument('-e','--EPSG',default=28992,help='EPSG code of the spatial reference system of the input data. If a different spatial reference system than \
+                             "Amersfoort / RD New (EPSG:28992)" is used, the EPSG code should be specified. Default: 28992.') 
     args = parser.parse_args()
     # Check two required args: dataDirectory and featureList
     if (args.dataDirectory is None):
