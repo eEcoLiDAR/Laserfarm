@@ -1,1 +1,0 @@
-nohup ./start_feature_extraction_single_VM.sh 2 /home/ubuntu/feature_extraction_scripts/ahn3_update20191104_p1_veg_10m_1m_config.conf 6udvegresume1 &
