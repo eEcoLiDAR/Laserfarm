@@ -27,12 +27,10 @@ def getInputFiles_directory(Directory):
 
 
 def getFileTemplate(args,fn):
-
     file=os.path.join(args.dataDirectory,fn)
     template = plyfile.PlyData.read(file)
     ChosenElement=0
 
-    # FileSize = os.path.getsize(file)
     LengthDataRecord=len(template.elements[ChosenElement].data)
     ColumnNames=[]
 
@@ -40,14 +38,12 @@ def getFileTemplate(args,fn):
         if template.elements[ChosenElement].properties[i].name != 'raw_classification':
             ColumnNames.append(template.elements[ChosenElement].properties[i].name)
 
-
     xvals = sorted(numpy.array(list(set(template.elements[ChosenElement].data[:]['x']))))
     yvals = sorted(numpy.array(list(set(template.elements[ChosenElement].data[:]['y']))))
     xResolution = xvals[1] - xvals[0]
     yResolution = yvals[1] - yvals[0]
 
     return ColumnNames, LengthDataRecord, xResolution, yResolution
-
 
 
 
@@ -71,10 +67,7 @@ def dataSplit(InputTiles, xSub, ySub):
     xcRange = maxxc - minxc +1
     ycRange = maxyc - minyc +1
     xcSubRange = numpy.floor(xcRange/xSub)
-    # xcExcess = numpy.mod(xcRange,xSub)
     ycSubRange = numpy.floor(ycRange/ySub)
-    # ycExcess = numpy.mod(ycRange,ySub)
-
 
     for i in range(xSub):
         for j in range(ySub):
@@ -104,10 +97,10 @@ def plyIntoNumpyArray(directory, tileList, gridLength, columnList):
     return terrainData
 
 
-
-"""
-This shifts the coordinates by half a cell to account for shift between target list and cell coordinate assumption made by gdal, accomodating geotiff orientation convention
-"""
+'''
+This shifts the coordinates by half a cell to account for shift between target list and cell coordinate assumption made by 
+gdal accomodating geotiff orientation convention
+'''
 def shiftTerrain(terrainData,xres,yres):
     tdc = terrainData.copy()
     tdx = tdc[:,0]
@@ -118,9 +111,11 @@ def shiftTerrain(terrainData,xres,yres):
     tdc[:,1] = tdy
     return tdc
 
-"""
-adpated to accomodate the orientation expected by geotiffs
-"""
+
+
+'''
+Adpated to accomodate the orientation expected by geotiffs
+'''
 def getGeoTransform(xyData, xres, yres):
     xmin, ymin, xmax, ymax = [xyData[:, 0].min(), xyData[:, 1].min(), xyData[:, 0].max(), xyData[:, 1].max()]
     ncols = round(((xmax - xmin) / xres) +1)
@@ -129,10 +124,11 @@ def getGeoTransform(xyData, xres, yres):
     arrayinfo = (xmin,xmax,xres,ncols,ymin,ymax,yres,nrows)
     return geotransform, arrayinfo
 
-"""
-from point wise data to pixel da
-"""
 
+
+'''
+Geocoding the point-wise x/y to a raster grid
+'''
 def getGeoCoding(xyData, arrayinfo):
     listX = numpy.float32(range(int(arrayinfo[3]))*arrayinfo[2] + arrayinfo[0])
     listY = numpy.float32(range(int(arrayinfo[7]))*arrayinfo[6]*(-1.) + arrayinfo[5])
@@ -143,6 +139,7 @@ def getGeoCoding(xyData, arrayinfo):
     indexX = [dictX[x] for x in xx]
     indexY = [dictY[y] for y in yy]
     return indexX, indexY
+
 
 
 def writeGeoTiff(featureArrays, bandName, geoTransform, outputFileName, ncols, nrows, nbands, EPSG_code): #TODO: READ EPSG_code FROM INPUT PLY
@@ -156,6 +153,7 @@ def writeGeoTiff(featureArrays, bandName, geoTransform, outputFileName, ncols, n
     rb.SetMetadata({"band_key": bandName})
     rb.WriteArray(featureArrays)
     output_raster.FlushCache()
+
 
 
 def make_geotiff(args,infiles,lengthDataRecord,terrainHeader,xResolution,yResolution,outfile):
@@ -218,6 +216,7 @@ def parse_argument():
     optionalArg.add_argument('-e','--EPSG',default=28992,help='EPSG code of the spatial reference system of the input data. If a different spatial reference system than \
                              "Amersfoort / RD New (EPSG:28992)" is used, the EPSG code should be specified. Default: 28992.') 
     args = parser.parse_args()
+
     # Check two required args: dataDirectory and featureList
     if (args.dataDirectory is None):
         print('Missing input argument "DATADIRECTORY".')
@@ -228,6 +227,8 @@ def parse_argument():
         parser.print_usage()
         exit()
     return args
+
+
 
 def main():
     # Args loading
@@ -241,7 +242,6 @@ def main():
     assert ('x' in terrainHeader), "no x coordinates found!"
     assert ('y' in terrainHeader), "no y coordinates found!"
     assert (len(terrainHeader)>2), "no feature found other than x and y!"
-    
     
     # Check if the features of interest exist in data
     if args.featureList is not None:
