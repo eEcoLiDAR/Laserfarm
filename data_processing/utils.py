@@ -1,8 +1,37 @@
 import json
 import pathlib
+import subprocess
 
 
 def check_path_exists(path, should_exist):
+    p = _string_to_path(path)
+    if p.exists() and not should_exist:
+        raise FileExistsError('Path {} already exists!'.format(str(p)))
+    elif not p.exists() and should_exist:
+        raise FileNotFoundError('Path {} does not exists!'.format(str(p)))
+
+
+def check_file_exists(path, should_exist):
+    p = _string_to_path(path)
+    check_path_exists(p, should_exist)
+    if should_exist and not p.is_file():
+        raise IOError('Path {} is not a file!'.format(str(p)))
+
+
+def check_dir_exists(path, should_exist, mkdir=False):
+    p = _string_to_path(path)
+    try:
+        check_path_exists(p, should_exist)
+    except FileNotFoundError:
+        if mkdir:
+            p.mkdir(parents=True)
+        else:
+            raise
+    if should_exist and not p.is_dir():
+        raise NotADirectoryError('Path {} is not a directory!'.format(str(p)))
+
+
+def _string_to_path(path):
     if isinstance(path, str):
         p = pathlib.Path(path)
     elif isinstance(path, pathlib.Path):
@@ -10,13 +39,7 @@ def check_path_exists(path, should_exist):
     else:
         raise TypeError('Unexpected type {} for input '
                         'path: {}'.format(type(path), path))
-
-    if p.exists():
-        if not should_exist:
-            raise FileExistsError('Path {} exists!'.format(str(p)))
-    else:
-        if should_exist:
-            raise FileNotFoundError('Path {} does not exists!'.format(str(p)))
+    return p
 
 
 def get_args_from_configfile(path):
@@ -26,3 +49,20 @@ def get_args_from_configfile(path):
         with open(p.absolute()) as f:
             args = json.load(f)
     return args
+
+
+def shell_execute_cmd(command, verbacious=False):
+    """ Execute command in the SHELL. Optionally display
+        stdout and stderr.
+    """
+    if verbacious:
+        print(command)
+    proc = subprocess.Popen(command, shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    (out, err) = proc.communicate()
+    out_err = '\n'.join((out.decode("utf-8"), err.decode("utf-8")))
+    rcode = proc.returncode
+    if verbacious:
+        print(out_err)
+    return rcode, out_err

@@ -10,7 +10,7 @@ from laserchicken.normalize import normalize
 from laserchicken.utils import create_point_cloud, add_to_point_cloud
 
 from pipeline import Pipeline
-from utils import check_path_exists
+from utils import check_path_exists, check_file_exists, check_dir_exists
 
 
 class DataProcessing(Pipeline):
@@ -127,15 +127,15 @@ def _get_output_file_dict(path,
     p = pathlib.Path(path)
     if p.suffix == '':
         # expected dir
-        check_path_exists(p, should_exist=True)
+        check_dir_exists(p, should_exist=True)
         if features and not multi_band_files:
             files = {str(p.joinpath('.'.join([feature, format]))): feature
                      for feature in features}
         else:
             files = {str(p.joinpath('.'.join(['all', format]))): 'all'}
     else:
-        # expected file
-        check_path_exists(p.parent, should_exist=True)
+        # expected file - check parent dir
+        check_dir_exists(p.parent, should_exist=True)
         if features:
             files = {str(p.absolute()): features}
         else:
@@ -143,7 +143,7 @@ def _get_output_file_dict(path,
 
     if not overwrite:
         for file in files.keys():
-            check_path_exists(file, should_exist=False)
+            check_file_exists(file, should_exist=False)
     return files
 
 
