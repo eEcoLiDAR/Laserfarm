@@ -1,0 +1,7 @@
+dask
+distributed
+fire
+lazperf
+numpy
+pylas
+laserchicken>=0.3.2

@@ -1,4 +1,4 @@
-from utils import get_args_from_configfile
+from lc_macro_pipeline.utils import get_args_from_configfile
 
 
 class Pipeline(object):

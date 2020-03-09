@@ -1,7 +1,7 @@
 {
   "localfs": {
-    "input_folder": "/Users/fnattino/Downloads",
-    "temp_folder": "/Users/fnattino/tmp",
+    "input_folder": "./",
+    "temp_folder": "./tmp",
     "input_file": "C_41CZ2.LAZ"
   },
   "tiling": {

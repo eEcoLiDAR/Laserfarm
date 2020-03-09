@@ -1,4 +1,3 @@
-import fire
 import pathlib
 
 import os
@@ -6,8 +5,9 @@ import numpy as np
 import pylas
 import json
 
-from pipeline import Pipeline
-from utils import shell_execute_cmd, check_file_exists, check_dir_exists
+from lc_macro_pipeline.pipeline import Pipeline
+from lc_macro_pipeline.utils import shell_execute_cmd, check_file_exists, \
+    check_dir_exists
 
 
 class Retiler(Pipeline):
@@ -182,7 +182,3 @@ def _write_record(input_tile, temp_folder, retile_record):
 
     with open(record_file, 'w') as recfile:
         recfile.write(json.dumps(retile_record, indent=4, sort_keys=True))
-
-
-if __name__ == '__main__':
-    fire.Fire(Retiler)

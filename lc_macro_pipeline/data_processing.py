@@ -1,4 +1,3 @@
-import fire
 import pathlib
 
 from laserchicken import build_volume, compute_features, \
@@ -9,8 +8,9 @@ from laserchicken.io import io_handlers
 from laserchicken.normalize import normalize
 from laserchicken.utils import create_point_cloud, add_to_point_cloud
 
-from pipeline import Pipeline
-from utils import check_path_exists, check_file_exists, check_dir_exists
+from lc_macro_pipeline.pipeline import Pipeline
+from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
+    check_dir_exists
 
 
 class DataProcessing(Pipeline):
@@ -146,6 +146,3 @@ def _get_output_file_dict(path,
             check_file_exists(file, should_exist=False)
     return files
 
-
-if __name__ == '__main__':
-    fire.Fire(DataProcessing)

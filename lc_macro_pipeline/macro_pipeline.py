@@ -5,7 +5,7 @@ import sys
 # from dask.delayed import delayed
 from dask.distributed import Client
 
-from pipeline import Pipeline
+from lc_macro_pipeline.pipeline import Pipeline
 
 
 class MacroPipeline(object):
