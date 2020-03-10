@@ -22,20 +22,20 @@ class Pipeline(object):
          5
          6
     """
-    _pipeline = None
-    _input = None
+    _pipeline = tuple()
+    _input = dict()
 
     @property
     def pipeline(self):
         """
         List containing the consecutive tasks that constitute the pipeline.
         """
-        if self._pipeline is None:
-            self._pipeline = []
         return self._pipeline
 
     @pipeline.setter
     def pipeline(self, pipeline):
+        if isinstance(pipeline, str):
+            pipeline = tuple([pipeline])
         try:
             _ = iter(pipeline)
         except TypeError:
@@ -46,7 +46,7 @@ class Pipeline(object):
             assert task in dir(self.__class__), \
                 ('Error defining the pipeline: {} method not found'
                  'in class {}'.format(task, self.__class__.__name__))
-        self._pipeline = [task for task in pipeline]
+        self._pipeline = tuple([task for task in pipeline])
 
     @property
     def input(self):
@@ -54,17 +54,18 @@ class Pipeline(object):
         Dictionary containing the pipeline input. Each attribute entails the
         input for a pipeline method that needs to be executed.
         """
-        if self._input is None:
-            self._input = {}
         return self._input
 
     @input.setter
     def input(self, input):
         if not isinstance(input, dict):
             raise TypeError("A dictionary is expected!")
-        else:
-            # TODO: check whether all attributes are also in pipeline?
-            self._input = input
+        attributes_not_used = [key for key in input.keys()
+                               if key not in self.pipeline]
+        if len(attributes_not_used) > 0:
+            raise Warning('Some of the attributes in input will not be used:'
+                          ' {} '.format(', '.join(attributes_not_used)))
+        self._input = input
 
     def config(self, path):
         """

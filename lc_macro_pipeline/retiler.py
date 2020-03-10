@@ -14,8 +14,8 @@ class Retiler(Pipeline):
     """ Split point cloud data into smaller tiles on a regular grid. """
 
     def __init__(self):
-        self.pipeline = ['localfs', 'tiling', 'split_and_redistribute',
-                         'validate']
+        self.pipeline = ('localfs', 'tiling', 'split_and_redistribute',
+                         'validate')
         self.temp_folder = None
         self.filename = None
         self.tiled_temp_folder = None

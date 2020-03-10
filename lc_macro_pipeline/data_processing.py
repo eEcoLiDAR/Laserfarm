@@ -17,7 +17,7 @@ class DataProcessing(Pipeline):
     """ Read, process and write point cloud data using laserchicken. """
 
     def __init__(self):
-        self.pipeline = ['load', 'normalize', 'extract_features', 'export']
+        self.pipeline = ('load', 'normalize', 'extract_features', 'export')
         self.point_cloud = create_point_cloud([], [], [])
         self.targets = create_point_cloud([], [], [])
 
