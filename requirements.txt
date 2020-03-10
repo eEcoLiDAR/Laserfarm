@@ -4,4 +4,4 @@ fire
 lazperf
 numpy
 pylas
-laserchicken>=0.3.2
+laserchicken @ git+git://github.com/eEcoLiDAR/laserchicken@feature_extra_io_tools#egg=laserchicken
