@@ -48,13 +48,14 @@ def get_args_from_configfile(path):
     if p.suffix == '.json':
         with open(p.absolute()) as f:
             args = json.load(f)
+    else:
+        raise NotImplementedError('Parser for {} file '
+                                  'not implemented'.format(p.suffix))
     return args
 
 
 def shell_execute_cmd(command, verbacious=False):
-    """ Execute command in the SHELL. Optionally display
-        stdout and stderr.
-    """
+    """ Execute command in the SHELL. Optionally display stdout and stderr. """
     if verbacious:
         print(command)
     proc = subprocess.Popen(command, shell=True,

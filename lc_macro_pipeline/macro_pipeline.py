@@ -84,4 +84,6 @@ class MacroPipeline(object):
         self.client = Client()
         futures = [self.client.submit(self._run_task, task.run)
                    for task in self.tasks]
-        return self.client.gather(futures)
+        results = self.client.gather(futures)
+        self.client.shutdown()
+        return results
