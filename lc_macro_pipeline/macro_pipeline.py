@@ -30,13 +30,11 @@ class MacroPipeline(object):
         61244
         61245
     """
-    _tasks = None
+    _tasks = list()
 
     @property
     def tasks(self):
         """ List of tasks that need to be run. """
-        if self._tasks is None:
-            self._tasks = []
         return self._tasks
 
     @tasks.setter
