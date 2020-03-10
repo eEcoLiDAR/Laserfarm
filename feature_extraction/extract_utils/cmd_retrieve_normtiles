@@ -1,1 +1,0 @@
-nohup ./copy_tile_files_noclobber.sh /data/local/eecolidar_webdav/01_Escience/ALS/Netherlands/ahn3_current/ahn3_current_retiled_LAZ_joined_subsetlists/ahn3cj_set__0udvegfix1.txt /data/local/eecolidar_webdav/01_Escience/ALS/Netherlands/ahn3_current/ahn3_current_retiled_LAZ_joined /data/local/eecolidar/rclone/tmp/norm_tiles/1x1m '_norm.LAZ' > ../retrieveahn3ud_0udvegfix1.out &

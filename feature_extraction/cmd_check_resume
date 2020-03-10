@@ -1,1 +1,0 @@
-nohup ./check_and_resume.py -l /data/local/eecolidar_webdav/01_Escience/ALS/Netherlands/ahn3_current/ahn3_current_retiled_LAZ_joined_subsetlists/ahn3cj_set__0.txt -op /data/local/eecolidar/rclone/tmp/ahn3_update20191104_enriched_local/veg_10m_1m/ -ct 'udvegresume1'

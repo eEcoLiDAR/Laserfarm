@@ -1,3 +1,0 @@
-xargs --arg-file='/data/local/eecolidar/rclone/tmp/selected_area_tiles/test_list.sh' \
-      --P=2 \
-      /bin/sh -c "python /home/ubuntu/normalization_scripts/compute_normalization.py /home/ubuntu/laserchicken_norm /data/local/eecolidar/rclone/tmp/selected_area_tiles/{}.LAZ /data/local/eecolidar/rclone/tmp/selected_area_tiles_norm/{}.PLY
