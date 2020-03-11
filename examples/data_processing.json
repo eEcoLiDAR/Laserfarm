@@ -1,0 +1,20 @@
+{
+  "load": {
+    "path": "C_43FN1_1.LAZ"
+  },
+  "export": {
+    "path": "tile.ply",
+    "overwrite": true,
+    "attributes": ["coeff_var_normalized_height"],
+    "is_binary": true
+  },
+  "normalize": {
+    "cell_size": 1
+  },
+  "extract_features": {
+    "feature_names": ["coeff_var_normalized_height"],
+    "targets_path": "tile_101_101_targets.laz",
+    "volume_type": "cell",
+    "volume_size": 10
+  }
+}
