@@ -2,7 +2,7 @@
   "load": {
     "path": "C_43FN1_1.LAZ"
   },
-  "export": {
+  "export_targets": {
     "path": "tile.ply",
     "overwrite": true,
     "attributes": ["coeff_var_normalized_height"],
