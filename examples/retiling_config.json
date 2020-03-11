@@ -1,0 +1,16 @@
+{
+  "localfs": {
+    "input_folder": "./",
+    "temp_folder": "./tmp",
+    "input_file": "C_41CZ2.LAZ"
+  },
+  "tiling": {
+    "min_x": -113107.8100,
+    "max_x": 398892.1900,
+    "min_y": 214783.8700,
+    "max_y": 726783.87,
+    "n_tiles_side": 256
+  },
+  "split_and_redistribute": {},
+  "validate": {}
+}
