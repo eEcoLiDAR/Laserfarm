@@ -1,0 +1,14 @@
+{
+  "parse_point_cloud": {
+    "data_directory": "/mnt/c/Users/OuKu/Developments/eEcolidar/data/AHN3_test_data/PLY"
+  },
+  "data_split": {
+    "xSub": 1,
+    "ySub": 1
+  },
+  "create_subregion_geotiffs": {
+    "outputdir": "/mnt/c/Users/OuKu/Developments/eEcolidar/data/geotiffs_output",
+    "outputhandle": "TestGeotiff",
+    "band_export": ["mean_norm_z"]
+  }
+}
