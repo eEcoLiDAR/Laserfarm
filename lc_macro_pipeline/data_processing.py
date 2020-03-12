@@ -127,7 +127,7 @@ class DataProcessing(Pipeline):
         function when reading targets
         """
         volume = build_volume(volume_type, volume_size)
-        add_to_point_cloud(self.targets, load(targets_path, **load_opts))
+        self.targets = load(targets_path, **load_opts)
         neighborhoods = compute_neighborhoods(self.point_cloud,
                                               self.targets,
                                               volume,
