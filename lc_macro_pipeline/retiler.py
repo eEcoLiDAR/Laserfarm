@@ -1,10 +1,10 @@
 import pathlib
 
 import os
-import numpy as np
 import pylas
 import json
 
+from lc_macro_pipeline.grid import Grid
 from lc_macro_pipeline.pipeline import Pipeline
 from lc_macro_pipeline.utils import shell_execute_cmd, check_file_exists, \
     check_dir_exists
@@ -19,9 +19,8 @@ class Retiler(Pipeline):
         self.temp_folder = None
         self.filename = None
         self.tiled_temp_folder = None
-        self.tiling_mins = np.zeros(2)
-        self.tiling_maxs = np.zeros(2)
-        self.n_tiles_side = 0
+        self.grid = Grid()
+
 
     def localfs(self, input_file, input_folder, temp_folder):
         """
@@ -59,9 +58,7 @@ class Retiler(Pipeline):
         :param n_tiles_side: number of tiles along axis. Tiling MUST be square
         (enforced)
         """
-        self.tiling_mins[:] = [min_x, min_y]
-        self.tiling_maxs[:] = [max_x, max_y]
-        self.n_tiles_side = n_tiles_side
+        self.grid.setup(min_x, min_y, max_x, max_y, n_tiles_side)
         return self
 
     def split_and_redistribute(self):
@@ -71,9 +68,9 @@ class Retiler(Pipeline):
         """
         return_code, ret_message = _run_PDAL_splitter(str(self.filename),
                                                       str(self.tiled_temp_folder),
-                                                      self.tiling_mins,
-                                                      self.tiling_maxs,
-                                                      self.n_tiles_side)
+                                                      self.grid.tiling_mins,
+                                                      self.grid.tiling_maxs,
+                                                      self.grid.n_tiles_side)
         if return_code != 0:
             raise Exception('failure in PDAL splitter: ' + ret_message)
 
@@ -86,10 +83,7 @@ class Retiler(Pipeline):
             # Get central point to identify associated tile
             cpX = tile_mins[0] + ((tile_maxs[0] - tile_mins[0]) / 2.)
             cpY = tile_mins[1] + ((tile_maxs[1] - tile_mins[1]) / 2.)
-            tile_id = _get_tile_name(*_get_tile_index(cpX, cpY,
-                                                      self.tiling_mins,
-                                                      self.tiling_maxs,
-                                                      self.n_tiles_side))
+            tile_id = _get_tile_name(*self.grid.get_tile_index(cpX, cpY))
 
             retiled_folder = self.tiled_temp_folder.joinpath(tile_id)
             check_dir_exists(retiled_folder, should_exist=True, mkdir=True)
@@ -138,20 +132,6 @@ def _get_details_pc_file(filename):
     except IOError:
         print('failure to open {}'.format(filename))
         return None
-
-
-def _get_tile_index(pX, pY, tiling_mins, tiling_maxs, n_tiles_side):
-    xpos = int((pX - tiling_mins[0]) * n_tiles_side /
-               (tiling_maxs[0] - tiling_mins[0]))
-    ypos = int((pY - tiling_mins[1]) * n_tiles_side /
-               (tiling_maxs[1] - tiling_mins[1]))
-    # If it is in the edge of the box (in the maximum side)
-    # we need to put in the last tile
-    if xpos == n_tiles_side:
-        xpos -= 1
-    if ypos == n_tiles_side:
-        ypos -= 1
-    return (xpos, ypos)
 
 
 def _get_tile_name(x_index, y_index):

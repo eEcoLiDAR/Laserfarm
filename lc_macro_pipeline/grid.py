@@ -40,9 +40,9 @@ class Grid(object):
     def get_tile_index(self, px, py):
         self._check_finite_extend()
         point = np.array([px, py], dtype=np.float).T
-        point = ((point - self.tiling_mins) * np.float(self.n_tiles_side) /
+        point = ((point - self.tiling_mins) * self.n_tiles_side /
                  (self.tiling_maxs - self.tiling_mins))
-        indices = np.ceil(point.T).astype('int')
+        indices = np.floor(point).astype('int')
         # If it is in the edge of the box (in the maximum side)
         # we need to put in the last tile
         indices[indices == self.n_tiles_side] -= 1
@@ -50,19 +50,23 @@ class Grid(object):
 
     def generate_tile_mesh(self, tile_index_x, tile_index_y, tile_mesh_size):
 
-        tile_index = np.array([tile_index_x, tile_index_y])
+        tile_index = np.array([tile_index_x, tile_index_y], dtype=np.int)
 
         grid_width = self.tiling_maxs - self.tiling_mins
         tile_width = grid_width / self.n_tiles_side
-        if not np.any(np.isclose(tile_width/tile_mesh_size, 0.)):
+        if not np.any(np.isclose(tile_width/tile_mesh_size,
+                                 np.rint(tile_width/tile_mesh_size))):
             raise Warning('The tile width is not multiple of the chosen mesh!')
 
         tile_mins = tile_index * tile_width + self.tiling_mins
-        tile_maxs = tile_mins + tile_width
+        
+        # TODO: do I need the following????
+        tile_mins[0] = np.floor(tile_mins[0])
+        tile_mins[1] = np.ceil(tile_mins[1])
 
         offset = tile_mins + tile_mesh_size/2.
-        x = np.arange(tile_mins[0], tile_maxs[0], tile_mesh_size) + offset[0]
-        y = np.arange(tile_mins[0], tile_maxs[1], tile_mesh_size) + offset[1]
+        x = np.arange(0., tile_width[0], tile_mesh_size) + offset[0]
+        y = np.arange(0., tile_width[1], tile_mesh_size) + offset[1]
         xv, yv = np.meshgrid(x, y)
         return xv.flatten(), yv.flatten()
 
