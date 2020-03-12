@@ -41,9 +41,8 @@ class MacroPipeline(object):
     def tasks(self, tasks):
         try:
             _ = iter(tasks)
-        except TypeError:
-            print('The collection of tasks should be an iterable object. ')
-            raise
+        except TypeError as err:
+            raise err('The collection of tasks should be an iterable object.')
         for task in tasks:
             assert isinstance(task, Pipeline), \
                 'Task {} is not a derived Pipeline object'.format(task)

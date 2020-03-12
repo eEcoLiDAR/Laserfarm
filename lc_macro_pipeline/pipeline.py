@@ -38,10 +38,9 @@ class Pipeline(object):
             pipeline = tuple([pipeline])
         try:
             _ = iter(pipeline)
-        except TypeError:
-            print('The sequence of tasks in the pipeline '
-                  'should be provided as an iterable object.')
-            raise
+        except TypeError as err:
+            raise err('The sequence of tasks in the pipeline '
+                      'should be provided as an iterable object.')
         for task in pipeline:
             assert task in dir(self.__class__), \
                 ('Error defining the pipeline: {} method not found'
