@@ -30,6 +30,7 @@ class DataProcessing(Pipeline):
                          'normalize',
                          'apply_filter',
                          'export_point_cloud',
+                         'generate_targets',
                          'extract_features',
                          'export_targets')
         self.point_cloud = create_point_cloud([], [], [])

@@ -30,50 +30,65 @@ class Grid(object):
         self._n_tiles_side = n_tiles_side
 
     @property
-    def tiling_mins(self):
+    def grid_mins(self):
         return np.array([self.min_x, self.min_y], dtype=np.float)
 
     @property
-    def tiling_maxs(self):
+    def grid_maxs(self):
         return np.array([self.max_x, self.max_y], dtype=np.float)
+
+    @property
+    def grid_width(self):
+        return self.grid_maxs - self.grid_mins
+
+    @property
+    def tile_width(self):
+        return self.grid_width / self.n_tiles_side
 
     def get_tile_index(self, px, py):
         self._check_finite_extend()
-        point = np.array([px, py], dtype=np.float).T
-        point = ((point - self.tiling_mins) * self.n_tiles_side /
-                 (self.tiling_maxs - self.tiling_mins))
-        indices = np.floor(point).astype('int')
-        # If it is in the edge of the box (in the maximum side)
-        # we need to put in the last tile
-        indices[indices == self.n_tiles_side] -= 1
+        point_cart = np.array([px, py], dtype=np.float).T
+        point_dir = (point_cart - self.grid_mins) / self.tile_width
+        indices = np.floor(point_dir).astype('int')
+        # # If point is on the edge of a tile we put in the tile with lower index
+        # indices[indices == self.n_tiles_side] -= 1
         return indices
+
+    def get_tile_bounds(self, tile_index_x, tile_index_y):
+        tile_index = np.array([tile_index_x, tile_index_y], dtype=np.int)
+        tile_mins = tile_index * self.tile_width + self.grid_mins
+        tile_maxs = tile_mins + self.tile_width
+        return tile_mins, tile_maxs
+
+    def is_point_in_tile(self, px, py, tile_index_x, tile_index_y,
+                         precision=None):
+        if precision is None:
+            indices = np.array([tile_index_x, tile_index_y], dtype=np.int).T
+            return indices == self.get_tile_index(px, py)
+        else:
+            point_cart = np.array([px, py], dtype=np.float).T
+            tile_mins, tile_maxs = self.get_tile_bounds(tile_index_x,
+                                                        tile_index_y)
+            return np.logical_and(tile_mins - point_cart > precision,
+                                  point_cart - tile_maxs > precision)
 
     def generate_tile_mesh(self, tile_index_x, tile_index_y, tile_mesh_size):
 
-        tile_index = np.array([tile_index_x, tile_index_y], dtype=np.int)
+        tile_mins, tile_maxs = self.get_tile_bounds(tile_index_x, tile_index_y)
 
-        grid_width = self.tiling_maxs - self.tiling_mins
-        tile_width = grid_width / self.n_tiles_side
-        if not np.any(np.isclose(tile_width/tile_mesh_size,
-                                 np.rint(tile_width/tile_mesh_size))):
+        n_points_per_dim = self.tile_width / tile_mesh_size
+        if not np.any(np.isclose(n_points_per_dim, np.rint(n_points_per_dim))):
             raise Warning('The tile width is not multiple of the chosen mesh!')
 
-        tile_mins = tile_index * tile_width + self.tiling_mins
-        
-        # TODO: do I need the following????
-        tile_mins[0] = np.floor(tile_mins[0])
-        tile_mins[1] = np.ceil(tile_mins[1])
-
         offset = tile_mins + tile_mesh_size/2.
-        x = np.arange(0., tile_width[0], tile_mesh_size) + offset[0]
-        y = np.arange(0., tile_width[1], tile_mesh_size) + offset[1]
+        x = np.arange(0., self.tile_width[0], tile_mesh_size) + offset[0]
+        y = np.arange(0., self.tile_width[1], tile_mesh_size) + offset[1]
         xv, yv = np.meshgrid(x, y)
         return xv.flatten(), yv.flatten()
 
     def _check_finite_extend(self):
-        delta = self.tiling_maxs - self.tiling_mins
         for n_dim in range(1):
-            if np.isclose(delta[n_dim], 0.):
+            if np.isclose(self.grid_width[n_dim], 0.):
                 raise ValueError('Zero grid extend in {}!'.format('xy'[n_dim]))
 
 
