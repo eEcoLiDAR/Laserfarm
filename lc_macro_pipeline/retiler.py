@@ -21,7 +21,6 @@ class Retiler(Pipeline):
         self.tiled_temp_folder = None
         self.grid = Grid()
 
-
     def localfs(self, input_file, input_folder, temp_folder):
         """
         IO setup for the local file system.
@@ -61,7 +60,7 @@ class Retiler(Pipeline):
         self.grid.setup(min_x, min_y, max_x, max_y, n_tiles_side)
         return self
 
-    def split_and_redistribute(self, precision=None):
+    def split_and_redistribute(self):
         """
         Split the input file using PDAL and organize the tiles in subfolders
         using the location on the input grid as naming scheme.
@@ -70,8 +69,7 @@ class Retiler(Pipeline):
                                                       str(self.tiled_temp_folder),
                                                       self.grid.grid_mins,
                                                       self.grid.grid_maxs,
-                                                      self.grid.n_tiles_side,
-                                                      precision)
+                                                      self.grid.n_tiles_side)
         if return_code != 0:
             raise Exception('failure in PDAL splitter: ' + ret_message)
 
@@ -140,7 +138,7 @@ def _get_tile_name(x_index, y_index):
 
 
 def _run_PDAL_splitter(filename, tiled_temp_folder, tiling_mins, tiling_maxs,
-                       n_tiles_side, precision=None):
+                       n_tiles_side):
     length_PDAL_tile = ((tiling_maxs[0] - tiling_mins[0]) /
                         float(n_tiles_side))
 
@@ -149,16 +147,10 @@ def _run_PDAL_splitter(filename, tiled_temp_folder, tiling_mins, tiling_maxs,
                      + '.LAZ --filters.splitter.origin_x=' + str(tiling_mins[0])
                      + ' --filters.splitter.origin_y=' + str(tiling_mins[1])
                      + ' --length ' + str(length_PDAL_tile)
-                     + ' --writers.las.offset_x="auto"'
-                     + ' --writers.las.offset_y="auto"'
-                     + ' --writers.las.offset_z="auto"')
-    if precision is None:
-        # use the scale parameters from input
-        tile_cmd_PDAL += ' --writers.las.forward=scale_x,scale_y,scale_z'
-    else:
-        for dim in 'xyz':
-            tile_cmd_PDAL += ' --writers.las.scale_{}={}'.format(dim,
-                                                                 precision)
+                     + ' --writers.las.forward=scale_x,scale_y,scale_z'
+                     + ' --writers.las.offset_x=auto'
+                     + ' --writers.las.offset_y=auto'
+                     + ' --writers.las.offset_z=auto')
 
     tile_return, tile_out_err = shell_execute_cmd(tile_cmd_PDAL)
 

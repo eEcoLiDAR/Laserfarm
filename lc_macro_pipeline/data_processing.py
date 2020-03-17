@@ -42,6 +42,7 @@ class DataProcessing(Pipeline):
                                            select_equal,
                                            select_polygon]})
         self.extractors = DictToObj(_get_extractor_dict())
+        self._features = None
 
     @property
     def features(self):
@@ -120,43 +121,48 @@ class DataProcessing(Pipeline):
 
     def generate_targets(self, min_x, min_y, max_x, max_y, n_tiles_side,
                          index_tile_x, index_tile_y, tile_mesh_size,
-                         validate=False):
+                         validate=False, validate_precision=None):
         """
+        Generate the target point cloud.
 
-        :param min_x: Min x value of tiling schema
-        :param min_y: Min y value of tiling schema
-        :param max_x: Max x value of tiling schema
-        :param max_y: Max y value of tiling schema
+        :param min_x: Min x value of the tiling schema
+        :param min_y: Min y value of the tiling schema
+        :param max_x: Max x value of the tiling schema
+        :param max_y: Max y value of the tiling schema
         :param n_tiles_side: Number of tiles along X and Y (tiling MUST be
         square)
-        :param index_tile_x: Index of the tile along X (from 0 to n_tiles_side
+        :param index_tile_x: Tile index along X (from 0 to n_tiles_side
         - 1)
-        :param index_tile_y: Index of the tile along Y (from 0 to n_tiles_side
+        :param index_tile_y: Tile index along Y (from 0 to n_tiles_side
         - 1)
         :param tile_mesh_size: Spacing between target points (in m). The tiles'
         width must be an integer times this spacing
         :param validate: If True, check if all points in the point-cloud belong
         to the same tile
+        :param validate_precision: Optional precision threshold to determine
+        whether point belong to tile
         """
         self.grid.setup(min_x, min_y, max_x, max_y, n_tiles_side)
 
         if validate:
-            index_tile = np.array([index_tile_x, index_tile_y], dtype=np.int)
             x_all, y_all, _ = get_point(self.point_cloud, ...)
-            index_tile_all = self.grid.get_tile_index(x_all, y_all)
-            if not np.all(index_tile_all == index_tile):
-                raise Warning('Points belong to different tiles!')
-
-        x_targets, y_targets, plt = self.grid.generate_tile_mesh(index_tile_x,
-                                                            index_tile_y,
-                                                            tile_mesh_size)
-        self.targets = create_point_cloud(x_targets,
-                                          y_targets,
-                                          np.zeros_like(x_targets))
+            mask = self.grid.is_point_in_tile(x_all,
+                                              y_all,
+                                              index_tile_x,
+                                              index_tile_y,
+                                              validate_precision)
+            assert np.all(mask), ('{} points belong to different tiles'
+                                  '!'.format(len(x_all[mask])))
+        x_trgts, y_trgts, plt = self.grid.generate_tile_mesh(index_tile_x,
+                                                             index_tile_y,
+                                                             tile_mesh_size)
+        self.targets = create_point_cloud(x_trgts,
+                                          y_trgts,
+                                          np.zeros_like(x_trgts))
         return self
 
     def extract_features(self, volume_type, volume_size, feature_names,
-                         sample_size=None, **load_opts):
+                         sample_size=None):
         """
         Extract point-cloud features and assign them to the specified target
         point cloud.
@@ -165,8 +171,6 @@ class DataProcessing(Pipeline):
         :param volume_size: Size of the volume-related parameter (in m)
         :param feature_names: List of the feature names to be computed
         :param sample_size: Sample neighborhoods with a random subset of points
-        :param load_opts: Optional arguments passed to the laserchicken load
-        function when reading targets
         """
         volume = build_volume(volume_type, volume_size)
         neighborhoods = compute_neighborhoods(self.point_cloud,
