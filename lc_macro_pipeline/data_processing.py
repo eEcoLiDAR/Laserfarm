@@ -151,11 +151,11 @@ class DataProcessing(Pipeline):
                                               index_tile_x,
                                               index_tile_y,
                                               validate_precision)
-            assert np.all(mask), ('{} points belong to different tiles'
-                                  '!'.format(len(x_all[mask])))
-        x_trgts, y_trgts, plt = self.grid.generate_tile_mesh(index_tile_x,
-                                                             index_tile_y,
-                                                             tile_mesh_size)
+            assert np.all(mask), ('{} points belong to (a) different tile(s)'
+                                  '!'.format(len(x_all[~mask])))
+        x_trgts, y_trgts = self.grid.generate_tile_mesh(index_tile_x,
+                                                        index_tile_y,
+                                                        tile_mesh_size)
         self.targets = create_point_cloud(x_trgts,
                                           y_trgts,
                                           np.zeros_like(x_trgts))
