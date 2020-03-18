@@ -10,7 +10,7 @@ import time
 from osgeo import osr
 from lc_macro_pipeline.pipeline import Pipeline
 
-class Geotiff_wirter(Pipeline):
+class Geotiff_writer(Pipeline):
     """ Write point cloud data into geotiff per band from . """
 
     def __init__(self):
