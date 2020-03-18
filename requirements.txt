@@ -4,6 +4,9 @@ fire
 lazperf
 numpy
 pylas
+laserchicken @ git+git://github.com/eEcoLiDAR/laserchicken@feature_extra_io_tools#egg=laserchicken
 plyfile
 GDAL
-laserchicken @ git+git://github.com/eEcoLiDAR/laserchicken@feature_extra_io_tools#egg=laserchicken
+shutil
+webdavclient3
+

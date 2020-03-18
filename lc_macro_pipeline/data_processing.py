@@ -1,25 +1,62 @@
+import inspect
 import pathlib
 
 from laserchicken import build_volume, compute_features, \
-    compute_neighborhoods, load, export
+    compute_neighborhoods, load, export, register_new_feature_extractor
 import laserchicken.keys
+from laserchicken.feature_extractor.base_feature_extractor import \
+    FeatureExtractor
 from laserchicken.feature_extractor.feature_extraction import list_feature_names
+from laserchicken.filter import select_above, select_below, select_equal, \
+    select_polygon
 from laserchicken.io import io_handlers
 from laserchicken.normalize import normalize
 from laserchicken.utils import create_point_cloud, add_to_point_cloud
 
 from lc_macro_pipeline.pipeline import Pipeline
 from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
-    check_dir_exists
+    check_dir_exists, DictToObj
 
 
 class DataProcessing(Pipeline):
     """ Read, process and write point cloud data using laserchicken. """
 
     def __init__(self):
-        self.pipeline = ('load', 'normalize', 'extract_features', 'export')
+        self.pipeline = ('load',
+                         'normalize',
+                         'apply_filter',
+                         'export_point_cloud',
+                         'extract_features',
+                         'export_targets')
         self.point_cloud = create_point_cloud([], [], [])
         self.targets = create_point_cloud([], [], [])
+        self.filter = DictToObj({f.__name__: f
+                                 for f in [select_above,
+                                           select_below,
+                                           select_equal,
+                                           select_polygon]})
+        self.extractors = DictToObj(_get_extractor_dict())
+
+    @property
+    def features(self):
+        self._features = DictToObj(list_feature_names())
+        return self._features
+
+    def add_custom_feature(self, extractor_name, **parameters):
+        """
+        Add customized feature to be computed with laserchicken.
+
+        For information on the available extractors and the corresponding
+        parameters:
+            $   lc_macro_pipeline data_processing extractors --help
+            $   lc_macro_pipeline data_processing extractors <extractor_name> --help
+
+        :param extractor_name: Name of the (customazible) extractor
+        :param parameters: Extractor-specific parameters
+        """
+        extractor = _get_attribute(self.extractors, extractor_name)
+        register_new_feature_extractor(extractor(**parameters))
+        return self
 
     def load(self, path, **load_opts):
         """
@@ -33,20 +70,46 @@ class DataProcessing(Pipeline):
                                load(file, **load_opts))
         return self
 
-    def normalize(self, cell_size, path=None, **export_opts):
+    def normalize(self, cell_size):
         """
         Normalize point cloud heights.
 
         :param cell_size: Size of the side of the cell employed for
         normalization (in m)
-        :param path: Path where to (optionally) save the normalized point cloud
-        :param export_opts: Optional arguments passed to the laserchicken
-        export function
         :return:
         """
         normalize(self.point_cloud, cell_size)
-        if path is not None:
-            export(self.point_cloud, path, **export_opts)
+        return self
+
+    def apply_filter(self, filter_type, **filter_input):
+        """
+        Apply a filter to the environment point cloud.
+
+        For information on filter_types and the corresponding input:
+            $   lc_macro_pipeline data_processing filter --help
+            $   lc_macro_pipeline data_processing filter <filter_type> --help
+
+        :param filter_type: Type of filter to apply.
+        :param filter_input: Filter-specific input.
+        """
+        filter = _get_attribute(self.filter, filter_type)
+        self.point_cloud = filter(self.point_cloud, **filter_input)
+        return self
+
+    def export_point_cloud(self, path, attributes='all', **export_opts):
+        """
+        Write environment point cloud to disk.
+
+        :param path: Path where to write point-cloud data
+        :param attributes: List of attributes to be written in the output file
+        :param export_opts: Optional arguments passed to the laserchicken
+        export function
+        """
+        self._export(self.point_cloud,
+                     path,
+                     attributes,
+                     multi_band_files=False,
+                     **export_opts)
         return self
 
     def extract_features(self, volume_type, volume_size, targets_path,
@@ -64,7 +127,7 @@ class DataProcessing(Pipeline):
         function when reading targets
         """
         volume = build_volume(volume_type, volume_size)
-        add_to_point_cloud(self.targets, load(targets_path, **load_opts))
+        self.targets = load(targets_path, **load_opts)
         neighborhoods = compute_neighborhoods(self.point_cloud,
                                               self.targets,
                                               volume,
@@ -76,10 +139,10 @@ class DataProcessing(Pipeline):
                          volume)
         return self
 
-    def export(self, path, attributes='all', multi_band_files=True,
-               **export_opts):
+    def export_targets(self, path, attributes='all', multi_band_files=True,
+                       **export_opts):
         """
-        Write point-cloud data to disk.
+        Write target point cloud to disk.
 
         :param path: Path where to write point-cloud data
         :param attributes: List of attributes to be written in the output file
@@ -87,15 +150,49 @@ class DataProcessing(Pipeline):
         :param export_opts: Optional arguments passed to the laserchicken
         export function
         """
-        features = [f for f in self.targets[laserchicken.keys.point].keys()
+        self._export(self.targets, path, attributes, multi_band_files,
+                     **export_opts)
+        return self
+
+    @staticmethod
+    def _export(point_cloud, path, attributes='all', multi_band_files=True,
+                **export_opts):
+        """
+        Write generic point-cloud data to disk.
+
+        :param path: Path where to write point-cloud data
+        :param attributes: List of attributes to be written in the output file
+        :param multi_band_files: If true, write all attributes in one file
+        :param export_opts: Optional arguments passed to the laserchicken
+        export function
+        """
+        features = [f for f in point_cloud[laserchicken.keys.point].keys()
                     if f not in 'xyz'] if attributes == 'all' else attributes
         for file, feature_set in _get_output_file_dict(path,
                                                        features,
                                                        multi_band_files,
                                                        **export_opts).items():
-            export(self.targets, file, attributes=feature_set, **export_opts)
-        return self
+            export(point_cloud, file, attributes=feature_set, **export_opts)
+        return
 
+
+def _get_extractor_dict():
+    extractors = {}
+    for name, obj in inspect.getmembers(laserchicken.feature_extractor):
+        if inspect.ismodule(obj):
+            for subname, subobj in inspect.getmembers(obj):
+                if (inspect.isclass(subobj)
+                        and issubclass(subobj, FeatureExtractor)
+                        and subobj is not FeatureExtractor):
+                    extractors.update({subname: subobj})
+    return extractors
+
+def _get_attribute(obj, attrname):
+    attribute = getattr(obj, attrname, None)
+    if attribute is None:
+        raise ValueError('Invalid attribute: {}. Choose between: '
+                         '{}'.format(attrname, ', '.join(obj.__dict__.keys())))
+    return attribute
 
 def _get_required_attributes(features=[]):
     attributes = []

@@ -67,3 +67,10 @@ def shell_execute_cmd(command, verbacious=False):
     if verbacious:
         print(out_err)
     return rcode, out_err
+
+
+class DictToObj(object):
+    def __init__(self, dictionary):
+        for key, value in dictionary.items():
+            setattr(self, key, value)
+
