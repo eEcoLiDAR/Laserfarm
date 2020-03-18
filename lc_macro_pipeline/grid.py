@@ -30,7 +30,7 @@ class Grid(object):
         self.min_y = min_y
         self.max_x = max_x
         self.max_y = max_y
-        self._check_finite_extend()
+        self._check_finite_extent()
 
     @property
     def n_tiles_side(self):
@@ -71,7 +71,7 @@ class Grid(object):
         :param px: X coordinate(s) of the point(s)
         :param py: Y coordinate(s) of the point(s)
         """
-        self._check_finite_extend()
+        self._check_finite_extent()
         point_cart = np.array([px, py], dtype=np.float).T
         point_dir = (point_cart - self.grid_mins) / self.tile_width
         indices = np.floor(point_dir).astype('int')
@@ -139,7 +139,7 @@ class Grid(object):
         xv, yv = np.meshgrid(x, y)
         return xv.flatten(), yv.flatten()
 
-    def _check_finite_extend(self):
+    def _check_finite_extent(self):
         for n_dim in range(1):
             if np.isclose(self.grid_width[n_dim], 0.):
                 raise ValueError('Zero grid extend in {}!'.format('xy'[n_dim]))
