@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 
 class Grid(object):
@@ -75,8 +76,15 @@ class Grid(object):
         point_cart = np.array([px, py], dtype=np.float).T
         point_dir = (point_cart - self.grid_mins) / self.tile_width
         indices = np.floor(point_dir).astype('int')
-        # If point is on the edge of a tile we put in the tile with lower index
-        # indices[indices == self.n_tiles_side] -= 1
+        # If point falls outside the edge of the grid raise warning
+        mask_invalid_indices = np.logical_or(indices >= self.n_tiles_side,
+                                             indices < 0)
+        if mask_invalid_indices.any():
+        #     axis = 1 if len(mask_invalid_indices.shape) > 1 else 0
+        #     num_invalid_points = np.all(mask_invalid_indices, axis=axis).sum()
+            warnings.warn("Points fall outside the grid bounds Min X={} Y={}, "
+                          "Max X={} Y={}".format(*self.grid_mins,
+                                                 *self.grid_maxs))
         return indices
 
     def get_tile_bounds(self, tile_index_x, tile_index_y):
