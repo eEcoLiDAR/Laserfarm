@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 
-
 import os
-import argparse
 import plyfile
 import numpy
 import gdal
 import time
 from osgeo import osr
+from lc_macro_pipeline import utils
 from lc_macro_pipeline.pipeline import Pipeline
 
 class Geotiff_writer(Pipeline):
-    """ Write point cloud data into geotiff per band from . """
+    """ Write specified bands from point cloud data into separated geotiff files. """
 
     def __init__(self):
         self.pipeline = ('parse_point_cloud', 'data_split', 'create_subregion_geotiffs')
@@ -35,11 +34,9 @@ class Geotiff_writer(Pipeline):
         self.data_directory = data_directory
 
         # Get list of input tiles
-        if os.path.isdir(data_directory) == True:
-            self.InputTiles = [TileFile for TileFile in os.listdir(data_directory) if TileFile.endswith('.ply')]
-        else:
-            self.InputTiles = []
-            print('No valid directory specified')
+        utils.check_path_exists(data_directory, should_exist=True)
+        self.InputTiles = [TileFile for TileFile in os.listdir(data_directory) if TileFile.endswith('.ply')]
+        
 
         # Read one tile and get the template
         file=os.path.join(data_directory, self.InputTiles[0])
@@ -112,7 +109,7 @@ class Geotiff_writer(Pipeline):
             infiles = self.subtilelists[subTiffNumber]
             print('processing subTiff '+str(subTiffNumber))
             print('      total number of constituent tiles : '+str(len(infiles)))
-            if infiles != []:
+            if infiles:
                 outfile= outfilestem+'_TILE_'+str(subTiffNumber)
                 _make_geotiff_per_band(infiles,
                               outfile,
@@ -124,6 +121,7 @@ class Geotiff_writer(Pipeline):
                               EPSG)
             else:
                 print('no data in subTiff: '+str(subTiffNumber))
+        return self
 
 
 def _make_geotiff_per_band(infiles,outfile,band_export,data_directory,lengthDataRecord,xResolution,yResolution,EPSG):
@@ -157,15 +155,15 @@ def _make_geotiff_per_band(infiles,outfile,band_export,data_directory,lengthData
 
 
 def _getGeoTransform(xyData, xres, yres):
-        '''
-            Adpated to accomodate the orientation expected by geotiffs
-        '''
-        xmin, ymin, xmax, ymax = [xyData[:, 0].min(), xyData[:, 1].min(), xyData[:, 0].max(), xyData[:, 1].max()]
-        ncols = round(((xmax - xmin) / xres) +1)
-        nrows = round(((ymax - ymin) / yres) +1)
-        geotransform = (xmin, xres, 0, ymax, 0, -1.*yres)
-        arrayinfo = (xmin,xmax,xres,ncols,ymin,ymax,yres,nrows)
-        return geotransform, arrayinfo
+    '''
+        Adpated to accomodate the orientation expected by geotiffs
+    '''
+    xmin, ymin, xmax, ymax = [xyData[:, 0].min(), xyData[:, 1].min(), xyData[:, 0].max(), xyData[:, 1].max()]
+    ncols = round(((xmax - xmin) / xres) +1)
+    nrows = round(((ymax - ymin) / yres) +1)
+    geotransform = (xmin, xres, 0, ymax, 0, -1.*yres)
+    arrayinfo = (xmin,xmax,xres,ncols,ymin,ymax,yres,nrows)
+    return geotransform, arrayinfo
 
 
 def _shiftTerrain(terrainData,xres,yres):
