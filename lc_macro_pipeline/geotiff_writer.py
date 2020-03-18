@@ -45,11 +45,13 @@ class Geotiff_writer(Pipeline):
         # Get length of data record (Nr. of elements in each band)
         self.LengthDataRecord=len(template.elements[0].data)
 
-        # Get resolution
-        xvals = sorted(numpy.array(list(set(template.elements[0].data[:]['x']))))
-        yvals = sorted(numpy.array(list(set(template.elements[0].data[:]['y']))))
-        self.xResolution = xvals[1] - xvals[0]
-        self.yResolution = yvals[1] - yvals[0]
+        # Get resolution, assume a square tile
+        self.xResolution = (template.elements[0].data[:]['x'].max() \
+                       - template.elements[0].data[:]['x'].min()) \
+                       /(numpy.sqrt(template.elements[0].data[:]['x'].size) - 1)
+        self.yResolution = (template.elements[0].data[:]['y'].max() \
+                       - template.elements[0].data[:]['y'].min()) \
+                       /(numpy.sqrt(template.elements[0].data[:]['y'].size) - 1)
 
         return self
  
