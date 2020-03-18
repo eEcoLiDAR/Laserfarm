@@ -7,9 +7,9 @@ pull) provided.
 
 import pathlib
 import os
-import json
+import shutil
 from webdav3.client import Client as wd3client
-from webdav3.client import WebDavException
+from webdav3.exceptions import *
 from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
     check_dir_exists, get_args_from_configfile, shell_execute_cmd
 #from utils import check_path_exists, check_file_exists, \
@@ -22,16 +22,16 @@ def get_wdclient(options=None):
      :param options: specification of options for the client. Either as
                      path to configuration file (str) or a dict
     """
-    if isinstance(options,str) == True:
+    if isinstance(options,str):
         check_file_exists(options,should_exist=True)
         options = get_options_from_file(options)
 
-    elif isinstance(options,dict) == True:
+    elif isinstance(options,dict):
         pass
     else:
         raise TypeError('unrecognized type {} for client \
                          options'.format(type(options)))
-    #check_options(options)
+    check_options(options)
     wdclient = wd3client(options)
     return wdclient
 
@@ -53,8 +53,32 @@ def get_options_from_file(options):
 
 
 def check_options(options):
-    #TODO add sanity check of options
-    return
+    if not isinstance(options,dict):
+        print('options must be a dictionary at this stage.')
+        raise TypeError(options)
+
+    keys = options.keys()
+    failure = False
+    if 'webdav_login' not in keys:
+        print('missing "webdav_login" key. \
+               Please note that if you are using \
+               an authentication file the arguments \
+               must be specified there.' )
+        failure = True
+    if 'webdav_password' not in keys:
+        print('missing "webdav_password" key.\
+               please note that if you are using \
+               an authentication file the arguments \
+               must be specified there.' )
+        failure = True
+    if 'webdav_hostname' not in keys:
+        print('missing "webdav_password" key.')
+        failure = True
+
+    if failure:
+        print('Options specified for Webdav client insufficient to establish client.')
+        raise RuntimeError
+
 
 
 
@@ -279,8 +303,5 @@ def purge_local(local_record):
 
     :param local_record : full path of local_record
     """
-    if not os.path.exists(local_record):
-        print('local record {} does not exist'.format(local_record))
-        raise FileNotFoundError(local_record)
-
-    shell_execute_command('rm -r '+local_record)
+    check_path_exists(local_record,should_exist=True)
+    shutil.rmtree(local_record)
