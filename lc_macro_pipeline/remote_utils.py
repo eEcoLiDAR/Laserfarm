@@ -5,7 +5,7 @@ behaviour of Client.list() method no use is made of higher level methods (push,
 pull) provided.
 """
 
-import pathlib
+#import pathlib
 import os
 import shutil
 from webdav3.client import Client as wd3client
@@ -198,6 +198,10 @@ def pull_directory_from_remote(wdclient,local_dir,remote_dir):
         raise
 
     records = wdclient.list(remote_dir)
+    """
+    list method returns directory queried as first argument when querying
+    webdav API to SURFsara dCache. This implementation accounts for that.
+    """
     records=records[1:]
 
     os.makedirs(local_dir)
