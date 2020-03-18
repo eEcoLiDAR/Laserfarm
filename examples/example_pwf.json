@@ -1,0 +1,6 @@
+#this file should have setttings chmod 600
+
+{
+"webdav_login":"user",
+"webdav_password":"password"
+}
