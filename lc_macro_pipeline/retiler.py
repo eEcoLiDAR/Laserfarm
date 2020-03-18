@@ -8,14 +8,17 @@ import json
 from lc_macro_pipeline.pipeline import Pipeline
 from lc_macro_pipeline.utils import shell_execute_cmd, check_file_exists, \
     check_dir_exists
+from lc_macro_pipeline.remote_utils import get_wdclient, pull_file_from_remote, \
+    push_directory_to_remote, purge_local
 
 
 class Retiler(Pipeline):
     """ Split point cloud data into smaller tiles on a regular grid. """
 
     def __init__(self):
-        self.pipeline = ('localfs', 'tiling', 'split_and_redistribute',
-                         'validate')
+        self.pipeline = ('localfs', 'pullremote', 'tiling',
+                         'split_and_redistribute', 'validate',
+                         'pushremote', 'cleanlocalfs')
         self.temp_folder = None
         self.filename = None
         self.tiled_temp_folder = None
@@ -48,6 +51,37 @@ class Retiler(Pipeline):
             self.tiled_temp_folder.mkdir(parents=True)
         return self
 
+    def pullremote(self, options, remote_origin):
+        """
+        pull file from remote to local fs
+
+        :param options: setup options for webdav client. Can be a filepath
+        :param remote_origin: path to parent directory of file on remote fs
+        """
+        p=self.filename
+        wdclient = get_wdclient(options)
+        pull_file_from_remote(wdclient,remote_origin,p.parent.as_posix(),p.name)
+        return self
+
+    def pushremote(self, options, remote_destination):
+        """
+        push retiled directories to remote and cleaan up local fs
+
+        :param options: setup options for webdav
+        :param remote_destination: remote directory to push to
+        """
+        wdclient = get_wdclient(options)
+        push_directory_to_remote(wdclient, self.tiled_temp_folder.as_posix(), remote_destination)
+        return self
+
+    def cleanlocalfs(self):
+        """
+        remove pulled input file and results of tiling (after push)
+        """
+        purge_local(self.filename.as_posix())
+        purge_local(self.temp_tiled_folder.as_posix())
+        return self
+
     def tiling(self, min_x, min_y, max_x, max_y, n_tiles_side):
         """
         Setup the grid to which the input file is retiled.
@@ -58,7 +92,7 @@ class Retiler(Pipeline):
         :param max_y: max y value of tiling schema
         :param n_tiles_side: number of tiles along axis. Tiling MUST be square
         (enforced)
-        """
+        """wdclient = get_wdclient(options)
         self.tiling_mins[:] = [min_x, min_y]
         self.tiling_maxs[:] = [max_x, max_y]
         self.n_tiles_side = n_tiles_side
