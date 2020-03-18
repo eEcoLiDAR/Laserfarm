@@ -92,7 +92,7 @@ class Retiler(Pipeline):
         :param max_y: max y value of tiling schema
         :param n_tiles_side: number of tiles along axis. Tiling MUST be square
         (enforced)
-        """wdclient = get_wdclient(options)
+        """
         self.tiling_mins[:] = [min_x, min_y]
         self.tiling_maxs[:] = [max_x, max_y]
         self.n_tiles_side = n_tiles_side
