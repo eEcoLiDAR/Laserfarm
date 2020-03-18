@@ -72,26 +72,45 @@ class Geotiff_writer(Pipeline):
             xcoord.append(xc)
             ycoord.append(yc)
 
+        # Tile index list
         xcint = list(map(float,xcoord))
         ycint = list(map(float,ycoord))
+        # Extent of the tiles
         maxxc = max(xcint)
         minxc = min(xcint)
         maxyc = max(ycint)
         minyc = min(ycint)
+        # Range tile index
         xcRange = maxxc - minxc +1
         ycRange = maxyc - minyc +1
+        # Range of each sub-region
         xcSubRange = numpy.floor(xcRange/xSub)
         ycSubRange = numpy.floor(ycRange/ySub)
 
+        # Loop per sub-region, find relevant tile of this new tile
+        # Start from bottom left
         for i in range(xSub):
             for j in range(ySub):
                 if i != xSub-1 and j!= ySub-1:
+                    # Not the last line/colunm
+                    # Include left/bottom; Exclude right/up 
+                    # [Left, Right): [minxc + i*xcSubRange, minxc + (i+1)*xcSubRange); 
+                    # [Bottom, top): [minyc + j*ycSubRange, minyc + (j+1)*ycSubRange); 
                     subtiles = [f for k,f in enumerate(self.InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] < (minxc + (i+1)*xcSubRange) and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] < (minyc + (j+1)*ycSubRange) )]
                 if i == xSub-1 and j== ySub-1:
+                    # top right corner
+                    # [Left, right]: [minxc + i*xcSubRange; maxxc]; 
+                    # [Bottom, top]: [minyc + j*ycSubRange; maxyc];
                     subtiles = [f for k,f in enumerate(self.InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] <= maxxc and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] <= maxyc )]
                 if i != xSub-1 and j == ySub-1:
+                    # Top line but not top right corner
+                    # [Left, right]: [minxc + i*xcSubRange; minxc + (i+1)*xcSubRange]; 
+                    # [Bottom, top]: [minyc + j*ycSubRange; maxyc];
                     subtiles = [f for k,f in enumerate(self.InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] < (minxc + (i+1)*xcSubRange) and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] <= maxyc )]
                 if i == xSub-1 and j != ySub-1:
+                    # Right colunm but not top right corner
+                    # [Left, right]: [minxc + i*xcSubRange; maxxc]; 
+                    # [Bottom, top]: [minyc + j*ycSubRange; minyc + (j+1)*ycSubRange];
                     subtiles = [f for k,f in enumerate(self.InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] <= maxxc and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] < (minyc + (j+1)*ycSubRange) )]
                 self.subtilelists.append(subtiles)
         return self
