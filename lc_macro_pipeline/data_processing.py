@@ -1,8 +1,11 @@
+import inspect
 import pathlib
 
 from laserchicken import build_volume, compute_features, \
-    compute_neighborhoods, load, export
+    compute_neighborhoods, load, export, register_new_feature_extractor
 import laserchicken.keys
+from laserchicken.feature_extractor.base_feature_extractor import \
+    FeatureExtractor
 from laserchicken.feature_extractor.feature_extraction import list_feature_names
 from laserchicken.filter import select_above, select_below, select_equal, \
     select_polygon
@@ -32,6 +35,28 @@ class DataProcessing(Pipeline):
                                            select_below,
                                            select_equal,
                                            select_polygon]})
+        self.extractors = DictToObj(_get_extractor_dict())
+
+    @property
+    def features(self):
+        self._features = DictToObj(list_feature_names())
+        return self._features
+
+    def add_custom_feature(self, extractor_name, **parameters):
+        """
+        Add customized feature to be computed with laserchicken.
+
+        For information on the available extractors and the corresponding
+        parameters:
+            $   lc_macro_pipeline data_processing extractors --help
+            $   lc_macro_pipeline data_processing extractors <extractor_name> --help
+
+        :param extractor_name: Name of the (customazible) extractor
+        :param parameters: Extractor-specific parameters
+        """
+        extractor = _get_attribute(self.extractors, extractor_name)
+        register_new_feature_extractor(extractor(**parameters))
+        return self
 
     def load(self, path, **load_opts):
         """
@@ -67,7 +92,7 @@ class DataProcessing(Pipeline):
         :param filter_type: Type of filter to apply.
         :param filter_input: Filter-specific input.
         """
-        filter = getattr(self.filter, filter_type)
+        filter = _get_attribute(self.filter, filter_type)
         self.point_cloud = filter(self.point_cloud, **filter_input)
         return self
 
@@ -102,7 +127,7 @@ class DataProcessing(Pipeline):
         function when reading targets
         """
         volume = build_volume(volume_type, volume_size)
-        add_to_point_cloud(self.targets, load(targets_path, **load_opts))
+        self.targets = load(targets_path, **load_opts)
         neighborhoods = compute_neighborhoods(self.point_cloud,
                                               self.targets,
                                               volume,
@@ -150,6 +175,24 @@ class DataProcessing(Pipeline):
             export(point_cloud, file, attributes=feature_set, **export_opts)
         return
 
+
+def _get_extractor_dict():
+    extractors = {}
+    for name, obj in inspect.getmembers(laserchicken.feature_extractor):
+        if inspect.ismodule(obj):
+            for subname, subobj in inspect.getmembers(obj):
+                if (inspect.isclass(subobj)
+                        and issubclass(subobj, FeatureExtractor)
+                        and subobj is not FeatureExtractor):
+                    extractors.update({subname: subobj})
+    return extractors
+
+def _get_attribute(obj, attrname):
+    attribute = getattr(obj, attrname, None)
+    if attribute is None:
+        raise ValueError('Invalid attribute: {}. Choose between: '
+                         '{}'.format(attrname, ', '.join(obj.__dict__.keys())))
+    return attribute
 
 def _get_required_attributes(features=[]):
     attributes = []
