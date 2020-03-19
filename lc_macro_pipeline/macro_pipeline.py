@@ -30,7 +30,8 @@ class MacroPipeline(object):
         61244
         61245
     """
-    _tasks = list()
+    def __init__(self):
+        self._tasks = list()
 
     @property
     def tasks(self):
