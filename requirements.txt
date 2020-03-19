@@ -7,6 +7,5 @@ pylas
 laserchicken @ git+git://github.com/eEcoLiDAR/laserchicken@feature_extra_io_tools#egg=laserchicken
 plyfile
 GDAL
-shutil
 webdavclient3
 
