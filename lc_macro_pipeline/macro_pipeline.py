@@ -86,7 +86,7 @@ class MacroPipeline(object):
                      port=0, 
                      num_threads_per_worker=1, 
                      memory_limit=0,
-                     silence_logs=True):
+                     silence_logs=False):
         if mode == 'auto':
             self.client = Client()
         elif mode == 'mannual':
