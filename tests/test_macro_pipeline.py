@@ -5,7 +5,7 @@ import unittest
 from lc_macro_pipeline.macro_pipeline import MacroPipeline
 from lc_macro_pipeline.pipeline import Pipeline
 
-from tools import ShortIOPipeline
+from .tools import ShortIOPipeline
 
 class TestMacroPipelineObject(unittest.TestCase):
 
