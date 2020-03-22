@@ -4,6 +4,7 @@ import sys
 # import dask.bag
 # from dask.delayed import delayed
 from dask.distributed import Client
+from dask.distributed import LocalCluster
 
 from lc_macro_pipeline.pipeline import Pipeline
 
@@ -78,12 +79,33 @@ class MacroPipeline(object):
     #     bag = dask.bag.from_delayed(delayed_tasks)
     #     return bag.compute()
 
+    def setup_client(self, 
+                     mode = 'auto',
+                     address='0.0.0.0', 
+                     num_workers=1, 
+                     port=0, 
+                     num_threads_per_worker=1, 
+                     memory_limit=0,
+                     silence_logs=True):
+        if mode == 'auto':
+            self.client = Client()
+        elif mode == 'mannual':
+            localcluster = LocalCluster(
+                ip=address,
+                scheduler_port=port,
+                n_workers=num_workers,
+                memory_limit=memory_limit,
+                threads_per_worker=num_threads_per_worker,
+                silence_logs=silence_logs
+            )
+            self.client = Client(localcluster)
+
     def run(self):
         """ Run the macro pipeline. """
-        # TODO: find best way to setup client (set method?)
-        self.client = Client()
         futures = [self.client.submit(self._run_task, task.run)
                    for task in self.tasks]
         results = self.client.gather(futures)
-        self.client.shutdown()
         return results
+    
+    def shutdown_client(self):
+        self.client.shutdown()
