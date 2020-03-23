@@ -1,4 +1,12 @@
 {
+  "localfs":{
+    "input_folder":"<path-to-input-folder>",
+    "output_folder":"<path-to-output-folder>"
+  }
+  "pullremote":{
+    "options":"<path-to-options-file>",
+    "remote_origin":"<path-to-remote-origin>"
+  }
   "load": {
     "path": "C_43FN1_1.LAZ"
   },
@@ -23,9 +31,15 @@
     "validate" : true,
     "validate_precision" : 0.01
   },
+
   "extract_features": {
     "feature_names": ["coeff_var_normalized_height"],
     "volume_type": "cell",
     "volume_size": 10
-  }
+  },
+  "pushremote":{
+    "options":"<path-to-options-file>",
+    "remote_destination":"<path-to-remote-destination>"
+  },
+  "cleanlocalfs":{}
 }
