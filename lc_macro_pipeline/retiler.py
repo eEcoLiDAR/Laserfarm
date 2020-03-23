@@ -8,8 +8,8 @@ from lc_macro_pipeline.grid import Grid
 from lc_macro_pipeline.pipeline import Pipeline
 from lc_macro_pipeline.utils import shell_execute_cmd, check_file_exists, \
     check_dir_exists
-from lc_macro_pipeline.remote_utils import get_wdclient, pull_file_from_remote, \
-    push_directory_to_remote, purge_local
+from lc_macro_pipeline.remote_utils import get_wdclient, pull_from_remote, \
+    push_to_remote, purge_local
 
 
 class Retiler(Pipeline):
@@ -37,7 +37,8 @@ class Retiler(Pipeline):
         input_path = pathlib.Path(input_folder)
         check_dir_exists(input_path, should_exist=True)
         self.filename = input_path.joinpath(input_file)
-        check_file_exists(self.filename, should_exist=True)
+        #Do not check existence of file here as it may need to be retrieved
+        #from remote fs
         self.temp_folder = pathlib.Path(temp_folder)
         check_dir_exists(self.temp_folder, should_exist=True, mkdir=True)
         self.tiled_temp_folder = self.temp_folder.joinpath(self.filename.stem)
@@ -57,8 +58,11 @@ class Retiler(Pipeline):
         :param remote_origin: path to parent directory of file on remote fs
         """
         p=self.filename
+        local_dir = p.parent.as_posix()
+        fname = p.name
+        remote_record = os.path.join(remote_origin,fname)
         wdclient = get_wdclient(options)
-        pull_file_from_remote(wdclient,remote_origin,p.parent.as_posix(),p.name)
+        pull_from_remote(wdclient,local_dir,remote_record)
         return self
 
     def pushremote(self, options, remote_destination):
@@ -69,7 +73,7 @@ class Retiler(Pipeline):
         :param remote_destination: remote directory to push to
         """
         wdclient = get_wdclient(options)
-        push_directory_to_remote(wdclient, self.tiled_temp_folder.as_posix(), remote_destination)
+        push_to_remote(wdclient, self.tiled_temp_folder.as_posix(), remote_destination)
         return self
 
     def cleanlocalfs(self):
@@ -99,6 +103,7 @@ class Retiler(Pipeline):
         Split the input file using PDAL and organize the tiles in subfolders
         using the location on the input grid as naming scheme.
         """
+        check_file_exists(self.filename,should_exits=True)
         return_code, ret_message = _run_PDAL_splitter(str(self.filename),
                                                       str(self.tiled_temp_folder),
                                                       self.grid.grid_mins,
@@ -128,6 +133,7 @@ class Retiler(Pipeline):
         Validate the produced output by checking consistency in the number
         of input and output points.
         """
+        check_file_exists(self.filename,should_exits=True)
         (parent_points, _, _, _, _) = _get_details_pc_file(str(self.filename))
         valid_split = False
         split_points = 0
