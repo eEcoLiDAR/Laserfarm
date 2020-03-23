@@ -15,6 +15,7 @@ from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
 #from utils import check_path_exists, check_file_exists, \
 #    check_dir_exists, get_args_from_configfile, shell_execute_cmd
 
+
 def get_wdclient(options=None):
     """
      get webdav
@@ -80,34 +81,29 @@ def check_options(options):
         raise RuntimeError
 
 
-
-
-def push_file_to_remote(wdclient,local_origin,remote_destination,file):
+def pull_from_remote(wdclient,local_directory,remote_record):
     """
-    upload file to remote
+    Download/pull a record (file or directory) from remote to a local directory.
+    If remote record is a file it will be placed in the specified local
+    directory.
 
-    :param wdclient: instance of webdav client
-    :param local_origin: directory of file on local fs
-    :param remote_destination: target directory of file on remote fs
-    :param file: file name
     """
-    if not isinstance(file,str):
-        print('Expected type str but received type {}'.format(type(file)))
+
+    if not (isinstance(remote_record,str) and isinstance(local_directory,str)):
+        print('Expected type str for local_directory and remote_record but \
+               received types {} and {}'.format(type(local_directory),
+               type(remote_record)))
         raise TypeError
 
-    remote_path_to_file = os.path.join(remote_destination,file)
-    local_path_to_file = os.path.join(local_origin,file)
+    if not wdclient.check(remote_record):
+        print('remote resource {} not found'.format(remote_record))
+        raise RemoteResourceNotFound(remote_record)
 
-    if wdclient.check(remote_destination) == True:
-        try:
-            wdclient.upload_sync(remote_path_to_file,local_path_to_file)
-        except WebDavException as exception:
-            print('Failed to upload {} to \
-                                            remote destination'.format(file))
-            raise
+    if wdclient.is_dir(remote_record):
+        pull_directory_from_remote(wdclient,local_directory,remote_record)
     else:
-        print("remote parent directory {} does not exist ".format(remote_destination))
-        raise RemoteResourceNotFound(remote_path_to_file)
+        remote_record_path = os.path.split(remote_record)
+        pull_file_from_remote(wdclient,local_directory,remote_record_path[0],remote_record_path[1])
 
 
 def pull_file_from_remote(wdclient,local_destination,remote_origin,file):
@@ -133,10 +129,8 @@ def pull_file_from_remote(wdclient,local_destination,remote_origin,file):
         raise
 
 
-
 """
-this currently does not work due to issues with the parsing of the rmote fs exposed by SURFsara.
-
+this currently does not work due to issues with the parsing of the remote fs exposed by SURFsara.
 """
 #def pull_directory_from_remote(wdclient,local_dir,remote_dir,mode='pull'):
 #    """
@@ -191,17 +185,17 @@ def pull_directory_from_remote(wdclient,local_dir,remote_dir):
         print('A file or directory already exists with this name')
         raise FileExistsError(local_dir)
 
-    try:
-        wdclient.check(remote_dir)
-    except WebDavException as exception:
-        print('failed to ascertain existance of remote directory')
-        raise
+    if wdclient.check(remote_dir) != True:
+        print('remote resource could not be found')
+        raise RemoteResourceNotFound(dir)
 
     records = wdclient.list(remote_dir)
+
     """
     list method returns directory queried as first argument when querying
     webdav API to SURFsara dCache. This implementation accounts for that.
     """
+
     records=records[1:]
 
     os.makedirs(local_dir)
@@ -262,6 +256,62 @@ unclear why push behaviour changed
 #                                    {}'.format(local_dir,remote_dir))
 #            raise
 
+
+def push_to_remote(wdclient,local_record,remote_directory):
+    """
+    push file or directory from local fs to directory on remote fs.
+    If local record is a file it will be placed in the specified directory
+    on the remote fs.
+
+    :param wdclient: instance of webdav client
+    :param local_record: path to record (file or directory) on local fs
+    :param remote_directory: path to target directory on remote fs
+    """
+    if not (isinstance(remote_directory,str) and isinstance(local_record,str)):
+        print('Expected type str for local_record and remote_directory but \
+               received types {} and {}'.format(type(local_record),
+                type(remote_directory)))
+        raise TypeError
+
+    if not os.path.exists(local_record):
+        print('local record does not exist')
+        raise FileNotFoundError(local_record)
+
+    if os.path.isdir(local_record):
+        push_directory_to_remote(wdclient,local_record,remote_directory)
+    else:
+        local_path =os.path.split(local_record)
+        file = local_path[1]
+        localdir = local_path[0]
+        push_file_to_remote(wdclient,localdir,remote_directory,file)
+
+
+def push_file_to_remote(wdclient,local_origin,remote_destination,file):
+    """
+    upload file to remote
+
+    :param wdclient: instance of webdav client
+    :param local_origin: directory of file on local fs
+    :param remote_destination: target directory of file on remote fs
+    :param file: file name
+    """
+    if not isinstance(file,str):
+        print('Expected type str but received type {}'.format(type(file)))
+        raise TypeError
+
+    remote_path_to_file = os.path.join(remote_destination,file)
+    local_path_to_file = os.path.join(local_origin,file)
+
+    if wdclient.check(remote_destination) == True:
+        try:
+            wdclient.upload_sync(remote_path_to_file,local_path_to_file)
+        except WebDavException as exception:
+            print('Failed to upload {} to \
+                                            remote destination'.format(file))
+            raise
+    else:
+        print("remote parent directory {} does not exist ".format(remote_destination))
+        raise RemoteResourceNotFound(remote_path_to_file)
 
 def push_directory_to_remote(wdclient,local_dir,remote_dir):
     """
