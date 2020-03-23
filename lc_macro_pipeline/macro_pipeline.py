@@ -1,14 +1,6 @@
 import sys
 
-# import dask
-# import dask.bag
-# from dask.delayed import delayed
-<<<<<<< HEAD
-from dask.distributed import Client
-from dask.distributed import LocalCluster
-=======
-from dask.distributed import Client#, LocalCluster
->>>>>>> development
+from dask.distributed import Client, LocalCluster, SSHCluster
 
 from lc_macro_pipeline.pipeline import Pipeline
 
@@ -83,20 +75,25 @@ class MacroPipeline(object):
     #     bag = dask.bag.from_delayed(delayed_tasks)
     #     return bag.compute()
 
-    def run(self, client=None):
-        """ Run the macro pipeline. """
-        # TODO: find best way to setup client (set method?)
-        # temporary solution to setup the cluster in the tutorial
-        if client is None:
+
+    def setup_client(self, mode='local', **kwargs):
+        if mode == 'local':
             self.client = Client()
+        elif mode == 'ssh':
+            ssh_cluster = SSHCluster(**kwargs)
+            self.client = Client(ssh_cluster)
+        elif mode == 'slurm':
+            print('Slurm cluster is not implemented in this version!')
+            raise NotImplementedError
         else:
-            self.client = client
+            print('Unknown mode of setup client {}!'.format(mode))
+            raise RuntimeError
+
+    def run(self):
+        """ Run the macro pipeline. """
         futures = [self.client.submit(self._run_task, task.run)
                    for task in self.tasks]
         results = self.client.gather(futures)
-        if client is None:
-            self.client.shutdown()
-        return results
-    
-    def shutdown_client(self):
         self.client.shutdown()
+        return results
+

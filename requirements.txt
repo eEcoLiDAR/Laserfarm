@@ -8,4 +8,5 @@ laserchicken @ git+git://github.com/eEcoLiDAR/laserchicken@feature_extra_io_tool
 plyfile
 GDAL
 webdavclient3
+asyncssh
 
