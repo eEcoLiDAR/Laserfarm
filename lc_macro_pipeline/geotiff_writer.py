@@ -8,26 +8,84 @@ import time
 from osgeo import osr
 from lc_macro_pipeline import utils
 from lc_macro_pipeline.pipeline import Pipeline
+from lc_macro_pipeline.remote_utils import get_wdclient, pull_from_remote, \
+    push_to_remote, purge_local
 
 class Geotiff_writer(Pipeline):
     """ Write specified bands from point cloud data into separated geotiff files. """
 
     def __init__(self):
-        self.pipeline = ('parse_point_cloud', 'data_split', 'create_subregion_geotiffs')
+        self.pipeline = ('localfs',
+                         'pullremote',
+                         'parse_point_cloud',
+                         'data_split',
+                         'create_subregion_geotiffs',
+                         'pushremote',
+                         'cleanlocalfs',
+                         )
         self.data_directory = None
+        self.output_directory = None
         self.InputTiles = None
         self.subtilelists = []
         self.LengthDataRecord = 0
         self.xResolution = 0
         self.yResolution = 0
-        
-    
-    def parse_point_cloud(self, data_directory):
+
+    def localfs(self, data_directory, output_directory):
+        """
+        IO setup for the local file system.
+
+        :param data_directory: full path to input folder on local filesystem.
+        :param output_directory: full path to output folder on local filesystem \
+                              This folder is considered root for all output \
+                              paths specified
+        """
+        #no check on existance as handled before retrieval
+        self.data_directory = data_directory
+        check_dir_exists(output_direcotry,should_exist=True,mkdir=True)
+        self.output_directory = output_directory
+        return self
+
+    def pullremote(self, options, remote_origin):
+        """
+        pull resource(s) from remote to local fs
+
+        :param options: setup options for webdav client. Can be a filepath
+        :param remote_origin: path to resource on remote fs
+        """
+        wdclient = get_wdclient(options)
+        pull_from_remote(wdclient,self.data_directory,remote_origin)
+        return self
+
+    def pushremote(self,options,remote_destination):
+        """
+        push files(s) from local fs to remote fs
+
+        :param options: setup options for the webdav client. Can be filepath
+        :param remote_destination: path to remote target directory
+        """
+        wdclient = get_wdclient(options)
+        push_to_remote(wdclient,self.output_directory,remote_destination)
+        return self
+
+    def cleanlocalfs(self):
+        """
+        remove pulled input and results (after push)
+        """
+        purge_local(self.data_directory)
+        purge_local(self.output_directory)
+        return self
+
+
+
+
+
+    def parse_point_cloud(self):
         """
         Parse input point cloud and get the following information:
             - Tile list
             - Length of a single band
-            - x and y resolution 
+            - x and y resolution
 
         :param data_directory: path to the directory of tiled target point files (.ply)
         """
@@ -36,7 +94,7 @@ class Geotiff_writer(Pipeline):
         # Get list of input tiles
         utils.check_path_exists(data_directory, should_exist=True)
         self.InputTiles = [TileFile for TileFile in os.listdir(data_directory) if TileFile.endswith('.ply')]
-        
+
 
         # Read one tile and get the template
         file=os.path.join(data_directory, self.InputTiles[0])
@@ -54,7 +112,7 @@ class Geotiff_writer(Pipeline):
                        /(numpy.sqrt(template.elements[0].data[:]['y'].size) - 1)
 
         return self
- 
+
 
     def data_split(self, xSub, ySub):
         """
@@ -93,39 +151,38 @@ class Geotiff_writer(Pipeline):
             for j in range(ySub):
                 if i != xSub-1 and j!= ySub-1:
                     # Not the last line/colunm
-                    # Include left/bottom; Exclude right/up 
-                    # [Left, Right): [minxc + i*xcSubRange, minxc + (i+1)*xcSubRange); 
-                    # [Bottom, top): [minyc + j*ycSubRange, minyc + (j+1)*ycSubRange); 
+                    # Include left/bottom; Exclude right/up
+                    # [Left, Right): [minxc + i*xcSubRange, minxc + (i+1)*xcSubRange);
+                    # [Bottom, top): [minyc + j*ycSubRange, minyc + (j+1)*ycSubRange);
                     subtiles = [f for k,f in enumerate(self.InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] < (minxc + (i+1)*xcSubRange) and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] < (minyc + (j+1)*ycSubRange) )]
                 if i == xSub-1 and j== ySub-1:
                     # top right corner
-                    # [Left, right]: [minxc + i*xcSubRange; maxxc]; 
+                    # [Left, right]: [minxc + i*xcSubRange; maxxc];
                     # [Bottom, top]: [minyc + j*ycSubRange; maxyc];
                     subtiles = [f for k,f in enumerate(self.InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] <= maxxc and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] <= maxyc )]
                 if i != xSub-1 and j == ySub-1:
                     # Top line but not top right corner
-                    # [Left, right]: [minxc + i*xcSubRange; minxc + (i+1)*xcSubRange]; 
+                    # [Left, right]: [minxc + i*xcSubRange; minxc + (i+1)*xcSubRange];
                     # [Bottom, top]: [minyc + j*ycSubRange; maxyc];
                     subtiles = [f for k,f in enumerate(self.InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] < (minxc + (i+1)*xcSubRange) and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] <= maxyc )]
                 if i == xSub-1 and j != ySub-1:
                     # Right colunm but not top right corner
-                    # [Left, right]: [minxc + i*xcSubRange; maxxc]; 
+                    # [Left, right]: [minxc + i*xcSubRange; maxxc];
                     # [Bottom, top]: [minyc + j*ycSubRange; minyc + (j+1)*ycSubRange];
                     subtiles = [f for k,f in enumerate(self.InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] <= maxxc and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] < (minyc + (j+1)*ycSubRange) )]
                 self.subtilelists.append(subtiles)
         return self
 
-    def create_subregion_geotiffs(self, outputdir, outputhandle, band_export, EPSG=28992):
+    def create_subregion_geotiffs(self, outputhandle, band_export, EPSG=28992):
         """
         Export geotiff per sub-region, loop in band dimension
 
-        :param outputdir: Path to output directory 
-        :param outputhandle: Handle of output file. 
+        :param outputhandle: Handle of output file.
                              The output will be named as <outputhandle>_TILE_<tile ID>_BAND_<band name>
         :param band_export: list of features names to export
         :param EPSG: (Optional) EPSG code of the spatial reference system of the input data. Default 28992.
         """
-        outfilestem = os.path.join(outputdir, outputhandle)
+        outfilestem = os.path.join(self.output_directory, outputhandle)
         for subTiffNumber in range(len(self.subtilelists)):
             infiles = self.subtilelists[subTiffNumber]
             print('processing subTiff '+str(subTiffNumber))
@@ -162,7 +219,7 @@ def _make_geotiff_per_band(infiles,outfile,band_export,data_directory,lengthData
             # Import one band from PLY
             print('importing data ...')
             terrainDataOneBand = _plyIntoNumpyArray(data_directory, infiles, lengthDataRecord, [band_name])
-            
+
             # Converet from pointcloud to raster
             RasterData = numpy.full((nrows, ncols), numpy.nan)
             RasterData[indexY, indexX] = terrainDataOneBand[:,0]
@@ -189,7 +246,7 @@ def _getGeoTransform(xyData, xres, yres):
 
 def _shiftTerrain(terrainData,xres,yres):
     '''
-    This shifts the coordinates by half a cell to account for shift between target list and cell coordinate assumption made by 
+    This shifts the coordinates by half a cell to account for shift between target list and cell coordinate assumption made by
     gdal accomodating geotiff orientation convention
     '''
     tdc = terrainData.copy()
@@ -240,4 +297,3 @@ def _plyIntoNumpyArray(directory, tileList, gridLength, columnList):
         for j, column in enumerate(columnList):
             terrainData[gridLength * i:gridLength * i + gridLength, j] = plydata.elements[0].data[column]
     return terrainData
-
