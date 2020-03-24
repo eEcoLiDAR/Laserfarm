@@ -165,11 +165,11 @@ class DataProcessing(Pipeline):
         self.point_cloud = filter(self.point_cloud, **filter_input)
         return self
 
-    def export_point_cloud(self, path, attributes='all', **export_opts):
+    def export_point_cloud(self, filename='', attributes='all', **export_opts):
         """
         Write environment point cloud to disk.
 
-        :param path: Path where to write point-cloud data (relative to \
+        :param filename: optional filename where to write point-cloud data (relative to \
                       self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param export_opts: Optional arguments passed to the laserchicken
@@ -248,13 +248,13 @@ class DataProcessing(Pipeline):
                          volume)
         return self
 
-    def export_targets(self, path, attributes='all', multi_band_files=True,
+    def export_targets(self, filename='', attributes='all', multi_band_files=True,
                        **export_opts):
         """
         Write target point cloud to disk.
 
 
-        :param path: Path where to write point-cloud data (relative to \
+        :param filename: optional filename where to write point-cloud data (relative to \
                       self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param multi_band_files: If true, write all attributes in one file
