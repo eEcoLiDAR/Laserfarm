@@ -68,7 +68,7 @@ class MacroPipeline(object):
         return (exctype, value)
 
     def setup_client(self, mode='local', cluster=None, **kwargs): 
-        if cluster is not None: 
+        if cluster is None: 
             if mode == 'local':
                 cluster = LocalCluster(**kwargs)
             elif mode == 'ssh':
