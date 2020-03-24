@@ -67,33 +67,29 @@ class MacroPipeline(object):
             exctype, value = sys.exc_info()[:2]
         return (exctype, value)
 
-    # def run(self):
-    #     """ Run the macro pipeline. """
-    #     delayed_tasks = [delayed(self._run_task)(task.run)
-    #                      for task in self.tasks]
-    #     # return dask.compute(*delayed_tasks)
-    #     bag = dask.bag.from_delayed(delayed_tasks)
-    #     return bag.compute()
-
-
-    def setup_client(self, mode='local', **kwargs):
-        if mode == 'local':
-            self.client = Client()
-        elif mode == 'ssh':
-            ssh_cluster = SSHCluster(**kwargs)
-            self.client = Client(ssh_cluster)
-        elif mode == 'slurm':
-            print('Slurm cluster is not implemented in this version!')
-            raise NotImplementedError
-        else:
-            print('Unknown mode of setup client {}!'.format(mode))
-            raise RuntimeError
+    def setup_client(self, mode='local', cluster=None, **kwargs): 
+        if cluster is not None: 
+            if mode == 'local':
+                cluster = LocalCluster(**kwargs)
+            elif mode == 'ssh':
+                cluster =  SSHCluster(**kwargs)
+            elif mode == 'slurm':
+                print('Slurm cluster is not implemented in this version!')
+                raise NotImplementedError
+            else:
+                print('Unknown mode of setup client {}!'.format(mode))
+                raise RuntimeError
+        self.client = Client(cluster)
 
     def run(self):
         """ Run the macro pipeline. """
         futures = [self.client.submit(self._run_task, task.run)
                    for task in self.tasks]
         results = self.client.gather(futures)
-        self.client.shutdown()
+        
         return results
 
+    def shutdown(self):
+        address = self.client.scheduler.address  ### get adress
+        self.client.close()
+        Client(address).shutdown()
