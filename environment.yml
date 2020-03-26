@@ -1,0 +1,14 @@
+name: lc_macro_pipeline
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python>=3.7
+  - pdal
+  - gdal
+  - pip
+  - pip:
+      - -r file:requirements.txt
+      - .
