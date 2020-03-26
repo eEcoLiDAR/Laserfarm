@@ -103,7 +103,7 @@ class Retiler(Pipeline):
         Split the input file using PDAL and organize the tiles in subfolders
         using the location on the input grid as naming scheme.
         """
-        check_file_exists(self.filename,should_exits=True)
+        check_file_exists(self.filename, should_exist=True)
         return_code, ret_message = _run_PDAL_splitter(str(self.filename),
                                                       str(self.tiled_temp_folder),
                                                       self.grid.grid_mins,
@@ -133,7 +133,7 @@ class Retiler(Pipeline):
         Validate the produced output by checking consistency in the number
         of input and output points.
         """
-        check_file_exists(self.filename,should_exits=True)
+        check_file_exists(self.filename, should_exist=True)
         (parent_points, _, _, _, _) = _get_details_pc_file(str(self.filename))
         valid_split = False
         split_points = 0

@@ -89,7 +89,7 @@ class DataProcessing(Pipeline):
         #Do not check existence of input folder as it may be retrieved from
         # remote fs
         output_path = pathlib.Path(output_folder)
-        check_dir_exists(output_path, should_exist=True,mkdir=True)
+        check_dir_exists(output_path, should_exist=True, mkdir=True)
         self.output_folder = output_path
         return self
 
@@ -124,16 +124,13 @@ class DataProcessing(Pipeline):
         purge_local(self.output_folder.as_posix())
         return self
 
-
-
-
     def load(self, **load_opts):
         """
         Read point cloud from disk.
 
         :param load_opts: Arguments passed to the laserchicken load function
         """
-        check_dir_exists(self.input_folder)
+        check_dir_exists(self.input_folder, should_exist=True)
         for file in _get_input_file_list(self.input_folder):
             add_to_point_cloud(self.point_cloud,
                                load(file, **load_opts))
