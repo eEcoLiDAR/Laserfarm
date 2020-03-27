@@ -16,7 +16,7 @@ if __name__ == '__main__':
                                           "username":"ubuntu", 
                                           "client_keys":"/home/ubuntu/.ssh/id_rsa"},
                        worker_options={"nthreads": 1, "nprocs":2}, 
-                       scheduler_options={"dashboard_address": ":8787"})
+                       scheduler_options={"dashboard_address": "8787"})
     res = macro.run()
     print(res)
     macro.shutdown()
