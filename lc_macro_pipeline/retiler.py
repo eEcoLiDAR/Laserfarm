@@ -35,7 +35,7 @@ class Retiler(Pipeline):
         """
 
         input_path = pathlib.Path(input_folder)
-        check_dir_exists(input_path, should_exist=True)
+        check_dir_exists(input_path, should_exist=True, mkdir=True)
         self.filename = input_path.joinpath(input_file)
         #Do not check existence of file here as it may need to be retrieved
         #from remote fs
