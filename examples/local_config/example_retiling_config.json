@@ -1,12 +1,12 @@
 {
   "localfs": {
-    "input_folder": "./",
+    "input_folder": "./testdata",
     "temp_folder": "./tmp",
     "input_file": "C_41CZ2.LAZ"
   },
   "pullremote":{
-    "options":"<path-to-options-file>",
-    "remote_origin":"<path-to-remote-origin>"
+    "options":"./local_config/example_webdav_option_file.json",
+    "remote_origin":"01_Escience/test_pipeline/testdata/LAZ/"
   },
   "tiling": {
     "min_x": -113107.8100,
@@ -18,8 +18,8 @@
   "split_and_redistribute": {},
   "validate": {},
   "pushremote":{
-    "options":"<path-to-options-file>",
-    "remote_destination":"<path-to-remote-destination>"
+    "options":"./local_config/example_webdav_option_file.json",
+    "remote_destination":"01_Escience/test_pipeline/output"
   },
   "cleanlocalfs":{}
 }
