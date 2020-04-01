@@ -104,22 +104,10 @@ class Retiler(Pipeline):
         Split the input file using PDAL and organize the tiles in subfolders
         using the location on the input grid as naming scheme.
         """
-<<<<<<< HEAD
-        check_file_exists(self.filename, should_exist=True)
-        return_code, ret_message = _run_PDAL_splitter(str(self.filename),
-                                                      str(self.tiled_temp_folder),
-                                                      self.grid.grid_mins,
-                                                      self.grid.grid_maxs,
-                                                      self.grid.n_tiles_side)
-        if return_code != 0:
-            raise Exception('failure in PDAL splitter: ' + ret_message)
-
-=======
         check_file_exists(self.filename,should_exits=True)
         _run_PDAL_splitter(self.filename, self.tiled_temp_folder,
                            self.grid.grid_mins, self.grid.grid_maxs,
                            self.grid.n_tiles_side)
->>>>>>> development
         tiles = [f for f in self.tiled_temp_folder.iterdir()
                  if (f.is_file() and f.suffix.lower() in ['.las', '.laz']
                      and f.stem.startswith(self.filename.stem))]
