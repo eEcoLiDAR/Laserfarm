@@ -5,7 +5,7 @@
     "input_file": "C_41CZ2.LAZ"
   },
   "pullremote":{
-    "options":"/home/ubuntu/examples/example_webdav_option_file.json",
+    "options":"/home/ubuntu/examples/cluster_config/example_webdav_option_file.json",
     "remote_origin":"01_Escience/test_pipeline/testdata/LAZ/"
   },
   "tiling": {
