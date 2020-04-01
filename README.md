@@ -16,11 +16,11 @@ The package can be downloaded using `git`:
 ```shell script
 git clone git@github.com:eEcoLiDAR/lcMacroPipeline.git
 ```
-It requires the [PDAL](https://pdal.io) and [GDAL](https://gdal.org) libraries, which are most easily
-installed through `conda` from the `conda-forge` channel. The remaining dependencies
-can be retrieved and installed using `pip`:
+It requires the [PDAL](https://pdal.io) and [GDAL](https://gdal.org) libraries and the PDAL Python 
+bindings. These packages are most easily installed through `conda` from the `conda-forge` channel. The 
+remaining dependencies can be retrieved and installed using `pip`:
 ```shell script
-conda install pdal gdal -c conda-forge
+conda install pdal python-pdal gdal -c conda-forge
 cd lcMacroPipeline && pip install . 
 ```
 Alternatively, a new environment with the package and all its dependencies can be created from the
