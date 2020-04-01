@@ -1,6 +1,7 @@
 import pathlib
 
 import os
+import pdal
 import pylas
 import json
 
@@ -103,6 +104,7 @@ class Retiler(Pipeline):
         Split the input file using PDAL and organize the tiles in subfolders
         using the location on the input grid as naming scheme.
         """
+<<<<<<< HEAD
         check_file_exists(self.filename, should_exist=True)
         return_code, ret_message = _run_PDAL_splitter(str(self.filename),
                                                       str(self.tiled_temp_folder),
@@ -112,6 +114,12 @@ class Retiler(Pipeline):
         if return_code != 0:
             raise Exception('failure in PDAL splitter: ' + ret_message)
 
+=======
+        check_file_exists(self.filename,should_exits=True)
+        _run_PDAL_splitter(self.filename, self.tiled_temp_folder,
+                           self.grid.grid_mins, self.grid.grid_maxs,
+                           self.grid.n_tiles_side)
+>>>>>>> development
         tiles = [f for f in self.tiled_temp_folder.iterdir()
                  if (f.is_file() and f.suffix.lower() in ['.las', '.laz']
                      and f.stem.startswith(self.filename.stem))]
@@ -182,20 +190,30 @@ def _run_PDAL_splitter(filename, tiled_temp_folder, tiling_mins, tiling_maxs,
     length_PDAL_tile = ((tiling_maxs[0] - tiling_mins[0]) /
                         float(n_tiles_side))
 
-    tile_cmd_PDAL = ('pdal split -i ' + filename + ' -o ' + tiled_temp_folder
-                     + '/' + os.path.splitext(os.path.basename(filename))[0]
-                     + '.LAZ --filters.splitter.origin_x=' + str(tiling_mins[0])
-                     + ' --filters.splitter.origin_y=' + str(tiling_mins[1])
-                     + ' --length ' + str(length_PDAL_tile)
-                     + ' --writers.las.forward=scale_x,scale_y,scale_z'
-                     + ' --writers.las.offset_x=auto'
-                     + ' --writers.las.offset_y=auto'
-                     + ' --writers.las.offset_z=auto')
+    outfile_with_placeholder = "_#".join([filename.stem, filename.suffix])
+    outfilepath = tiled_temp_folder.joinpath(outfile_with_placeholder)
 
-    tile_return, tile_out_err = shell_execute_cmd(tile_cmd_PDAL)
-
-    return tile_return, tile_out_err
-
+    PDAL_pipeline_dict = {
+        "pipeline": [
+            filename.as_posix(),
+            {
+                "type": "filters.splitter",
+                "origin_x": "{}".format(tiling_mins[0]),
+                "origin_y": "{}".format(tiling_mins[1]),
+                "length": "{}".format(length_PDAL_tile)
+            },
+            {
+                "type": "writers.las",
+                "filename": outfilepath.as_posix(),
+                "forward": ["scale_x", "scale_y", "scale_z"],
+                "offset_x": "auto",
+                "offset_y": "auto",
+                "offset_z": "auto"
+            }
+        ]
+    }
+    PDAL_pipeline = pdal.Pipeline(json.dumps(PDAL_pipeline_dict))
+    PDAL_pipeline.execute()
 
 def _write_record(input_tile, temp_folder, retile_record):
     tiled_temp_folder = os.path.join(temp_folder, os.path.splitext(
