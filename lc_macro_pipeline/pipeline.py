@@ -1,3 +1,4 @@
+from lc_macro_pipeline.logger import Logger
 from lc_macro_pipeline.utils import get_args_from_configfile
 
 
@@ -75,11 +76,22 @@ class Pipeline(object):
         self.input = get_args_from_configfile(path)
         return self
 
-    def run(self):
-        """ Run the full pipeline. """
-        _input = self.input.copy()
+    def log_config(self, level='debug', format=None, stream='stderr'):
+        self.logger = Logger(level, format)
+        self.logger.add_stream(stream)
 
-        for task_name in self.pipeline:
+    def run(self, pipeline=None):
+        """
+        Run the full pipeline.
+
+        :param pipeline: (optional) Run the input pipeline if provided
+        """
+        _input = self.input.copy()
+        _pipeline = pipeline if pipeline is not None else self.pipeline
+
+        self.log_config(_input.pop('log_config'))
+
+        for task_name in _pipeline:
             if task_name in _input:
                 task = getattr(self, task_name)
                 input_task = _input.pop(task_name)
