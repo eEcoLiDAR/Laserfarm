@@ -82,7 +82,7 @@ class Retiler(Pipeline):
         remove pulled input file and results of tiling (after push)
         """
         purge_local(self.filename.as_posix())
-        purge_local(self.temp_tiled_folder.as_posix())
+        purge_local(self.tiled_temp_folder.as_posix())
         return self
 
     def tiling(self, min_x, min_y, max_x, max_y, n_tiles_side):
