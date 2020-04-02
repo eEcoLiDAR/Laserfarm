@@ -28,7 +28,7 @@ class PipelineRemoteData(Pipeline):
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
         self.output_folder = pathlib.Path(output_folder)
         filename = self.output_folder.joinpath(self.__class__.__name__).with_suffix('.log')
-        self.logger.add_file(filename.as_posix(), redirect_stream=True)
+        self.logger.add_file(filename.as_posix(), redirect_streams=True)
         return self
 
     def pullremote(self, options, remote_origin):
@@ -68,6 +68,6 @@ class PipelineRemoteData(Pipeline):
         """
         _pipeline = pipeline if pipeline is not None else self.pipeline
         _pipeline = ('localfs', 'pullremote') + _pipeline + ('pushremote',
-                                                                'cleanlocalfs')
+                                                             'cleanlocalfs')
         super(PipelineRemoteData, self).run(pipeline=_pipeline)
 
