@@ -1,17 +1,14 @@
 {
   "localfs": {
-    "input_folder":"<path-to-input-folder>",
-    "output_folder":"<path-to-output-folder>"
+    "input_folder":"./tmp/input_data_processing",
+    "output_folder":"./tmp/output_data_processing"
   },
   "pullremote": {
-    "options":"<path-to-options-file>",
-    "remote_origin":"<path-to-remote-origin>"
+    "options":"./local_config/example_webdav_option_file.json",
+    "remote_origin":"01_Escience/test_pipeline/testdata/LAZ/data_processing"
   },
-  "load": {
-    "path": "C_43FN1_1.LAZ"
-  },
+  "load": {},
   "export_targets": {
-    "path": "tile.ply",
     "overwrite": true,
     "attributes": ["coeff_var_normalized_height"],
     "is_binary": false
@@ -37,8 +34,8 @@
     "volume_size": 10
   },
   "pushremote": {
-    "options":"<path-to-options-file>",
-    "remote_destination":"<path-to-remote-destination>"
+    "options":"./local_config/example_webdav_option_file.json",
+    "remote_destination":"01_Escience/test_pipeline/output/"
   },
   "cleanlocalfs": {}
 }
