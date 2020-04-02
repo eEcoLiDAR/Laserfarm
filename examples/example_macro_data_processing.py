@@ -1,5 +1,3 @@
-import sys
-sys.path.append('/mnt/c/Users/OuKu/Developments/eEcolidar/lcMacroPipeline')
 from lc_macro_pipeline.data_processing import DataProcessing
 from lc_macro_pipeline.macro_pipeline import MacroPipeline
 
