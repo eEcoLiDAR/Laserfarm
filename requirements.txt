@@ -1,9 +1,12 @@
-asyncssh
-dask[complete]
+dask
+distributed
 fire
 lazperf
 numpy
 pylas
 laserchicken @ git+git://github.com/eEcoLiDAR/laserchicken@feature_extra_io_tools#egg=laserchicken
 plyfile
+GDAL
 webdavclient3
+asyncssh
+

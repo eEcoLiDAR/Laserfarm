@@ -89,7 +89,7 @@ class DataProcessing(Pipeline):
         #Do not check existence of input folder as it may be retrieved from
         # remote fs
         output_path = pathlib.Path(output_folder)
-        check_dir_exists(output_path, should_exist=True, mkdir=True)
+        check_dir_exists(output_path, should_exist=True,mkdir=True)
         self.output_folder = output_path
         return self
 
@@ -112,9 +112,9 @@ class DataProcessing(Pipeline):
         :param options: setup options for webdavclient. Can be filepath
         :param remote_destination: path to remote target directory
         """
-        wdclient = get_wdclient(options)
-        push_to_remote(wdclient,self.output_folder.as_posix(),remote_destination)
-        return self
+         wdclient = get_wdclient(options)
+         push_to_remote(wdclient,self.output_folder.as_posix(),remote_destination)
+         return self
 
     def cleanlocalfs(self):
         """
@@ -124,13 +124,16 @@ class DataProcessing(Pipeline):
         purge_local(self.output_folder.as_posix())
         return self
 
+
+
+
     def load(self, **load_opts):
         """
         Read point cloud from disk.
 
         :param load_opts: Arguments passed to the laserchicken load function
         """
-        check_dir_exists(self.input_folder, should_exist=True)
+        check_dir_exists(self.input_folder)
         for file in _get_input_file_list(self.input_folder):
             add_to_point_cloud(self.point_cloud,
                                load(file, **load_opts))
@@ -172,7 +175,7 @@ class DataProcessing(Pipeline):
         :param export_opts: Optional arguments passed to the laserchicken
         export function
         """
-        expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
+        expath = pathlib.Path(self.output_folder).joinpath(path).as_posix()
         self._export(self.point_cloud,
                      expath,
                      attributes,
@@ -258,7 +261,7 @@ class DataProcessing(Pipeline):
         :param export_opts: Optional arguments passed to the laserchicken
         export function
         """
-        expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
+        expath = pathlib.Path(self.output_folder).joinpath(path).as_posix()
         self._export(self.targets, expath, attributes, multi_band_files,
                      **export_opts)
         return self
@@ -282,6 +285,7 @@ class DataProcessing(Pipeline):
                                                        multi_band_files,
                                                        **export_opts).items():
             export(point_cloud, file, attributes=feature_set, **export_opts)
+        return
 
 
 def _get_extractor_dict():

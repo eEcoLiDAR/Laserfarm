@@ -1,0 +1,14 @@
+{
+  "parse_point_cloud": {
+    "data_directory": "/home/ubuntu/test_pipeline/data/AHN3_test_data/PLY"
+  },
+  "data_split": {
+    "xSub": 1,
+    "ySub": 1
+  },
+  "create_subregion_geotiffs": {
+    "outputdir": "/home/ubuntu/test_pipeline/data/geotiffs_output",
+    "outputhandle": "TestGeotiff",
+    "band_export": ["std_norm_z"]
+  }
+}

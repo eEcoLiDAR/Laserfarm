@@ -358,8 +358,4 @@ def purge_local(local_record):
     :param local_record : full path of local_record
     """
     check_path_exists(local_record,should_exist=True)
-    if os.path.isdir(local_record):
-        shutil.rmtree(local_record)
-    else:
-        os.remove(local_record)
-
+    shutil.rmtree(local_record)

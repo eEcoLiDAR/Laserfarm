@@ -1,0 +1,24 @@
+{
+  "localfs":{
+    "data_directory":"/mnt/c/Users/OuKu/Developments/eEcolidar/data/AHN3_test_data/PLY",
+    "output_directory":"/mnt/c/Users/OuKu/Developments/eEcolidar/data/geotiffs_output"
+  },
+  "pullremote":{
+    "options":"<path-to-options-file>",
+    "remote_origin":"<path-to-remote-origin>"
+  },
+  "parse_point_cloud": {},
+  "data_split": {
+    "xSub": 1,
+    "ySub": 1
+  },
+  "create_subregion_geotiffs": {
+    "outputhandle": "TestGeotiff",
+    "band_export": ["mean_norm_z"]
+  },
+  "pushremote":{
+    "options":"<path-to-options-file>",
+    "remote_destination":"<path-to-remote-destination>"
+  },
+  "cleanlocalfs":{}
+}
