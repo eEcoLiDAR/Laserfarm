@@ -36,7 +36,7 @@ class Retiler(Pipeline):
         """
 
         input_path = pathlib.Path(input_folder)
-        check_dir_exists(input_path, should_exist=True)
+        check_dir_exists(input_path, should_exist=True, mkdir=True)
         self.filename = input_path.joinpath(input_file)
         #Do not check existence of file here as it may need to be retrieved
         #from remote fs
@@ -82,7 +82,7 @@ class Retiler(Pipeline):
         remove pulled input file and results of tiling (after push)
         """
         purge_local(self.filename.as_posix())
-        purge_local(self.temp_tiled_folder.as_posix())
+        purge_local(self.tiled_temp_folder.as_posix())
         return self
 
     def tiling(self, min_x, min_y, max_x, max_y, n_tiles_side):
@@ -104,7 +104,7 @@ class Retiler(Pipeline):
         Split the input file using PDAL and organize the tiles in subfolders
         using the location on the input grid as naming scheme.
         """
-        check_file_exists(self.filename,should_exits=True)
+        check_file_exists(self.filename,should_exist=True)
         _run_PDAL_splitter(self.filename, self.tiled_temp_folder,
                            self.grid.grid_mins, self.grid.grid_maxs,
                            self.grid.n_tiles_side)
@@ -129,7 +129,7 @@ class Retiler(Pipeline):
         Validate the produced output by checking consistency in the number
         of input and output points.
         """
-        check_file_exists(self.filename,should_exits=True)
+        check_file_exists(self.filename, should_exist=True)
         (parent_points, _, _, _, _) = _get_details_pc_file(str(self.filename))
         valid_split = False
         split_points = 0

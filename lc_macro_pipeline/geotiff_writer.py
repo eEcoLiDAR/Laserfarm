@@ -6,7 +6,7 @@ import numpy
 import gdal
 import time
 from osgeo import osr
-from lc_macro_pipeline import utils
+from lc_macro_pipeline.utils import check_dir_exists
 from lc_macro_pipeline.pipeline import Pipeline
 from lc_macro_pipeline.remote_utils import get_wdclient, pull_from_remote, \
     push_to_remote, purge_local
@@ -42,7 +42,7 @@ class Geotiff_writer(Pipeline):
         """
         #no check on existance as handled before retrieval
         self.data_directory = data_directory
-        check_dir_exists(output_direcotry,should_exist=True,mkdir=True)
+        check_dir_exists(output_directory, should_exist=True, mkdir=True)
         self.output_directory = output_directory
         return self
 
@@ -57,7 +57,7 @@ class Geotiff_writer(Pipeline):
         pull_from_remote(wdclient,self.data_directory,remote_origin)
         return self
 
-    def pushremote(self,options,remote_destination):
+    def pushremote(self, options, remote_destination):
         """
         push files(s) from local fs to remote fs
 
@@ -65,7 +65,7 @@ class Geotiff_writer(Pipeline):
         :param remote_destination: path to remote target directory
         """
         wdclient = get_wdclient(options)
-        push_to_remote(wdclient,self.output_directory,remote_destination)
+        push_to_remote(wdclient, self.output_directory, remote_destination)
         return self
 
     def cleanlocalfs(self):
@@ -76,10 +76,6 @@ class Geotiff_writer(Pipeline):
         purge_local(self.output_directory)
         return self
 
-
-
-
-
     def parse_point_cloud(self):
         """
         Parse input point cloud and get the following information:
@@ -89,15 +85,14 @@ class Geotiff_writer(Pipeline):
 
         :param data_directory: path to the directory of tiled target point files (.ply)
         """
-        self.data_directory = data_directory
 
         # Get list of input tiles
-        utils.check_path_exists(data_directory, should_exist=True)
-        self.InputTiles = [TileFile for TileFile in os.listdir(data_directory) if TileFile.endswith('.ply')]
+        check_dir_exists(self.data_directory, should_exist=True)
+        self.InputTiles = [TileFile for TileFile in os.listdir(self.data_directory) if TileFile.endswith('.ply')]
 
 
         # Read one tile and get the template
-        file=os.path.join(data_directory, self.InputTiles[0])
+        file=os.path.join(self.data_directory, self.InputTiles[0])
         template = plyfile.PlyData.read(file)
 
         # Get length of data record (Nr. of elements in each band)
@@ -112,7 +107,6 @@ class Geotiff_writer(Pipeline):
                        /(numpy.sqrt(template.elements[0].data[:]['y'].size) - 1)
 
         return self
-
 
     def data_split(self, xSub, ySub):
         """
