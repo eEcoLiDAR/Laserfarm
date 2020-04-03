@@ -120,7 +120,7 @@ class Geotiff_writer(PipelineRemoteData):
         :param band_export: list of features names to export
         :param EPSG: (Optional) EPSG code of the spatial reference system of the input data. Default 28992.
         """
-        outfilestem = os.path.join(self.output_folder, outputhandle)
+        outfilestem = os.path.join(self.output_folder.as_posix(), outputhandle)
         for subTiffNumber in range(len(self.subtilelists)):
             infiles = self.subtilelists[subTiffNumber]
             print('processing subTiff '+str(subTiffNumber))
@@ -130,7 +130,7 @@ class Geotiff_writer(PipelineRemoteData):
                 _make_geotiff_per_band(infiles,
                               outfile,
                               band_export,
-                              self.input_folder,
+                              self.input_folder.as_posix(),
                               self.LengthDataRecord,
                               self.xResolution,
                               self.yResolution,
