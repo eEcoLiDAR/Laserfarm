@@ -33,10 +33,6 @@ class TestPipelineObject(unittest.TestCase):
         with self.assertRaises(TypeError):
             pip.input = 'test'
 
-    def test_setInputAttributeNotInPipeline(self):
-        pip = Pipeline()
-        with self.assertRaises(Warning):
-            pip.input = {'test': 5}
 
 class TestShortPipeline(unittest.TestCase):
 
@@ -55,9 +51,6 @@ class TestShortPipeline(unittest.TestCase):
         self.assertDictEqual(input, pip.input)
 
     def test_setInputExtraAttribute(self):
-        pip = ShortPipeline()
-        with self.assertRaises(Warning):
-            pip.input = {'foo': 1, 'bar': 2, 'test': 3}
         pip = ShortPipeline()
         pip.input = {'foo': 1, 'bar': 2}
         pip.input['test'] = 3

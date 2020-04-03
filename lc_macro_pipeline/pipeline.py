@@ -25,6 +25,7 @@ class Pipeline(object):
     """
     _pipeline = tuple()
     _input = dict()
+    logger = None
 
     @property
     def pipeline(self):
@@ -60,11 +61,6 @@ class Pipeline(object):
     def input(self, input):
         if not isinstance(input, dict):
             raise TypeError("A dictionary is expected!")
-        attributes_not_used = [key for key in input.keys()
-                               if key not in self.pipeline]
-        if len(attributes_not_used) > 0:
-            raise Warning('Some of the attributes in input will not be used:'
-                          ' {} '.format(', '.join(attributes_not_used)))
         self._input = input
 
     def config(self, path):
@@ -76,9 +72,8 @@ class Pipeline(object):
         self.input = get_args_from_configfile(path)
         return self
 
-    def log_config(self, level='debug', format=None, stream='stderr'):
-        self.logger = Logger(level, format)
-        self.logger.add_stream(stream)
+    def log_config(self, level=None, format=None, stream=None, filename=None):
+        self.logger.config(level, format, stream, filename)
 
     def run(self, pipeline=None):
         """
@@ -88,8 +83,9 @@ class Pipeline(object):
         """
         _input = self.input.copy()
         _pipeline = pipeline if pipeline is not None else self.pipeline
+        _pipeline = ('log_config',) + _pipeline
 
-        self.log_config(_input.pop('log_config'))
+        self.logger = Logger()
 
         for task_name in _pipeline:
             if task_name in _input:
