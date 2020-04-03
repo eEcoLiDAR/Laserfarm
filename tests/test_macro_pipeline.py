@@ -65,6 +65,7 @@ class TestToyMacroPipeline(unittest.TestCase):
                    'close': {}}
         mp = MacroPipeline()
         mp.tasks = [a, b]
+        mp.setup_client()
         mp.run()
         self.assertTrue(all([os.path.isfile(f) for f in [file_a, file_b]]))
         lines_a, lines_b = [open(f).readlines() for f in [file_a, file_b]]
@@ -82,6 +83,7 @@ class TestToyMacroPipeline(unittest.TestCase):
                    'close': {}}
         mp = MacroPipeline()
         mp.tasks = [a, b]
+        mp.setup_client()
         errs = mp.run()
         self.assertListEqual(list(errs[0]), [None, None])
         self.assertTrue(errs[1][0], IsADirectoryError)
