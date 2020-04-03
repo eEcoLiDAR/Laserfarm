@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 from dask.distributed import Client, LocalCluster, SSHCluster
 
@@ -64,6 +65,7 @@ class MacroPipeline(object):
         except:
             # sys.exc_info() provides info about current exception,
             # thus it must remain in the except block!
+            traceback.print_exc()
             exctype, value = sys.exc_info()[:2]
         return (exctype, value)
 
