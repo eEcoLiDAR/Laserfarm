@@ -1,0 +1,4 @@
+{
+"webdav_hostname":"https://webdav.grid.surfsara.nl:2880/pnfs/grid.sara.nl/data/projects.nl/eecolidar/",
+"authenticationfile":"./local_config/example_pwf.json"
+}

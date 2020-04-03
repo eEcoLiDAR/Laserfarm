@@ -229,7 +229,6 @@ class DataProcessing(PipelineRemoteData):
                                                        multi_band_files,
                                                        **export_opts).items():
             export(point_cloud, file, attributes=feature_set, **export_opts)
-        return
 
 
 def _get_extractor_dict():

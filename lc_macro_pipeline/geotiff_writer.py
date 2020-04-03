@@ -51,7 +51,6 @@ class Geotiff_writer(PipelineRemoteData):
 
         return self
 
-
     def data_split(self, xSub, ySub):
         """
         Split the input data into sub-regions
