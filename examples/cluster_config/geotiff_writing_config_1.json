@@ -1,7 +1,7 @@
 {
   "localfs":{
-    "data_directory":"/home/ubuntu/examples/data/PLY",
-    "output_directory":"/home/ubuntu/examples/data/geotiffs_output"
+    "input_folder":"/home/ubuntu/examples/data/PLY",
+    "output_folder":"/home/ubuntu/examples/data/geotiffs_output"
   },
   "pullremote":{
     "options":"/home/ubuntu/examples/cluster_config/example_webdav_option_file.json",
