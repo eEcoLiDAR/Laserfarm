@@ -17,12 +17,12 @@ from laserchicken.utils import create_point_cloud, add_to_point_cloud, \
     get_point
 
 from lc_macro_pipeline.grid import Grid
-from lc_macro_pipeline.pipeline import Pipeline
+from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
 from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
     check_dir_exists, DictToObj
 
 
-class DataProcessing(Pipeline):
+class DataProcessing(PipelineRemoteData):
     """ Read, process and write point cloud data using laserchicken. """
 
     def __init__(self):
@@ -115,6 +115,8 @@ class DataProcessing(Pipeline):
         :param export_opts: Optional arguments passed to the laserchicken
                             export function
         """
+        if pathlib.Path(filename).parent.name:
+            raise IOError('filename should not include path!')
         expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
         self._export(self.point_cloud,
                      expath,
@@ -201,6 +203,8 @@ class DataProcessing(Pipeline):
         :param export_opts: Optional arguments passed to the laserchicken
                             export function
         """
+        if pathlib.Path(filename).parent.name:
+            raise IOError('filename should not include path!')
         expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
         self._export(self.targets, expath, attributes, multi_band_files,
                      **export_opts)
