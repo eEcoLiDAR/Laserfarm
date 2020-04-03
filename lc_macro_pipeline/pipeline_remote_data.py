@@ -11,8 +11,9 @@ class PipelineRemoteData(Pipeline):
 
     input_folder = None
     output_folder = None
+    input_file = None
 
-    def localfs(self, input_folder, output_folder):
+    def localfs(self, input_folder, output_folder, input_file=None):
         """
         IO setup for the local file system.
 
@@ -20,15 +21,16 @@ class PipelineRemoteData(Pipeline):
         :param output_folder: full path to output folder on local filesystem \
                               This folder is considered root for all output \
                               paths specified
-        :return:
+        :param input_file: (optional) name of the input file to be retrieved
         """
         self.input_folder = pathlib.Path(input_folder)
+        if input_file is not None:
+            self.input_file = self.input_folder.joinpath(input_file)
         # Do not check existence of input folder as it may be retrieved from
         # remote fs
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
         self.output_folder = pathlib.Path(output_folder)
-        filename = self.output_folder.joinpath(self.__class__.__name__).with_suffix('.log')
-        self.logger.add_file(filename.as_posix(), redirect_streams=True)
+        self.logger.add_file(directory=self.output_folder.as_posix())
         return self
 
     def pullremote(self, options, remote_origin):
@@ -39,7 +41,12 @@ class PipelineRemoteData(Pipeline):
         :param remote_origin: path to directory on remote fs
         """
         wdclient = get_wdclient(options)
-        pull_from_remote(wdclient, self.input_folder.as_posix(), remote_origin)
+        remote_path = pathlib.Path(remote_origin)
+        if self.input_file is not None:
+            remote_path.joinpath(self.input_file.name)
+        pull_from_remote(wdclient,
+                         self.input_folder.as_posix(),
+                         remote_path.as_posix())
         return self
 
     def pushremote(self, options, remote_destination):
@@ -50,7 +57,8 @@ class PipelineRemoteData(Pipeline):
         :param remote_destination: path to remote target directory
         """
         wdclient = get_wdclient(options)
-        push_to_remote(wdclient, self.output_folder.as_posix(),
+        push_to_remote(wdclient,
+                       self.output_folder.as_posix(),
                        remote_destination)
         return self
 

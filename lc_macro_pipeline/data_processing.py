@@ -20,26 +20,19 @@ from lc_macro_pipeline.grid import Grid
 from lc_macro_pipeline.pipeline import Pipeline
 from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
     check_dir_exists, DictToObj
-from lc_macro_pipeline.remote_utils import get_wdclient, pull_from_remote, \
-    push_to_remote, purge_local
 
 
 class DataProcessing(Pipeline):
     """ Read, process and write point cloud data using laserchicken. """
 
     def __init__(self):
-        self.pipeline = ('localfs',
-                         'pullremote',
-                         'load',
+        self.pipeline = ('load',
                          'normalize',
                          'apply_filter',
                          'export_point_cloud',
                          'generate_targets',
                          'extract_features',
-                         'export_targets' ,
-                         'pushremote',
-                         'cleanlocalfs'
-                         )
+                         'export_targets')
         self.point_cloud = create_point_cloud([], [], [])
         self.targets = create_point_cloud([], [], [])
         self.grid = Grid()
@@ -74,66 +67,13 @@ class DataProcessing(Pipeline):
         register_new_feature_extractor(extractor(**parameters))
         return self
 
-
-    def localfs(self, input_folder, output_folder):
-        """
-        IO setup for the local file system.
-
-        :param input_folder: full path to input folder on local filesystem.
-        :param output_folder: full path to output folder on local filesystem \
-                              This folder is considered root for all output \
-                              paths specified
-        :return:
-        """
-        self.input_folder = pathlib.Path(input_folder)
-        #Do not check existence of input folder as it may be retrieved from
-        # remote fs
-        output_path = pathlib.Path(output_folder)
-        check_dir_exists(output_path, should_exist=True,mkdir=True)
-        self.output_folder = output_path
-        return self
-
-    def pullremote(self, options, remote_origin):
-        """
-        pull directory with input file(s) from remote to local fs
-
-        :param options: setup options for webdav client. Can be a filepath
-        :param remote_origin: path to directory on remote fs
-        """
-
-        wdclient = get_wdclient(options)
-        pull_from_remote(wdclient,self.input_folder.as_posix(),remote_origin)
-        return self
-
-    def pushremote(self, options, remote_destination):
-        """
-        push directory with output from local fs to remote_dir
-
-        :param options: setup options for webdavclient. Can be filepath
-        :param remote_destination: path to remote target directory
-        """
-         wdclient = get_wdclient(options)
-         push_to_remote(wdclient,self.output_folder.as_posix(),remote_destination)
-         return self
-
-    def cleanlocalfs(self):
-        """
-        remove pulled input and results (after push)
-        """
-        purge_local(self.input_folder.as_posix())
-        purge_local(self.output_folder.as_posix())
-        return self
-
-
-
-
     def load(self, **load_opts):
         """
         Read point cloud from disk.
 
         :param load_opts: Arguments passed to the laserchicken load function
         """
-        check_dir_exists(self.input_folder)
+        check_dir_exists(self.input_folder, should_exist=True)
         for file in _get_input_file_list(self.input_folder):
             add_to_point_cloud(self.point_cloud,
                                load(file, **load_opts))
@@ -169,13 +109,13 @@ class DataProcessing(Pipeline):
         """
         Write environment point cloud to disk.
 
-        :param filename: optional filename where to write point-cloud data (relative to \
-                      self.output_folder root)
+        :param filename: optional filename where to write point-cloud data
+                         (relative to self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param export_opts: Optional arguments passed to the laserchicken
-        export function
+                            export function
         """
-        expath = pathlib.Path(self.output_folder).joinpath(path).as_posix()
+        expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
         self._export(self.point_cloud,
                      expath,
                      attributes,
@@ -254,14 +194,14 @@ class DataProcessing(Pipeline):
         Write target point cloud to disk.
 
 
-        :param filename: optional filename where to write point-cloud data (relative to \
-                      self.output_folder root)
+        :param filename: optional filename where to write point-cloud data
+                         (relative to self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param multi_band_files: If true, write all attributes in one file
         :param export_opts: Optional arguments passed to the laserchicken
-        export function
+                            export function
         """
-        expath = pathlib.Path(self.output_folder).joinpath(path).as_posix()
+        expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
         self._export(self.targets, expath, attributes, multi_band_files,
                      **export_opts)
         return self

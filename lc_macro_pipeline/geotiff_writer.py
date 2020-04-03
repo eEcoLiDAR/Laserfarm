@@ -7,78 +7,21 @@ import gdal
 import time
 from osgeo import osr
 from lc_macro_pipeline import utils
-from lc_macro_pipeline.pipeline import Pipeline
-from lc_macro_pipeline.remote_utils import get_wdclient, pull_from_remote, \
-    push_to_remote, purge_local
+from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
 
-class Geotiff_writer(Pipeline):
+
+class Geotiff_writer(PipelineRemoteData):
     """ Write specified bands from point cloud data into separated geotiff files. """
 
     def __init__(self):
-        self.pipeline = ('localfs',
-                         'pullremote',
-                         'parse_point_cloud',
+        self.pipeline = ('parse_point_cloud',
                          'data_split',
-                         'create_subregion_geotiffs',
-                         'pushremote',
-                         'cleanlocalfs',
-                         )
-        self.data_directory = None
-        self.output_directory = None
+                         'create_subregion_geotiffs')
         self.InputTiles = None
         self.subtilelists = []
         self.LengthDataRecord = 0
         self.xResolution = 0
         self.yResolution = 0
-
-    def localfs(self, data_directory, output_directory):
-        """
-        IO setup for the local file system.
-
-        :param data_directory: full path to input folder on local filesystem.
-        :param output_directory: full path to output folder on local filesystem \
-                              This folder is considered root for all output \
-                              paths specified
-        """
-        #no check on existance as handled before retrieval
-        self.data_directory = data_directory
-        check_dir_exists(output_direcotry,should_exist=True,mkdir=True)
-        self.output_directory = output_directory
-        return self
-
-    def pullremote(self, options, remote_origin):
-        """
-        pull resource(s) from remote to local fs
-
-        :param options: setup options for webdav client. Can be a filepath
-        :param remote_origin: path to resource on remote fs
-        """
-        wdclient = get_wdclient(options)
-        pull_from_remote(wdclient,self.data_directory,remote_origin)
-        return self
-
-    def pushremote(self,options,remote_destination):
-        """
-        push files(s) from local fs to remote fs
-
-        :param options: setup options for the webdav client. Can be filepath
-        :param remote_destination: path to remote target directory
-        """
-        wdclient = get_wdclient(options)
-        push_to_remote(wdclient,self.output_directory,remote_destination)
-        return self
-
-    def cleanlocalfs(self):
-        """
-        remove pulled input and results (after push)
-        """
-        purge_local(self.data_directory)
-        purge_local(self.output_directory)
-        return self
-
-
-
-
 
     def parse_point_cloud(self):
         """
@@ -86,18 +29,13 @@ class Geotiff_writer(Pipeline):
             - Tile list
             - Length of a single band
             - x and y resolution
-
-        :param data_directory: path to the directory of tiled target point files (.ply)
         """
-        self.data_directory = data_directory
-
         # Get list of input tiles
-        utils.check_path_exists(data_directory, should_exist=True)
-        self.InputTiles = [TileFile for TileFile in os.listdir(data_directory) if TileFile.endswith('.ply')]
-
+        utils.check_path_exists(self.input_folder, should_exist=True)
+        self.InputTiles = [TileFile for TileFile in os.listdir(self.input_folder) if TileFile.endswith('.ply')]
 
         # Read one tile and get the template
-        file=os.path.join(data_directory, self.InputTiles[0])
+        file=os.path.join(self.input_folder, self.InputTiles[0])
         template = plyfile.PlyData.read(file)
 
         # Get length of data record (Nr. of elements in each band)
@@ -182,7 +120,7 @@ class Geotiff_writer(Pipeline):
         :param band_export: list of features names to export
         :param EPSG: (Optional) EPSG code of the spatial reference system of the input data. Default 28992.
         """
-        outfilestem = os.path.join(self.output_directory, outputhandle)
+        outfilestem = os.path.join(self.output_folder, outputhandle)
         for subTiffNumber in range(len(self.subtilelists)):
             infiles = self.subtilelists[subTiffNumber]
             print('processing subTiff '+str(subTiffNumber))
@@ -192,7 +130,7 @@ class Geotiff_writer(Pipeline):
                 _make_geotiff_per_band(infiles,
                               outfile,
                               band_export,
-                              self.data_directory,
+                              self.input_folder,
                               self.LengthDataRecord,
                               self.xResolution,
                               self.yResolution,
