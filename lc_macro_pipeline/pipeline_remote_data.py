@@ -30,7 +30,7 @@ class PipelineRemoteData(Pipeline):
         # remote fs
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
         self.output_folder = pathlib.Path(output_folder)
-        self.logger.add_file(directory=self.output_folder.as_posix())
+        self.logger.set_file(directory=self.output_folder.as_posix())
         return self
 
     def pullremote(self, options, remote_origin):

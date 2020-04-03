@@ -102,4 +102,6 @@ class Pipeline(object):
         if len(_input.keys()) > 0:
             raise Warning('Some of the attributes in input have not been used:'
                           ' {} '.format(', '.join(_input.keys())))
+
+        self.logger.terminate()
         return

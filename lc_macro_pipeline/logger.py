@@ -4,23 +4,22 @@ import sys
 
 
 _default_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+# Make a local copy of the stdout/stderr objects to configure stream handler
+_stream_dict = {'stderr': sys.stderr, 'stdout': sys.stdout}
 
 
 class Logger(object):
     """ Manage the log of the (macro) pipelines. """
 
     def __init__(self):
-        # Make a local copy of the stdout/stderr objects to configure stream handler
-        self.stream_dict = {'stderr': sys.stderr, 'stdout': sys.stdout}
-
         self.level = 'DEBUG'
         self.formatter = logging.Formatter(_default_format)
-        self.stream = self.stream_dict['stderr']
-        self.filename = None
+        self.stream = _stream_dict['stderr']
+        self.filename = pathlib.Path('lc_macro_pipeline.log')
 
         self.logger = logging.getLogger('lc_macro_pipeline')
         self.logger.setLevel(self.level)
-        self.add_stream()  # Initialize the logger with a stream
+        self.set_stream()  # Initialize the logger with a stream
 
     def config(self, level=None, format=None, stream=None, filename=None):
         """
@@ -37,53 +36,80 @@ class Logger(object):
         if format is not None:
             self.formatter = logging.Formatter(format)
         if stream is not None:
-            self.stream = self.stream_dict[stream]
+            self.stream = _stream_dict[stream]
         if filename is not None:
-            self.filename = filename
+            self.filename = pathlib.Path(filename)
         self.update_handlers()
+
+    def terminate(self):
+        self.remove_handlers(stream=True, file=True)
 
     def update_handlers(self):
         """ Update handler instances. """
         for handler in self.logger.handlers:
             if isinstance(handler, logging.StreamHandler):
-                self.logger.removeHandler(handler)
-                self.add_stream()
+                self.set_stream()
             if isinstance(handler, logging.FileHandler):
-                self.logger.removeHandler(handler)
-                self.add_file(append=True)
+                self.set_file(append=True)
 
-    def add_stream(self):
-        """ Add a stream handler to the log. """
+    def remove_handlers(self, stream=False, file=False):
+        """ Remove handler instances. """
+        for handler in self.logger.handlers:
+            if isinstance(handler, logging.StreamHandler) and stream:
+                self.logger.removeHandler(handler)
+            if isinstance(handler, logging.FileHandler) and file:
+                self.logger.debug('Terminating stream to logfile: '
+                                  '{}'.format(self.filename.as_posix()))
+                self.logger.removeHandler(handler)
+                self._redirect_std_streams(False)
+
+    def _redirect_std_streams(self, redirect):
+        if redirect:
+            # redirect stdout/stderr to log file
+            sys.stdout = Log(sys.stdout, self.logger, logging.INFO)
+            sys.stderr = Log(sys.stderr, self.logger, logging.ERROR)
+        else:
+            # restore default streams
+            sys.stdout = _stream_dict['stdout']
+            sys.stderr = _stream_dict['stderr']
+
+    def set_stream(self):
+        """
+        Add a stream handler to the log. If a stream handler was already
+        present, remove it.
+        """
+        self.remove_handlers(stream=True)
         sh = logging.StreamHandler(self.stream)
         sh.setFormatter(self.formatter)
         sh.setLevel(self.level)
         self.logger.addHandler(sh)
 
-    def add_file(self, directory='', append=False):
+    def set_file(self, directory='', append=False):
         """
         Add a file handler to the log. STDOUT and STDERR are also redirected to
-        the log file.
+        the log file. If a stream handler was already present, remove it.
 
-        :param directory: Directory where to write the logfile.
+        :param directory: Directory where to write the logfile (ignore it if
+        filename already includes path)
         :param append: If True, append logs to file (if existing).
         """
-        if self.filename is not None:
-            _filename = self.filename
+        self.remove_handlers(file=True)
+
+        if not self.filename.parent.name:
+            file_path = pathlib.Path(directory).joinpath(self.filename.name)
         else:
-            _filename = 'lc_macro_pipeline.log'
-        file_path = pathlib.Path(directory).joinpath(_filename)
+            file_path = self.filename
+
         fh = logging.FileHandler(file_path,
                                  mode='w' if not append else 'a',
                                  delay=True)
         fh.setFormatter(self.formatter)
         fh.setLevel(self.level)
         self.logger.addHandler(fh)
-        self.logger.debug('Start streaming to logfile: '
-                          '{}'.format(file_path.as_posix()))
 
-        # redirect stdout/stderr to log file
-        sys.stdout = Log(sys.stdout, self.logger, logging.INFO)
-        sys.stderr = Log(sys.stderr, self.logger, logging.ERROR)
+        self.logger.debug('Start stream to logfile: '
+                          '{}'.format(file_path.as_posix()))
+        self._redirect_std_streams(True)
 
 
 class Log(object):
