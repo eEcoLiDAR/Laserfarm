@@ -54,9 +54,9 @@ class TestToyMacroPipeline(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self._test_dir)
+        self.cluster.close()
         if os.path.isdir(self._tmp_dask_worker_dir):
             shutil.rmtree(self._tmp_dask_worker_dir)
-        self.cluster.close()
 
     def test_runValidPipelines(self):
         a, b = ShortIOPipeline(), ShortIOPipeline()
