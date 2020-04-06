@@ -74,13 +74,13 @@ class MacroPipeline(object):
             if mode == 'local':
                 cluster = LocalCluster(**kwargs)
             elif mode == 'ssh':
-                cluster =  SSHCluster(**kwargs)
+                cluster = SSHCluster(**kwargs)
             elif mode == 'slurm':
-                print('Slurm cluster is not implemented in this version!')
-                raise NotImplementedError
+                raise NotImplementedError('Slurm cluster is not implemented'
+                                          ' in this version!')
             else:
-                print('Unknown mode of setup client {}!'.format(mode))
-                raise RuntimeError
+                raise RuntimeError('Unknown mode of setup client '
+                                   '{}!'.format(mode))
         self.client = Client(cluster)
 
     def run(self):

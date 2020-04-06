@@ -1,3 +1,4 @@
+import logging
 import os
 import pdal
 import pylas
@@ -6,6 +7,9 @@ import json
 from lc_macro_pipeline.grid import Grid
 from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
 from lc_macro_pipeline.utils import check_file_exists, check_dir_exists
+
+
+logger = logging.getLogger(__name__)
 
 
 class Retiler(PipelineRemoteData):
@@ -102,7 +106,7 @@ def _get_details_pc_file(filename):
         return (count, mins, maxs, scales, offsets)
 
     except IOError:
-        print('failure to open {}'.format(filename))
+        logger.error('failure to open {}'.format(filename))
         return None
 
 

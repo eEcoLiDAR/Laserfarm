@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-
+import logging
 import os
 import plyfile
 import numpy
@@ -9,6 +8,7 @@ from osgeo import osr
 from lc_macro_pipeline import utils
 from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
 
+logger = logging.getLogger(__name__)
 
 class Geotiff_writer(PipelineRemoteData):
     """ Write specified bands from point cloud data into separated geotiff files. """
@@ -122,8 +122,8 @@ class Geotiff_writer(PipelineRemoteData):
         outfilestem = os.path.join(self.output_folder.as_posix(), outputhandle)
         for subTiffNumber in range(len(self.subtilelists)):
             infiles = self.subtilelists[subTiffNumber]
-            print('processing subTiff '+str(subTiffNumber))
-            print('      total number of constituent tiles : '+str(len(infiles)))
+            logger.info('processing subTiff '+str(subTiffNumber))
+            logger.info('      total number of constituent tiles : '+str(len(infiles)))
             if infiles:
                 outfile= outfilestem+'_TILE_'+str(subTiffNumber)
                 _make_geotiff_per_band(infiles,
@@ -135,7 +135,7 @@ class Geotiff_writer(PipelineRemoteData):
                               self.yResolution,
                               EPSG)
             else:
-                print('no data in subTiff: '+str(subTiffNumber))
+                logger.warning('no data in subTiff: '+str(subTiffNumber))
         return self
 
 
@@ -150,11 +150,11 @@ def _make_geotiff_per_band(infiles,outfile,band_export,data_directory,lengthData
 
     for band_name in band_export:
         if not band_name in ['x','y']:
-            print('Creating GeoTiff for band {!s}...'.format(band_name))
+            logger.info('Creating GeoTiff for band {!s}...'.format(band_name))
             ct0=time.time()
 
             # Import one band from PLY
-            print('importing data ...')
+            logger.info('importing data ...')
             terrainDataOneBand = _plyIntoNumpyArray(data_directory, infiles, lengthDataRecord, [band_name])
 
             # Converet from pointcloud to raster
@@ -166,7 +166,7 @@ def _make_geotiff_per_band(infiles,outfile,band_export,data_directory,lengthData
             _writeGeoTiff(RasterData,band_name,geoTransform,outfile_band,ncols,nrows,1,EPSG)
             ct1=time.time()
             dct=ct1-ct0
-            print('Tiff created in {!s} seconds. Location: {!s}.tif'.format(str(dct), outfile_band))
+            logger.info('Tiff created in {!s} seconds. Location: {!s}.tif'.format(str(dct), outfile_band))
 
 
 def _getGeoTransform(xyData, xres, yres):
@@ -228,7 +228,7 @@ def _plyIntoNumpyArray(directory, tileList, gridLength, columnList):
     terrainData = numpy.empty((gridLength * len(tileList), len(columnList)))
     for i, file in enumerate(tileList):
         if i % 25 == 0 or i == len(tileList)-1 : # first, every 25, and last
-            print('processing tile '+str(i+1)+' of '+str(len(tileList)))
+            logger.info('processing tile '+str(i+1)+' of '+str(len(tileList)))
 
         plydata = plyfile.PlyData.read(directory + "/" + file)
         for j, column in enumerate(columnList):

@@ -5,16 +5,15 @@ behaviour of Client.list() method no use is made of higher level methods (push,
 pull) provided.
 """
 
-#import pathlib
+import logging
 import os
 import shutil
 from webdav3.client import Client as wd3client
 from webdav3.exceptions import *
 from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
-    check_dir_exists, get_args_from_configfile, shell_execute_cmd
-#from utils import check_path_exists, check_file_exists, \
-#    check_dir_exists, get_args_from_configfile, shell_execute_cmd
+    check_dir_exists, get_args_from_configfile
 
+logger = logging.getLogger(__name__)
 
 def get_wdclient(options=None):
     """
@@ -55,29 +54,30 @@ def get_options_from_file(options):
 
 def check_options(options):
     if not isinstance(options,dict):
-        print('options must be a dictionary at this stage.')
+        logger.error('options must be a dictionary at this stage.')
         raise TypeError(options)
 
     keys = options.keys()
     failure = False
     if 'webdav_login' not in keys:
-        print('missing "webdav_login" key. \
-               Please note that if you are using \
-               an authentication file the arguments \
-               must be specified there.' )
+        logger.error('missing "webdav_login" key. \
+                      Please note that if you are using \
+                      an authentication file the arguments \
+                      must be specified there.' )
         failure = True
     if 'webdav_password' not in keys:
-        print('missing "webdav_password" key.\
-               please note that if you are using \
-               an authentication file the arguments \
-               must be specified there.' )
+        logger.error('missing "webdav_password" key.\
+                      please note that if you are using \
+                      an authentication file the arguments \
+                      must be specified there.' )
         failure = True
     if 'webdav_hostname' not in keys:
-        print('missing "webdav_password" key.')
+        logger.error('missing "webdav_password" key.')
         failure = True
 
     if failure:
-        print('Options specified for Webdav client insufficient to establish client.')
+        logger.error('Options specified for Webdav client insufficient to \
+                      establish client.')
         raise RuntimeError
 
 
@@ -90,13 +90,13 @@ def pull_from_remote(wdclient,local_directory,remote_record):
     """
 
     if not (isinstance(remote_record,str) and isinstance(local_directory,str)):
-        print('Expected type str for local_directory and remote_record but \
-               received types {} and {}'.format(type(local_directory),
-               type(remote_record)))
+        logger.error('Expected type str for local_directory and remote_record \
+                      but received types {} and {}'.format(type(local_directory),
+                                                           type(remote_record)))
         raise TypeError
 
     if not wdclient.check(remote_record):
-        print('remote resource {} not found'.format(remote_record))
+        logger.error('remote resource {} not found'.format(remote_record))
         raise RemoteResourceNotFound(remote_record)
 
     if wdclient.is_dir(remote_record):
@@ -116,7 +116,8 @@ def pull_file_from_remote(wdclient,local_destination,remote_origin,file):
     :param file: file name
     """
     if not isinstance(file,str):
-        print('Expected type str but received type {}'.format(type(file)))
+        logger.error('Expected type str but received type \
+                      {}'.format(type(file)))
         raise TypeError
 
     remote_path_to_file = os.path.join(remote_origin,file)
@@ -125,7 +126,7 @@ def pull_file_from_remote(wdclient,local_destination,remote_origin,file):
     try:
         wdclient.download_file(remote_path_to_file,local_path_to_file)
     except WebDavException as exception:
-        print('failed to download {} from remote'.format(file))
+        logger.error('failed to download {} from remote'.format(file))
         raise
 
 
@@ -153,20 +154,21 @@ this currently does not work due to issues with the parsing of the remote fs exp
 #        try:
 #            wdclient.pull(remote_directory=remote_dir,local_directory=local_dir)
 #        except WebDavException as exception:
-#            print('Failed to pull {} to \
-#                                    {}'.format(remote_dir,local_dir))
+#            logger.error('Failed to pull {} to {}'.format(remote_dir,
+#                                                          local_dir))
 #            raise
 #
 #    elif mode == 'download':
 #        p =pathlib.Path(local_dir)
 #        if not p.parent.exists():
-#            print('parent directory of local_dir does not exist! Aborting...')
+#            logger.error('parent directory of local_dir does not exist! \
+#                          Aborting...')
 #            raise FileNotFoundError(p.parent)
 #
 #        try:
 #            wdclient.download_sync(remote_dir,local_dir)
 #        except WebDavException as exception:
-#            print('Failed to download {} to \
+#            logger.error('Failed to download {} to \
 #                                    {}'.format(remote_dir,local_dir))
 #            raise
 
@@ -182,11 +184,11 @@ def pull_directory_from_remote(wdclient,local_dir,remote_dir):
     """
 
     if os.path.exists(local_dir):
-        print('A file or directory already exists with this name')
+        logger.error('A file or directory already exists with this name')
         raise FileExistsError(local_dir)
 
     if wdclient.check(remote_dir) != True:
-        print('remote resource could not be found')
+        logger.error('remote resource could not be found')
         raise RemoteResourceNotFound(dir)
 
     records = wdclient.list(remote_dir)
@@ -207,13 +209,14 @@ def pull_directory_from_remote(wdclient,local_dir,remote_dir):
             try:
                 pull_directory_from_remote(wdclient,lpath,rpath)
             except WebDavException as exception:
-                print('failed to recursively pull {}'.format(record))
+                logger.error('failed to recursively pull {}'.format(record))
                 raise
         else:
             try:
                 pull_file_from_remote(wdclient,local_dir,remote_dir,record)
             except WebDavException as exception:
-                print('failed to pull {} from {}'.format(record,remote_dir))
+                logger.error('failed to pull {} from {}'.format(record,
+                                                                remote_dir))
                 raise
 
 
@@ -232,19 +235,20 @@ unclear why push behaviour changed
 #    :param mode: 'push': sync directory ; 'upload': upload
 #    """
 #    if not os.path.isdir(local_dir):
-#        print('{} is not a directory'.format(local_dir))
+#        logger.error('{} is not a directory'.format(local_dir))
 #        raise NotADirectoryError(local_dir)
 #
 #        if wdclient.check(remote_dir) == False:
 #            try:
 #                wdclient.mkdir(remote_dir)
 #            except WebDavException as exception:
-#                print('failed to create required remote directory {}'.format(remote_dir))
+#                logger.error('failed to create required remote directory \
+#                              {}'.format(remote_dir))
 #                raise
 #        try:
 #            wdclient.push(remote_directory=remote_dir,local_directory=local_dir)
 #        except WebDavException as exception:
-#            print('Failed to push {} to \
+#            logger.error('Failed to push {} to \
 #                                    {}'.format(local_dir,remote_dir))
 #            raise
 #
@@ -252,7 +256,7 @@ unclear why push behaviour changed
 #        try:
 #            wdclient.upload_sync(remote_dir,local_dir)
 #        except WebDavException as exception:
-#            print('Failed to upload {} to \
+#            logger.error('Failed to upload {} to \
 #                                    {}'.format(local_dir,remote_dir))
 #            raise
 
@@ -268,13 +272,13 @@ def push_to_remote(wdclient,local_record,remote_directory):
     :param remote_directory: path to target directory on remote fs
     """
     if not (isinstance(remote_directory,str) and isinstance(local_record,str)):
-        print('Expected type str for local_record and remote_directory but \
-               received types {} and {}'.format(type(local_record),
+        logger.error('Expected type str for local_record and remote_directory \
+               but received types {} and {}'.format(type(local_record),
                 type(remote_directory)))
         raise TypeError
 
     if not os.path.exists(local_record):
-        print('local record does not exist')
+        logger.error('local record does not exist')
         raise FileNotFoundError(local_record)
 
     if os.path.isdir(local_record):
@@ -296,7 +300,8 @@ def push_file_to_remote(wdclient,local_origin,remote_destination,file):
     :param file: file name
     """
     if not isinstance(file,str):
-        print('Expected type str but received type {}'.format(type(file)))
+        logger.error('Expected type str but received type \
+                      {}'.format(type(file)))
         raise TypeError
 
     remote_path_to_file = os.path.join(remote_destination,file)
@@ -306,11 +311,12 @@ def push_file_to_remote(wdclient,local_origin,remote_destination,file):
         try:
             wdclient.upload_sync(remote_path_to_file,local_path_to_file)
         except WebDavException as exception:
-            print('Failed to upload {} to \
+            logger.error('Failed to upload {} to \
                                             remote destination'.format(file))
             raise
     else:
-        print("remote parent directory {} does not exist ".format(remote_destination))
+        logger.error("remote parent directory {} \
+                      does not exist ".format(remote_destination))
         raise RemoteResourceNotFound(remote_path_to_file)
 
 def push_directory_to_remote(wdclient,local_dir,remote_dir):
@@ -326,13 +332,14 @@ def push_directory_to_remote(wdclient,local_dir,remote_dir):
         try:
             wdclient.mkdir(remote_dir)
         except WebDavException as exception:
-            print('failed to create remote directory')
+            logger.error('failed to create remote directory')
             raise FileNotFoundError
     else:
         if wdclient.is_dir(remote_dir) == True:
             pass
         else:
-            print('A record exits at {} on the remote fs which is not a directory.')
+            logger.error('A record exits at {} on the remote fs \
+                          which is not a directory.')
             raise FileExistsError
 
     lrecords = os.listdir(local_dir)
