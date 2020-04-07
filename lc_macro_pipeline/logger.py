@@ -3,6 +3,7 @@ import pathlib
 import sys
 
 
+logger = logging.getLogger(__name__)
 _default_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 # Make a local copy of the stdout/stderr objects to configure stream handler
 _stream_dict = {'stderr': sys.stderr, 'stdout': sys.stdout}
@@ -54,14 +55,17 @@ class Logger(object):
 
     def remove_handlers(self, stream=False, file=False):
         """ Remove handler instances. """
-        for handler in self.logger.handlers:
+        mask = [True for h in self.logger.handlers]
+        for n, handler in enumerate(self.logger.handlers):
             if isinstance(handler, logging.StreamHandler) and stream:
-                self.logger.removeHandler(handler)
+                mask[n] = False
             if isinstance(handler, logging.FileHandler) and file:
-                self.logger.debug('Terminating stream to logfile: '
-                                  '{}'.format(self.filename.as_posix()))
-                self.logger.removeHandler(handler)
+                mask[n] = False
+                logger.debug('Terminating stream to logfile: '
+                             '{}'.format(handler.baseFilename))
                 self._redirect_std_streams(False)
+        self.logger.handlers = [h for n, h in enumerate(self.logger.handlers)
+                                if mask[n]]
 
     def _redirect_std_streams(self, redirect):
         if redirect:
@@ -107,15 +111,14 @@ class Logger(object):
         fh.setLevel(self.level)
         self.logger.addHandler(fh)
 
-        self.logger.debug('Start stream to logfile: '
-                          '{}'.format(file_path.as_posix()))
+        logger.debug('Start stream to file: {}'.format(file_path.as_posix()))
         self._redirect_std_streams(True)
 
 
 class Log(object):
-    def __init__(self, stream, logger, level):
+    def __init__(self, stream, logger_obj, level):
         self.stream = stream
-        self.logger = logger
+        self.logger = logger_obj
         self.level = level
 
     def write(self, msg, *args, **kwargs):
