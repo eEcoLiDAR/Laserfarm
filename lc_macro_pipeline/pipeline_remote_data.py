@@ -1,9 +1,13 @@
+import logging
 import pathlib
 
 from lc_macro_pipeline.pipeline import Pipeline
 from lc_macro_pipeline.remote_utils import get_wdclient, purge_local, \
     pull_from_remote, push_to_remote
 from lc_macro_pipeline.utils import check_dir_exists
+
+
+logger = logging.getLogger(__name__)
 
 
 class PipelineRemoteData(Pipeline):
@@ -24,12 +28,15 @@ class PipelineRemoteData(Pipeline):
         :param input_file: (optional) name of the input file to be retrieved
         """
         self.input_folder = pathlib.Path(input_folder)
+        logger.info('Input dir set to {}'.format(self.input_folder))
         if input_file is not None:
             self.input_file = self.input_folder.joinpath(input_file)
+            logger.info('Input file set to {}'.format(self.input_file))
         # Do not check existence of input folder as it may be retrieved from
         # remote fs
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
         self.output_folder = pathlib.Path(output_folder)
+        logger.info('Output dir set to {}'.format(self.output_folder))
         self.logger.set_file(directory=self.output_folder.as_posix())
         return self
 
@@ -44,9 +51,11 @@ class PipelineRemoteData(Pipeline):
         remote_path = pathlib.Path(remote_origin)
         if self.input_file is not None:
             remote_path.joinpath(self.input_file.name)
+        logger.info('Pulling from WebDAV {} ...'.format(remote_origin))
         pull_from_remote(wdclient,
                          self.input_folder.as_posix(),
                          remote_path.as_posix())
+        logger.info('... pulling completed.')
         return self
 
     def pushremote(self, options, remote_destination):
@@ -57,13 +66,16 @@ class PipelineRemoteData(Pipeline):
         :param remote_destination: path to remote target directory
         """
         wdclient = get_wdclient(options)
+        logger.info('Pushing to WebDAV {} ...'.format(remote_destination))
         push_to_remote(wdclient,
                        self.output_folder.as_posix(),
                        remote_destination)
+        logger.info('... pushing completed.')
         return self
 
     def cleanlocalfs(self):
         """ remove pulled input and results (after push) """
+        logger.info('Removing input and output folders')
         purge_local(self.input_folder.as_posix())
         purge_local(self.output_folder.as_posix())
         return self

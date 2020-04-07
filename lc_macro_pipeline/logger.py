@@ -4,7 +4,7 @@ import sys
 
 
 logger = logging.getLogger(__name__)
-_default_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+_default_format = '%(asctime)s - %(name)40s - %(levelname)10s - %(message)s'
 # Make a local copy of the stdout/stderr objects to configure stream handler
 _stream_dict = {'stderr': sys.stderr, 'stdout': sys.stdout}
 
