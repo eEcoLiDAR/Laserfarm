@@ -1,3 +1,4 @@
+from lc_macro_pipeline.logger import Logger
 from lc_macro_pipeline.utils import get_args_from_configfile
 
 
@@ -24,6 +25,7 @@ class Pipeline(object):
     """
     _pipeline = tuple()
     _input = dict()
+    logger = None
 
     @property
     def pipeline(self):
@@ -59,11 +61,6 @@ class Pipeline(object):
     def input(self, input):
         if not isinstance(input, dict):
             raise TypeError("A dictionary is expected!")
-        attributes_not_used = [key for key in input.keys()
-                               if key not in self.pipeline]
-        if len(attributes_not_used) > 0:
-            raise Warning('Some of the attributes in input will not be used:'
-                          ' {} '.format(', '.join(attributes_not_used)))
         self._input = input
 
     def config(self, path):
@@ -75,11 +72,22 @@ class Pipeline(object):
         self.input = get_args_from_configfile(path)
         return self
 
-    def run(self):
-        """ Run the full pipeline. """
-        _input = self.input.copy()
+    def log_config(self, level=None, format=None, stream=None, filename=None):
+        self.logger.config(level, format, stream, filename)
 
-        for task_name in self.pipeline:
+    def run(self, pipeline=None):
+        """
+        Run the full pipeline.
+
+        :param pipeline: (optional) Run the input pipeline if provided
+        """
+        _input = self.input.copy()
+        _pipeline = pipeline if pipeline is not None else self.pipeline
+        _pipeline = ('log_config',) + _pipeline
+
+        self.logger = Logger()
+
+        for task_name in _pipeline:
             if task_name in _input:
                 task = getattr(self, task_name)
                 input_task = _input.pop(task_name)
@@ -94,4 +102,6 @@ class Pipeline(object):
         if len(_input.keys()) > 0:
             raise Warning('Some of the attributes in input have not been used:'
                           ' {} '.format(', '.join(_input.keys())))
+
+        self.logger.terminate()
         return

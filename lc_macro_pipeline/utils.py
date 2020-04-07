@@ -1,7 +1,9 @@
 import json
+import logging
 import pathlib
 import subprocess
 
+logger = logging.getLogger(__name__)
 
 def check_path_exists(path, should_exist):
     p = _string_to_path(path)
@@ -57,7 +59,7 @@ def get_args_from_configfile(path):
 def shell_execute_cmd(command, verbacious=False):
     """ Execute command in the SHELL. Optionally display stdout and stderr. """
     if verbacious:
-        print(command)
+        logger.info(command)
     proc = subprocess.Popen(command, shell=True,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
@@ -65,7 +67,7 @@ def shell_execute_cmd(command, verbacious=False):
     out_err = '\n'.join((out.decode("utf-8"), err.decode("utf-8")))
     rcode = proc.returncode
     if verbacious:
-        print(out_err)
+        logger.info(out_err)
     return rcode, out_err
 
 

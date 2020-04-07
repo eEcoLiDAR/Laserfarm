@@ -1,7 +1,7 @@
 {
   "localfs": {
     "input_folder": "/home/ubuntu/examples/testdata",
-    "temp_folder": "/home/ubuntu/examples/tmp",
+    "output_folder": "/home/ubuntu/examples/tmp",
     "input_file": "C_41CZ2.LAZ"
   },
   "pullremote":{

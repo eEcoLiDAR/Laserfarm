@@ -1,7 +1,7 @@
 {
   "localfs": {
     "input_folder": "./testdata",
-    "temp_folder": "./tmp",
+    "output_folder": "./tmp",
     "input_file": "C_41CZ2.LAZ"
   },
   "pullremote":{

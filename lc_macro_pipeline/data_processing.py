@@ -1,4 +1,5 @@
 import inspect
+import logging
 import numpy as np
 import pathlib
 
@@ -17,29 +18,25 @@ from laserchicken.utils import create_point_cloud, add_to_point_cloud, \
     get_point
 
 from lc_macro_pipeline.grid import Grid
-from lc_macro_pipeline.pipeline import Pipeline
+from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
 from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
     check_dir_exists, DictToObj
-from lc_macro_pipeline.remote_utils import get_wdclient, pull_from_remote, \
-    push_to_remote, purge_local
 
 
-class DataProcessing(Pipeline):
+logger = logging.getLogger(__name__)
+
+
+class DataProcessing(PipelineRemoteData):
     """ Read, process and write point cloud data using laserchicken. """
 
     def __init__(self):
-        self.pipeline = ('localfs',
-                         'pullremote',
-                         'load',
+        self.pipeline = ('load',
                          'normalize',
                          'apply_filter',
                          'export_point_cloud',
                          'generate_targets',
                          'extract_features',
-                         'export_targets' ,
-                         'pushremote',
-                         'cleanlocalfs'
-                         )
+                         'export_targets')
         self.point_cloud = create_point_cloud([], [], [])
         self.targets = create_point_cloud([], [], [])
         self.grid = Grid()
@@ -71,57 +68,8 @@ class DataProcessing(Pipeline):
         :param parameters: Extractor-specific parameters
         """
         extractor = _get_attribute(self.extractors, extractor_name)
+        logger.info('Setting up feature extractor {}'.format(extractor_name))
         register_new_feature_extractor(extractor(**parameters))
-        return self
-
-
-    def localfs(self, input_folder, output_folder):
-        """
-        IO setup for the local file system.
-
-        :param input_folder: full path to input folder on local filesystem.
-        :param output_folder: full path to output folder on local filesystem \
-                              This folder is considered root for all output \
-                              paths specified
-        :return:
-        """
-        self.input_folder = pathlib.Path(input_folder)
-        #Do not check existence of input folder as it may be retrieved from
-        # remote fs
-        output_path = pathlib.Path(output_folder)
-        check_dir_exists(output_path, should_exist=True, mkdir=True)
-        self.output_folder = output_path
-        return self
-
-    def pullremote(self, options, remote_origin):
-        """
-        pull directory with input file(s) from remote to local fs
-
-        :param options: setup options for webdav client. Can be a filepath
-        :param remote_origin: path to directory on remote fs
-        """
-
-        wdclient = get_wdclient(options)
-        pull_from_remote(wdclient,self.input_folder.as_posix(),remote_origin)
-        return self
-
-    def pushremote(self, options, remote_destination):
-        """
-        push directory with output from local fs to remote_dir
-
-        :param options: setup options for webdavclient. Can be filepath
-        :param remote_destination: path to remote target directory
-        """
-        wdclient = get_wdclient(options)
-        push_to_remote(wdclient,self.output_folder.as_posix(),remote_destination)
-        return self
-
-    def cleanlocalfs(self):
-        """
-        remove pulled input and results (after push)
-        """
-        purge_local(self.input_folder.as_posix())
-        purge_local(self.output_folder.as_posix())
         return self
 
     def load(self, **load_opts):
@@ -131,9 +79,13 @@ class DataProcessing(Pipeline):
         :param load_opts: Arguments passed to the laserchicken load function
         """
         check_dir_exists(self.input_folder, should_exist=True)
+        logger.info('Loading point cloud data from dir '
+                    '{} ...'.format(self.input_folder))
         for file in _get_input_file_list(self.input_folder):
+            logger.info('... loading {}'.format(file))
             add_to_point_cloud(self.point_cloud,
                                load(file, **load_opts))
+        logger.info('... loading completed.')
         return self
 
     def normalize(self, cell_size):
@@ -144,7 +96,9 @@ class DataProcessing(Pipeline):
         normalization (in m)
         :return:
         """
+        logger.info('Normalizing point-cloud heights ...')
         normalize(self.point_cloud, cell_size)
+        logger.info('... normalization completed.')
         return self
 
     def apply_filter(self, filter_type, **filter_input):
@@ -159,6 +113,7 @@ class DataProcessing(Pipeline):
         :param filter_input: Filter-specific input.
         """
         filter = _get_attribute(self.filter, filter_type)
+        logger.info('Filtering point-cloud data')
         self.point_cloud = filter(self.point_cloud, **filter_input)
         return self
 
@@ -166,18 +121,22 @@ class DataProcessing(Pipeline):
         """
         Write environment point cloud to disk.
 
-        :param filename: optional filename where to write point-cloud data (relative to \
-                      self.output_folder root)
+        :param filename: optional filename where to write point-cloud data
+                         (relative to self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param export_opts: Optional arguments passed to the laserchicken
-        export function
+                            export function
         """
+        if pathlib.Path(filename).parent.name:
+            raise IOError('filename should not include path!')
         expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
+        logger.info('Exporting environment point-cloud ...')
         self._export(self.point_cloud,
                      expath,
                      attributes,
                      multi_band_files=False,
                      **export_opts)
+        logger.info('... exporting completed.')
         return self
 
     def generate_targets(self, min_x, min_y, max_x, max_y, n_tiles_side,
@@ -203,9 +162,12 @@ class DataProcessing(Pipeline):
         :param validate_precision: Optional precision threshold to determine
         whether point belong to tile
         """
+        logger.info('Setting up the target grid')
         self.grid.setup(min_x, min_y, max_x, max_y, n_tiles_side)
 
         if validate:
+            logger.info('Checking whether points belong to cell '
+                        '({},{})'.format(index_tile_x, index_tile_y))
             x_all, y_all, _ = get_point(self.point_cloud, ...)
             mask = self.grid.is_point_in_tile(x_all,
                                               y_all,
@@ -214,6 +176,9 @@ class DataProcessing(Pipeline):
                                               validate_precision)
             assert np.all(mask), ('{} points belong to (a) different tile(s)'
                                   '!'.format(len(x_all[~mask])))
+
+        logger.info('Generating target point mesh with '
+                    '{}m spacing '.format(tile_mesh_size))
         x_trgts, y_trgts = self.grid.generate_tile_mesh(index_tile_x,
                                                         index_tile_y,
                                                         tile_mesh_size)
@@ -233,16 +198,20 @@ class DataProcessing(Pipeline):
         :param feature_names: List of the feature names to be computed
         :param sample_size: Sample neighborhoods with a random subset of points
         """
+        logger.info('Building volume of type {}'.format(volume_type))
         volume = build_volume(volume_type, volume_size)
+        logger.info('Constructing neighborhoods')
         neighborhoods = compute_neighborhoods(self.point_cloud,
                                               self.targets,
                                               volume,
                                               sample_size=sample_size)
+        logger.info('Starting feature extraction ...')
         compute_features(self.point_cloud,
                          neighborhoods,
                          self.targets,
                          feature_names,
                          volume)
+        logger.info('... feature extraction completed.')
         return self
 
     def export_targets(self, filename='', attributes='all', multi_band_files=True,
@@ -251,16 +220,20 @@ class DataProcessing(Pipeline):
         Write target point cloud to disk.
 
 
-        :param filename: optional filename where to write point-cloud data (relative to \
-                      self.output_folder root)
+        :param filename: optional filename where to write point-cloud data
+                         (relative to self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param multi_band_files: If true, write all attributes in one file
         :param export_opts: Optional arguments passed to the laserchicken
-        export function
+                            export function
         """
+        if pathlib.Path(filename).parent.name:
+            raise IOError('filename should not include path!')
         expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
+        logger.info('Exporting target point-cloud ...')
         self._export(self.targets, expath, attributes, multi_band_files,
                      **export_opts)
+        logger.info('... exporting completed.')
         return self
 
     @staticmethod
@@ -281,6 +254,7 @@ class DataProcessing(Pipeline):
                                                        features,
                                                        multi_band_files,
                                                        **export_opts).items():
+            logger.info('... exporting {}'.format(file))
             export(point_cloud, file, attributes=feature_set, **export_opts)
 
 

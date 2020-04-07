@@ -2,6 +2,8 @@ import os
 import shutil
 import unittest
 
+from dask.distributed import LocalCluster
+
 from lc_macro_pipeline.macro_pipeline import MacroPipeline
 from lc_macro_pipeline.pipeline import Pipeline
 
@@ -46,9 +48,13 @@ class TestToyMacroPipeline(unittest.TestCase):
 
     def setUp(self):
         os.mkdir(self._test_dir)
+        self.cluster = LocalCluster(processes=True,
+                                    n_workers=2,
+                                    threads_per_worker=1)
 
     def tearDown(self):
         shutil.rmtree(self._test_dir)
+        self.cluster.close()
         if os.path.isdir(self._tmp_dask_worker_dir):
             shutil.rmtree(self._tmp_dask_worker_dir)
 
@@ -65,6 +71,7 @@ class TestToyMacroPipeline(unittest.TestCase):
                    'close': {}}
         mp = MacroPipeline()
         mp.tasks = [a, b]
+        mp.setup_client(cluster=self.cluster)
         mp.run()
         self.assertTrue(all([os.path.isfile(f) for f in [file_a, file_b]]))
         lines_a, lines_b = [open(f).readlines() for f in [file_a, file_b]]
@@ -82,6 +89,7 @@ class TestToyMacroPipeline(unittest.TestCase):
                    'close': {}}
         mp = MacroPipeline()
         mp.tasks = [a, b]
+        mp.setup_client(cluster=self.cluster)
         errs = mp.run()
         self.assertListEqual(list(errs[0]), [None, None])
         self.assertTrue(errs[1][0], IsADirectoryError)

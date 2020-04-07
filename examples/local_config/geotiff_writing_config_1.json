@@ -1,7 +1,7 @@
 {
   "localfs":{
-    "data_directory":"./tmp/PLY",
-    "output_directory":"./tmp/geotiffs_output"
+    "input_folder":"./tmp/PLY",
+    "output_folder":"./tmp/geotiffs_output"
   },
   "pullremote":{
     "options":"./local_config/example_webdav_option_file.json",
