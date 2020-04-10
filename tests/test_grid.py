@@ -78,9 +78,9 @@ class TestInvalidGridSetup(unittest.TestCase):
 class TestRealGridValid(unittest.TestCase):
     _test_dir = 'test_tmp_dir'
     _test_data_dir = 'testdata'
-    _test_tile_idx = [169, 108]
+    _test_tile_idx = [101, 101]
 
-    _test_file_name = 'C_41CZ2_3_valid.LAZ'
+    _test_file_name = 'C_43FN1_1_1.LAZ'
     _min_x = -113107.8100
     _min_y = 214783.8700
     _max_x = 398892.1900
@@ -112,7 +112,7 @@ class TestRealGridLowPrecision(TestRealGridValid):
     in the PDAL LAS writer. Some points thus fall outside the tile boundary
     when read from the file.
     """
-    _test_file_name = 'C_41CZ2_3_lowprec.LAZ'
+    _test_file_name = 'C_43FN1_1.LAZ'
 
     def test_isPointInTile(self):
         x_pts, y_pts = self.points.T
@@ -127,9 +127,10 @@ class TestRealGridLowPrecision(TestRealGridValid):
 
     def test_isPointInTileWithPrecision(self):
         x_pts, y_pts = self.points.T
+        precision = np.abs(np.rint(self._max_y) - self._max_y)
         mask_valid_points = self.grid.is_point_in_tile(x_pts, y_pts,
                                                        *self._test_tile_idx,
-                                                       precision=0.1)
+                                                       precision=precision)
         self.assertTrue(np.all(mask_valid_points))
 
 
