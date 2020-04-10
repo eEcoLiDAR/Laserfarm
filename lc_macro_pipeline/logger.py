@@ -2,6 +2,7 @@ import logging
 import pathlib
 import sys
 
+from lc_macro_pipeline.utils import check_dir_exists
 
 logger = logging.getLogger(__name__)
 _default_format = '%(asctime)s - %(name)40s - %(levelname)10s - %(message)s'
@@ -18,7 +19,7 @@ class Logger(object):
         self.stream = _stream_dict['stderr']
         self.filename = pathlib.Path('lc_macro_pipeline.log')
 
-        self.logger = logging.getLogger('lc_macro_pipeline')
+        self.logger = logging.getLogger()
         self.logger.setLevel(self.level)
         self.set_stream()  # Initialize the logger with a stream
 
@@ -103,7 +104,7 @@ class Logger(object):
             file_path = pathlib.Path(directory).joinpath(self.filename.name)
         else:
             file_path = self.filename
-
+        check_dir_exists(file_path.parent, should_exist=True)
         fh = logging.FileHandler(file_path,
                                  mode='w' if not append else 'a',
                                  delay=True)
