@@ -240,6 +240,11 @@ class TestExportPointCloud(unittest.TestCase):
         self.pipeline.export_point_cloud()
         self.assertListEqual(['point_cloud.ply'], os.listdir(self._test_dir))
 
+    def test_filenameContainsPath(self):
+        self.pipeline.output_folder = self._test_dir
+        with self.assertRaises(OSError):
+            self.pipeline.export_point_cloud(filename='folder/tmp.ply')
+
 
 class TestExtractFeatures(unittest.TestCase):
 
@@ -439,6 +444,11 @@ class TestExportTargets(unittest.TestCase):
                                                         log=False)
         self.pipeline.export_targets()
         self.assertListEqual([self._output_name], os.listdir(self._test_dir))
+
+    def test_filenameContainsPath(self):
+        self.pipeline.output_folder = self._test_dir
+        with self.assertRaises(OSError):
+            self.pipeline.export_targets(filename='folder/tmp.ply')
 
 
 def _get_point_cloud_size(point_cloud):
