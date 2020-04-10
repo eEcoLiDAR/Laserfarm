@@ -125,8 +125,8 @@ class Grid(object):
             point_cart = np.array([px, py], dtype=np.float).T
             tile_mins, tile_maxs = self.get_tile_bounds(tile_index_x,
                                                         tile_index_y)
-            mask = np.logical_and(tile_mins - point_cart < precision,
-                                  point_cart - tile_maxs < precision)
+            mask = np.logical_and(tile_mins - point_cart <= precision,
+                                  point_cart - tile_maxs <= precision)
         return np.all(mask, axis=1)
 
     def generate_tile_mesh(self, tile_index_x, tile_index_y, tile_mesh_size):
