@@ -7,11 +7,12 @@ from lc_macro_pipeline.pipeline import Pipeline
 
 from .tools import ShortPipeline
 
+
 class TestPipelineObject(unittest.TestCase):
 
     def test_pipelineDefault(self):
         pip = Pipeline()
-        self.assertTrue(isinstance(pip.pipeline, tuple))
+        self.assertIsInstance(pip.pipeline, tuple)
         self.assertTrue(len(pip.pipeline) == 0)
 
     def test_setPipelineNotValid(self):
@@ -23,7 +24,7 @@ class TestPipelineObject(unittest.TestCase):
 
     def test_inputDefault(self):
         pip = Pipeline()
-        self.assertTrue(isinstance(pip.input, dict))
+        self.assertIsInstance(pip.input, dict)
         self.assertTrue(len(pip.input) == 0)
 
     def test_setInputNotDictionary(self):
@@ -49,13 +50,6 @@ class TestShortPipeline(unittest.TestCase):
         input = {'foo': 1, 'bar': 2}
         pip.input = input
         self.assertDictEqual(input, pip.input)
-
-    def test_setInputExtraAttribute(self):
-        pip = ShortPipeline()
-        pip.input = {'foo': 1, 'bar': 2}
-        pip.input['test'] = 3
-        with self.assertRaises(Warning):
-            pip.run()
 
     def test_setInputFromJSONConfigFile(self):
         expected_output = {'a': 1, 'b': 'test', 'c': None}

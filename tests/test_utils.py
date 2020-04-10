@@ -4,7 +4,8 @@ import shutil
 import unittest
 
 from lc_macro_pipeline.utils import check_dir_exists, check_file_exists, \
-    check_path_exists, get_args_from_configfile
+    check_path_exists, get_args_from_configfile, shell_execute_cmd, DictToObj
+
 
 class TestCheckLocalFS(unittest.TestCase):
 
@@ -89,3 +90,32 @@ class TestGetArgsFromConfigFile(unittest.TestCase):
             json.dump(self.input, fd)
         self.assertDictEqual(get_args_from_configfile(_test_file_path),
                              self.input)
+
+
+class TestShellExecuteCmd(unittest.TestCase):
+    def test_onlyStdout(self):
+        res = shell_execute_cmd("echo $PWD")
+        self.assertTupleEqual(res, (0, '{}\n\n'.format(os.getcwd())))
+
+    def test_onlyStderr(self):
+        res = shell_execute_cmd("echo $PWD 1>&2")
+        self.assertTupleEqual(res, (0, '\n{}\n'.format(os.getcwd())))
+
+    def test_nonzeroReturncode(self):
+        res = shell_execute_cmd("exit 1")
+        self.assertTupleEqual(res, (1, '\n'))
+
+
+class TestDictToObj(unittest.TestCase):
+    def test_emptyDict(self):
+        obj = DictToObj({})
+        self.assertIsInstance(obj, DictToObj)
+
+    def test_validDict(self):
+        obj = DictToObj({'a': 5})
+        self.assertTrue(hasattr(obj, 'a'))
+        self.assertEqual(obj.a, 5)
+
+    def test_invalidDict(self):
+        with self.assertRaises(AttributeError):
+            DictToObj(['a', 5])
