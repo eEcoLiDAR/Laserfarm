@@ -42,7 +42,7 @@ class Retiler(PipelineRemoteData):
         Split the input file using PDAL and organize the tiles in subfolders
         using the location on the input grid as naming scheme.
         """
-        check_file_exists(self.input_file, should_exist=True)
+        self._check_input()
         logger.info('Splitting file {} with PDAL ...'.format(self.input_file))
         _run_PDAL_splitter(self.input_file, self.output_folder,
                            self.grid.grid_mins, self.grid.grid_maxs,
@@ -74,7 +74,7 @@ class Retiler(PipelineRemoteData):
         Validate the produced output by checking consistency in the number
         of input and output points.
         """
-        check_file_exists(self.input_file, should_exist=True)
+        self._check_input()
         logger.info('Validating split ...')
         (parent_points, _, _, _, _) = _get_details_pc_file(self.input_file.as_posix())
         logger.info('... {} points in parent file'.format(parent_points))
@@ -106,6 +106,16 @@ class Retiler(PipelineRemoteData):
                           self.output_folder,
                           retile_record)
         return self
+
+    def _check_input(self):
+        if self.input_file is None:
+            raise ValueError('Input file not set!')
+        if self.output_folder is None:
+            raise ValueError('The output folder has not been set!')
+        if not self.grid.is_set:
+            raise ValueError('The grid has not been set!')
+        check_file_exists(self.input_file, should_exist=True)
+        check_dir_exists(self.output_folder, should_exist=True)
 
 
 def _get_details_pc_file(filename):
