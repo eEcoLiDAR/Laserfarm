@@ -1,9 +1,13 @@
+import logging
 import sys
 import traceback
 
 from dask.distributed import Client, LocalCluster, SSHCluster
 
 from lc_macro_pipeline.pipeline import Pipeline
+
+
+logger = logging.getLogger(__name__)
 
 
 class MacroPipeline(object):
@@ -30,6 +34,7 @@ class MacroPipeline(object):
     """
     def __init__(self):
         self._tasks = list()
+        self.client = None
 
     @property
     def tasks(self):
@@ -41,7 +46,8 @@ class MacroPipeline(object):
         try:
             _ = iter(tasks)
         except TypeError as err:
-            raise err('The collection of tasks should be an iterable object.')
+            logger.error('The collection of tasks should be an iterable object.')
+            raise
         for task in tasks:
             assert isinstance(task, Pipeline), \
                 'Task {} is not a derived Pipeline object'.format(task)
@@ -69,7 +75,10 @@ class MacroPipeline(object):
             exctype, value = sys.exc_info()[:2]
         return (exctype, value)
 
-    def setup_client(self, mode='local', cluster=None, **kwargs): 
+    def setup_client(self, mode='local', cluster=None, **kwargs):
+        if self.client is not None:
+            raise ValueError('Client is already set - call shutdown first!')
+
         if cluster is None: 
             if mode == 'local':
                 cluster = LocalCluster(**kwargs)
@@ -92,6 +101,6 @@ class MacroPipeline(object):
         return results
 
     def shutdown(self):
-        address = self.client.scheduler.address  ### get adress
+        address = self.client.scheduler.address  # get adress
         self.client.close()
         Client(address).shutdown()
