@@ -17,7 +17,7 @@ setup(
     license='Apache 2.0',
     keywords=['Python', 'Point cloud'],
     url='https://github.com/eEcoLiDAR/lcMacroPipeline',
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests"]),
     install_requires=required,
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
