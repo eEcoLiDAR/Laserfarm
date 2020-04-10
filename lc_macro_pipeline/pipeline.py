@@ -1,5 +1,10 @@
+import logging
+
 from lc_macro_pipeline.logger import Logger
 from lc_macro_pipeline.utils import get_args_from_configfile
+
+
+logger = logging.getLogger(__name__)
 
 
 class Pipeline(object):
@@ -40,9 +45,10 @@ class Pipeline(object):
             pipeline = tuple([pipeline])
         try:
             _ = iter(pipeline)
-        except TypeError as err:
-            raise err('The sequence of tasks in the pipeline '
-                      'should be provided as an iterable object.')
+        except TypeError:
+            logger.error('The sequence of tasks in the pipeline '
+                         'should be provided as an iterable object.')
+            raise
         for task in pipeline:
             assert task in dir(self.__class__), \
                 ('Error defining the pipeline: {} method not found'
@@ -100,8 +106,8 @@ class Pipeline(object):
                     task(input_task)
 
         if len(_input.keys()) > 0:
-            raise Warning('Some of the attributes in input have not been used:'
-                          ' {} '.format(', '.join(_input.keys())))
+            logger.warning('Some of the attributes in input have not been '
+                           'used: {} '.format(', '.join(_input.keys())))
 
         self.logger.terminate()
         return
