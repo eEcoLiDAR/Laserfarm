@@ -2,9 +2,12 @@ import json
 import os
 import shutil
 
+from laserchicken import export
+
 from lc_macro_pipeline.data_processing import DataProcessing
+from lc_macro_pipeline.geotiff_writer import Geotiff_writer
 from lc_macro_pipeline.retiler import Retiler
-from .tools import TestDerivedRemoteDataPipeline, \
+from .tools import TestDerivedRemoteDataPipeline, create_test_point_cloud, \
     get_number_of_points_in_LAZ_file
 
 
@@ -183,5 +186,74 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
                         self.assertEqual(int(line.split()[-1]), 40000)
                     line = f.readline()
 
+
+class TestGeotiffWriter(TestDerivedRemoteDataPipeline):
+
+    _test_dir = 'test_tmp_dir'
+    _log_filename = 'geotiff_writer.log'
+    _grid_spacing = 10.
+    _n_points_per_tile_and_dim = 10
+    _handle = 'geotiff'
+    _features = ["z", "feature_1", "feature_2"]
+    _n_subregions = (2, 2)
+
+    def setUp(self):
+        os.mkdir(self._test_dir)
+        cell_offset = self._grid_spacing * self._n_points_per_tile_and_dim
+        for nx in [10, 11]:
+            for ny in [12, 13]:
+                offset_x = -113107.8100 + nx*cell_offset
+                offset_y = 214783.8700 + ny*cell_offset
+                point_cloud = create_test_point_cloud(nx_values=10,
+                                                      grid_spacing=10.,
+                                                      offset=(offset_x,
+                                                              offset_y))
+                file_name = 'tile_{}_{}.ply'.format(nx, ny)
+                file_path = os.path.join(self._test_dir, file_name)
+                export(point_cloud, file_path)
+        self.pipeline = Geotiff_writer()
+
+    def tearDown(self):
+        shutil.rmtree(self._test_dir)
+
+    @property
+    def input(self):
+        _input = {
+            'log_config': {
+                'filename': self._log_filename
+            },
+            'localfs': {
+                'input_folder': self._test_dir,
+                'output_folder': self._test_dir,
+            },
+            "parse_point_cloud": {},
+            "data_split": {"xSub": self._n_subregions[0],
+                           "ySub": self._n_subregions[1]},
+            "create_subregion_geotiffs": {
+                "outputhandle": self._handle,
+                "band_export": self._features
+            }
+        }
+        return _input
+
+    def test_FullPipeline(self):
+        self.pipeline.input = self.input
+        self.pipeline.run()
+
+        # log file is present
+        self.assertTrue(os.path.join(self._test_dir, self._log_filename))
+
+        # geotiff files are present
+        index = 0
+        for nx in range(self._n_subregions[0]):
+            for ny in range(self._n_subregions[1]):
+                for feature in self._features:
+                    file_name = '{}_TILE_{}_BAND_{}.tif'.format(self._handle,
+                                                                index,
+                                                                feature)
+                    file_path = os.path.join(self._test_dir, file_name)
+                    print(file_path)
+                    self.assertTrue(os.path.isfile(file_path))
+                index += 1
 
 

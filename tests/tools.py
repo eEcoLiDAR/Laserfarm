@@ -80,13 +80,12 @@ class TestDerivedRemoteDataPipeline(TestDerivedPipeline):
 def create_test_point_cloud(nx_values=10, grid_spacing=1., offset=0., log=True):
     np.random.seed(1234)
     x = np.linspace(0., nx_values*grid_spacing, nx_values, endpoint=False)
-    x += offset
     xv, yv = np.meshgrid(x, x)
 
-    x = xv.flatten()
-    y = yv.flatten()
+    x, y = np.transpose(np.column_stack((xv.flatten(), yv.flatten()))
+                        + np.array(offset))
     z = np.random.uniform(-0.5, 0.5, x.size)
-    feature_1 = np.zeros_like(x, dtype=int)
+    feature_1 = np.zeros_like(x, dtype='int32')
     feature_2 = np.full_like(x, np.nan)
 
     point_cloud = {'vertex': {}}
