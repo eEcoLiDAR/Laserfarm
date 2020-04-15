@@ -36,11 +36,11 @@ class Geotiff_writer(PipelineRemoteData):
         logger.info('{} PLY files found'.format(len(self.InputTiles)))
 
         # Read one tile and get the template
-        file=os.path.join(self.input_folder, self.InputTiles[0])
+        file = os.path.join(self.input_folder, self.InputTiles[0])
         template = plyfile.PlyData.read(file)
 
         # Get length of data record (Nr. of elements in each band)
-        self.LengthDataRecord=len(template.elements[0].data)
+        self.LengthDataRecord = len(template.elements[0].data)
         logger.info('No. of points per file: {}'.format(self.LengthDataRecord))
 
         # Get resolution, assume a square tile
@@ -64,23 +64,23 @@ class Geotiff_writer(PipelineRemoteData):
         xcoord = []
         ycoord = []
         for f in self.InputTiles:
-            comp=f.split('_')
-            xc=comp[1]
-            yc=comp[2].split('.')[0]
+            comp = f.split('_')
+            xc = comp[1]
+            yc = comp[2].split('.')[0]
             xcoord.append(xc)
             ycoord.append(yc)
 
         # Tile index list
-        xcint = list(map(float,xcoord))
-        ycint = list(map(float,ycoord))
+        xcint = list(map(float, xcoord))
+        ycint = list(map(float, ycoord))
         # Extent of the tiles
         maxxc = max(xcint)
         minxc = min(xcint)
         maxyc = max(ycint)
         minyc = min(ycint)
         # Range tile index
-        xcRange = maxxc - minxc +1
-        ycRange = maxyc - minyc +1
+        xcRange = maxxc - minxc + 1
+        ycRange = maxyc - minyc + 1
         # Range of each sub-region
         xcSubRange = numpy.floor(xcRange/xSub)
         ycSubRange = numpy.floor(ycRange/ySub)
@@ -91,13 +91,13 @@ class Geotiff_writer(PipelineRemoteData):
                                                                      ySub))
         for i in range(xSub):
             for j in range(ySub):
-                if i != xSub-1 and j!= ySub-1:
+                if i != xSub-1 and j != ySub-1:
                     # Not the last line/colunm
                     # Include left/bottom; Exclude right/up
                     # [Left, Right): [minxc + i*xcSubRange, minxc + (i+1)*xcSubRange);
                     # [Bottom, top): [minyc + j*ycSubRange, minyc + (j+1)*ycSubRange);
                     subtiles = [f for k,f in enumerate(self.InputTiles) if (xcint[k] >= (minxc + i*xcSubRange) and xcint[k] < (minxc + (i+1)*xcSubRange) and ycint[k] >= (minyc + j*ycSubRange) and ycint[k] < (minyc + (j+1)*ycSubRange) )]
-                if i == xSub-1 and j== ySub-1:
+                if i == xSub-1 and j == ySub-1:
                     # top right corner
                     # [Left, right]: [minxc + i*xcSubRange; maxxc];
                     # [Bottom, top]: [minyc + j*ycSubRange; maxyc];
@@ -132,7 +132,7 @@ class Geotiff_writer(PipelineRemoteData):
             logger.info('... number of constituent tiles: '
                         '{}'.format(len(infiles)))
             if infiles:
-                outfile= outfilestem+'_TILE_'+str(subTiffNumber)
+                outfile = outfilestem+'_TILE_'+str(subTiffNumber)
                 _make_geotiff_per_band(infiles,
                               outfile,
                               band_export,
@@ -186,7 +186,7 @@ def _getGeoTransform(xyData, xres, yres):
     ncols = round(((xmax - xmin) / xres) +1)
     nrows = round(((ymax - ymin) / yres) +1)
     geotransform = (xmin, xres, 0, ymax, 0, -1.*yres)
-    arrayinfo = (xmin,xmax,xres,ncols,ymin,ymax,yres,nrows)
+    arrayinfo = (xmin, xmax, xres, ncols, ymin, ymax, yres, nrows)
     return geotransform, arrayinfo
 
 
@@ -196,12 +196,12 @@ def _shiftTerrain(terrainData,xres,yres):
     gdal accomodating geotiff orientation convention
     '''
     tdc = terrainData.copy()
-    tdx = tdc[:,0]
-    tdy = tdc[:,1]
-    tdx = tdx -0.5*xres
-    tdy = tdy -0.5*yres*(-1.)
-    tdc[:,0] = tdx
-    tdc[:,1] = tdy
+    tdx = tdc[:, 0]
+    tdy = tdc[:, 1]
+    tdx = tdx - 0.5*xres
+    tdy = tdy - 0.5*yres*(-1.)
+    tdc[:, 0] = tdx
+    tdc[:, 1] = tdy
     return tdc
 
 
@@ -213,8 +213,8 @@ def _getGeoCoding(xyData, arrayinfo):
     listY = numpy.arange(arrayinfo[7], dtype='float32')*arrayinfo[6]*(-1.) + arrayinfo[5]
     dictX = dict(zip(listX, range(len(listX))))
     dictY = dict(zip(listY, range(len(listY))))
-    xx = numpy.float32(xyData[:,0])
-    yy = numpy.float32(xyData[:,1])
+    xx = numpy.float32(xyData[:, 0])
+    yy = numpy.float32(xyData[:, 1])
     indexX = [dictX[x] for x in xx]
     indexY = [dictY[y] for y in yy]
     return indexX, indexY
