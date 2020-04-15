@@ -17,7 +17,7 @@ class Geotiff_writer(PipelineRemoteData):
         self.pipeline = ('parse_point_cloud',
                          'data_split',
                          'create_subregion_geotiffs')
-        self.InputTiles = None
+        self.InputTiles = []
         self.subtilelists = []
         self.LengthDataRecord = 0
         self.xResolution = 0
@@ -30,26 +30,42 @@ class Geotiff_writer(PipelineRemoteData):
             - Length of a single band
             - x and y resolution
         """
+        self._check_input(input_folder=True)
+
         # Get list of input tiles
-        utils.check_path_exists(self.input_folder, should_exist=True)
-        self.InputTiles = [TileFile for TileFile in os.listdir(self.input_folder) if TileFile.endswith('.ply')]
-        logger.info('{} PLY files found'.format(len(self.InputTiles)))
+        self.InputTiles = [TileFile
+                           for TileFile in os.listdir(self.input_folder)
+                           if TileFile.lower().endswith('.ply')]
+        if not self.InputTiles:
+            raise IOError('No PLY file in dir: {}'.format(self.input_folder))
+        else:
+            logger.info('{} PLY files found'.format(len(self.InputTiles)))
 
         # Read one tile and get the template
         file = os.path.join(self.input_folder, self.InputTiles[0])
         template = plyfile.PlyData.read(file)
+        if not template.elements[0].name == 'vertex':
+            raise ValueError('Tile PLY file should have vertex as first object')
 
         # Get length of data record (Nr. of elements in each band)
         self.LengthDataRecord = len(template.elements[0].data)
         logger.info('No. of points per file: {}'.format(self.LengthDataRecord))
 
         # Get resolution, assume a square tile
-        self.xResolution = (template.elements[0].data[:]['x'].max() \
-                       - template.elements[0].data[:]['x'].min()) \
-                       /(numpy.sqrt(template.elements[0].data[:]['x'].size) - 1)
-        self.yResolution = (template.elements[0].data[:]['y'].max() \
-                       - template.elements[0].data[:]['y'].min()) \
-                       /(numpy.sqrt(template.elements[0].data[:]['y'].size) - 1)
+        delta_x = (template.elements[0].data['x'].max()
+                   - template.elements[0].data['x'].min())
+        delta_y = (template.elements[0].data['y'].max()
+                   - template.elements[0].data['y'].min())
+        if numpy.isclose(delta_x, 0.) or numpy.isclose(delta_y, 0.):
+            raise ValueError('Tile should have finite extend in X and Y!')
+        self.xResolution = (delta_x /
+            (numpy.sqrt(template.elements[0].data['x'].size) - 1))
+        self.yResolution = (delta_y /
+            (numpy.sqrt(template.elements[0].data['y'].size) - 1))
+        if not (numpy.isclose(self.xResolution, self.yResolution) and
+                numpy.isclose(delta_x, delta_y)):
+            raise ValueError('Tile read is not square!')
+
         logger.info('Resolution: ({}m x {}m)'.format(self.xResolution,
                                                      self.yResolution))
         return self
@@ -63,6 +79,8 @@ class Geotiff_writer(PipelineRemoteData):
         """
         xcoord = []
         ycoord = []
+        if not self.InputTiles:
+            raise ValueError('Input tile list is empty!')
         for f in self.InputTiles:
             comp = f.split('_')
             xc = comp[1]
@@ -124,6 +142,7 @@ class Geotiff_writer(PipelineRemoteData):
         :param band_export: list of features names to export
         :param EPSG: (Optional) EPSG code of the spatial reference system of the input data. Default 28992.
         """
+        self._check_input(input_folder=True, output_folder=True)
         outfilestem = os.path.join(self.output_folder.as_posix(), outputhandle)
         for subTiffNumber in range(len(self.subtilelists)):
             infiles = self.subtilelists[subTiffNumber]
@@ -145,6 +164,16 @@ class Geotiff_writer(PipelineRemoteData):
                 logger.warning('No data in sub-region no. '+str(subTiffNumber))
             logger.info('... processing of sub-region completed.')
         return self
+
+    def _check_input(self, input_folder=False, output_folder=False):
+        if input_folder:
+            if self.input_folder is None:
+                raise ValueError('The input folder has not been set!')
+            utils.check_dir_exists(self.input_folder, should_exist=True)
+        if output_folder:
+            if self.output_folder is None:
+                raise ValueError('The output folder has not been set!')
+            utils.check_dir_exists(self.output_folder, should_exist=True)
 
 
 def _make_geotiff_per_band(infiles,outfile,band_export,data_directory,lengthDataRecord,xResolution,yResolution,EPSG):
