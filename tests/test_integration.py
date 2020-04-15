@@ -2,12 +2,10 @@ import json
 import os
 import shutil
 
-from laserchicken import export
-
 from lc_macro_pipeline.data_processing import DataProcessing
 from lc_macro_pipeline.geotiff_writer import Geotiff_writer
 from lc_macro_pipeline.retiler import Retiler
-from .tools import TestDerivedRemoteDataPipeline, create_test_point_cloud, \
+from .tools import TestDerivedRemoteDataPipeline, write_PLY_targets, \
     get_number_of_points_in_LAZ_file
 
 
@@ -191,26 +189,14 @@ class TestGeotiffWriter(TestDerivedRemoteDataPipeline):
 
     _test_dir = 'test_tmp_dir'
     _log_filename = 'geotiff_writer.log'
-    _grid_spacing = 10.
-    _n_points_per_tile_and_dim = 10
     _handle = 'geotiff'
     _features = ["z", "feature_1", "feature_2"]
     _n_subregions = (2, 2)
 
     def setUp(self):
         os.mkdir(self._test_dir)
-        cell_offset = self._grid_spacing * self._n_points_per_tile_and_dim
-        for nx in [10, 11]:
-            for ny in [12, 13]:
-                offset_x = -113107.8100 + nx*cell_offset
-                offset_y = 214783.8700 + ny*cell_offset
-                point_cloud = create_test_point_cloud(nx_values=10,
-                                                      grid_spacing=10.,
-                                                      offset=(offset_x,
-                                                              offset_y))
-                file_name = 'tile_{}_{}.ply'.format(nx, ny)
-                file_path = os.path.join(self._test_dir, file_name)
-                export(point_cloud, file_path)
+        indices = [(nx, ny) for nx in [10, 11] for ny in [12, 13]]
+        write_PLY_targets(self._test_dir, indices=indices)
         self.pipeline = Geotiff_writer()
 
     def tearDown(self):

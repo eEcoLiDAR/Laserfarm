@@ -4,6 +4,8 @@ import unittest
 
 import numpy as np
 
+from laserchicken import export
+
 from lc_macro_pipeline.pipeline import Pipeline
 from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
 
@@ -99,6 +101,28 @@ def create_test_point_cloud(nx_values=10, grid_spacing=1., offset=0., log=True):
                                      'parameters': [],
                                      'version': '0.9.2'}]})
     return point_cloud
+
+
+def write_PLY_targets(directory, indices, grid_spacing=10., nx_values=10,
+                      origin=(-113107.8100, 214783.8700), feature='',
+                      is_binary=False):
+    cell_offset = grid_spacing * nx_values
+    for (nx, ny) in indices:
+        offset_x = origin[0] + nx * cell_offset
+        offset_y = origin[1] + ny * cell_offset
+        point_cloud = create_test_point_cloud(nx_values=nx_values,
+                                              grid_spacing=grid_spacing,
+                                              offset=(offset_x,
+                                                      offset_y))
+        if feature:
+            file_name = 'tile_{}_{}_{}.ply'.format(nx, ny, feature)
+            attributes = [feature]
+        else:
+            file_name = 'tile_{}_{}.ply'.format(nx, ny)
+            attributes = 'all'
+        file_path = os.path.join(directory, file_name)
+        export(point_cloud, file_path, attributes=attributes,
+               is_binary=is_binary)
 
 
 def get_number_of_points_in_LAZ_file(filename):
