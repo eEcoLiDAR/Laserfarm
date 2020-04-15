@@ -17,7 +17,7 @@ from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
 logger = logging.getLogger(__name__)
 
 
-def get_wdclient(options=None):
+def get_wdclient(options):
     """
      get webdav
 
