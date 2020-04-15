@@ -209,8 +209,8 @@ def _getGeoCoding(xyData, arrayinfo):
     '''
         Geocoding the point-wise x/y to a raster grid
     '''
-    listX = numpy.float32(range(int(arrayinfo[3]))*arrayinfo[2] + arrayinfo[0])
-    listY = numpy.float32(range(int(arrayinfo[7]))*arrayinfo[6]*(-1.) + arrayinfo[5])
+    listX = numpy.arange(arrayinfo[3], dtype='float32')*arrayinfo[2] + arrayinfo[0]
+    listY = numpy.arange(arrayinfo[7], dtype='float32')*arrayinfo[6]*(-1.) + arrayinfo[5]
     dictX = dict(zip(listX, range(len(listX))))
     dictY = dict(zip(listY, range(len(listY))))
     xx = numpy.float32(xyData[:,0])
