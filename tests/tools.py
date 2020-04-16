@@ -26,6 +26,22 @@ class ShortPipeline(Pipeline):
         return self
 
 
+class ShortPipelineRemoteData(PipelineRemoteData):
+
+    def __init__(self):
+        self.pipeline = ['foo', 'bar']
+        self.output = dict()
+
+    def foo(self, a):
+        self.output['a'] = a
+        return self
+
+    def bar(self, b, c=None):
+        self.output['b'] = b
+        self.output['c'] = c
+        return self
+
+
 class ShortIOPipeline(Pipeline):
 
     def __init__(self):
