@@ -37,7 +37,8 @@ class PipelineRemoteData(Pipeline):
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
         self.output_folder = pathlib.Path(output_folder)
         logger.info('Output dir set to {}'.format(self.output_folder))
-        self.logger.set_file(directory=self.output_folder.as_posix())
+        if self.logger is not None:
+            self.logger.set_file(directory=self.output_folder.as_posix())
         return self
 
     def pullremote(self, options, remote_origin):
