@@ -30,7 +30,8 @@ class DataProcessing(PipelineRemoteData):
     """ Read, process and write point cloud data using laserchicken. """
 
     def __init__(self):
-        self.pipeline = ('load',
+        self.pipeline = ('add_custom_feature',
+                         'load',
                          'normalize',
                          'apply_filter',
                          'export_point_cloud',
