@@ -3,7 +3,7 @@ import os
 import shutil
 
 from lc_macro_pipeline.data_processing import DataProcessing
-from lc_macro_pipeline.geotiff_writer import Geotiff_writer
+from lc_macro_pipeline.geotiff_writer import GeotiffWriter
 from lc_macro_pipeline.retiler import Retiler
 from .tools import TestDerivedRemoteDataPipeline, write_PLY_targets, \
     get_number_of_points_in_LAZ_file
@@ -197,7 +197,7 @@ class TestGeotiffWriter(TestDerivedRemoteDataPipeline):
         os.mkdir(self._test_dir)
         indices = [(nx, ny) for nx in [10, 11] for ny in [12, 13]]
         write_PLY_targets(self._test_dir, indices=indices)
-        self.pipeline = Geotiff_writer()
+        self.pipeline = GeotiffWriter()
 
     def tearDown(self):
         shutil.rmtree(self._test_dir)

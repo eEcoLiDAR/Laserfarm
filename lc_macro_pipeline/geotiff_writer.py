@@ -10,7 +10,7 @@ from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
 
 logger = logging.getLogger(__name__)
 
-class Geotiff_writer(PipelineRemoteData):
+class GeotiffWriter(PipelineRemoteData):
     """ Write specified bands from point cloud data into separated geotiff files. """
 
     def __init__(self):

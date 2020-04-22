@@ -1,4 +1,4 @@
-from lc_macro_pipeline.geotiff_writer import Geotiff_writer
+from lc_macro_pipeline.geotiff_writer import GeotiffWriter
 from lc_macro_pipeline.macro_pipeline import MacroPipeline
 
 mode_test='ssh' # 'local' or 'ssh'
@@ -6,7 +6,7 @@ mode_test='ssh' # 'local' or 'ssh'
 if __name__ == '__main__':
 
     macro = MacroPipeline()
-    pipeline = Geotiff_writer()
+    pipeline = GeotiffWriter()
     if mode_test == 'local':
         for i in range(2):
             pipeline.config('local_config/geotiff_writing_config_{}.json'.format(i))

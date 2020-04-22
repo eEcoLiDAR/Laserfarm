@@ -3,7 +3,7 @@ import pathlib
 import shutil
 import unittest
 
-from lc_macro_pipeline.geotiff_writer import Geotiff_writer
+from lc_macro_pipeline.geotiff_writer import GeotiffWriter
 
 from .tools import write_PLY_targets
 
@@ -16,7 +16,7 @@ class test_parsePointCloud(unittest.TestCase):
 
     def setUp(self):
         os.mkdir(self._test_dir)
-        self.pipeline = Geotiff_writer()
+        self.pipeline = GeotiffWriter()
 
     def tearDown(self):
         shutil.rmtree(self._test_dir)
@@ -91,7 +91,7 @@ class test_DataSplit(unittest.TestCase):
     _indices = [(100, 101), (101, 100), (101, 101), (103, 103)]
 
     def setUp(self):
-        self.pipeline = Geotiff_writer()
+        self.pipeline = GeotiffWriter()
 
     def test_validInput(self):
         _tiles = ['tile_{}_{}.ply'.format(nx, ny) for (nx, ny) in self._indices]
@@ -119,7 +119,7 @@ class TestCreateSubregionGeotiffs(unittest.TestCase):
 
     def setUp(self):
         os.mkdir(self._test_dir)
-        self.pipeline = Geotiff_writer()
+        self.pipeline = GeotiffWriter()
         self.pipeline.input_folder = pathlib.Path(self._test_dir)
         self.pipeline.output_folder = pathlib.Path(self._test_dir)
         self.pipeline.LengthDataRecord = self._n_points_per_tile_and_dim**2
