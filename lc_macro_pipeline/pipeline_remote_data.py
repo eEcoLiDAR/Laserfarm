@@ -38,7 +38,7 @@ class PipelineRemoteData(Pipeline):
         self.output_folder = output_folder
         logger.info('Output dir set to {}'.format(self.output_folder))
         if self.logger is not None:
-            self.logger.set_file(directory=self.output_folder.as_posix())
+            self.logger.start_log_to_file(directory=self.output_folder.as_posix())
         return self
 
     def pullremote(self, options, remote_origin):

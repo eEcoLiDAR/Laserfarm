@@ -21,7 +21,7 @@ class Logger(object):
 
         self.logger = logging.getLogger()
         self.logger.setLevel(self.level)
-        self.set_stream()  # Initialize the logger with a stream
+        self.start_log_to_stream()  # Initialize the logger with a stream
 
     def config(self, level=None, format=None, stream=None, filename=None):
         """
@@ -50,9 +50,9 @@ class Logger(object):
         """ Update handler instances. """
         for handler in self.logger.handlers:
             if isinstance(handler, logging.StreamHandler):
-                self.set_stream()
+                self.start_log_to_stream()
             if isinstance(handler, logging.FileHandler):
-                self.set_file(append=True)
+                self.start_log_to_file(append=True)
 
     def remove_handlers(self, stream=False, file=False):
         """ Remove handler instances. """
@@ -78,7 +78,7 @@ class Logger(object):
             sys.stdout = _stream_dict['stdout']
             sys.stderr = _stream_dict['stderr']
 
-    def set_stream(self):
+    def start_log_to_stream(self):
         """
         Add a stream handler to the log. If a stream handler was already
         present, remove it.
@@ -89,7 +89,7 @@ class Logger(object):
         sh.setLevel(self.level)
         self.logger.addHandler(sh)
 
-    def set_file(self, directory='', append=False):
+    def start_log_to_file(self, directory='', append=False):
         """
         Add a file handler to the log. STDOUT and STDERR are also redirected to
         the log file. If a stream handler was already present, remove it.

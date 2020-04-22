@@ -45,12 +45,12 @@ class TestLoggerSetFile(unittest.TestCase):
         shutil.rmtree(self._test_dir)
 
     def test_stdoutAndStderrAreRedirected(self):
-        self.logger.set_file(directory=self._test_dir)
+        self.logger.start_log_to_file(directory=self._test_dir)
         self.assertIsInstance(sys.stdout, Log)
         self.assertIsInstance(sys.stderr, Log)
 
     def test_logfileContainsLogMessage(self):
-        self.logger.set_file(directory=self._test_dir)
+        self.logger.start_log_to_file(directory=self._test_dir)
         logger.info(self._message)
         logfile = os.path.join(self._test_dir, self.logger.filename)
         self.assertTrue(os.path.isfile(logfile))
@@ -63,14 +63,14 @@ class TestLoggerSetFile(unittest.TestCase):
     def test_addFileNonExistentDir(self):
         non_existent_dir = os.path.join(self._test_dir, 'tmp')
         with self.assertRaises(FileNotFoundError):
-            self.logger.set_file(directory=non_existent_dir)
+            self.logger.start_log_to_file(directory=non_existent_dir)
 
     def test_addFileTwice(self):
         newdir = os.path.join(self._test_dir, 'tmp')
         os.mkdir(newdir)
-        self.logger.set_file(directory=self._test_dir)
+        self.logger.start_log_to_file(directory=self._test_dir)
         logger.info(self._message)
-        self.logger.set_file(directory=newdir)
+        self.logger.start_log_to_file(directory=newdir)
         logger.info(self._message)
         for dir in [self._test_dir, newdir]:
             logfile = os.path.join(dir, self.logger.filename)
@@ -79,7 +79,7 @@ class TestLoggerSetFile(unittest.TestCase):
     def test_configSetFilename(self):
         newlogfilename = 'newlogfilename.log'
         self.logger.config(filename=newlogfilename)
-        self.logger.set_file(directory=self._test_dir)
+        self.logger.start_log_to_file(directory=self._test_dir)
         logger.info(self._message)
         logfile = os.path.join(self._test_dir, newlogfilename)
         self.assertTrue(os.path.isfile(logfile))
@@ -87,7 +87,7 @@ class TestLoggerSetFile(unittest.TestCase):
     def test_configSetFormat(self):
         format = "%(name)s %(message)s %(levelname)s"
         self.logger.config(format=format, level='INFO')
-        self.logger.set_file(directory=self._test_dir)
+        self.logger.start_log_to_file(directory=self._test_dir)
         logger.info(self._message)
 
         logfile = os.path.join(self._test_dir, self.logger.filename)
@@ -99,7 +99,7 @@ class TestLoggerSetFile(unittest.TestCase):
 
     def test_configSetLevel(self):
         self.logger.config(level='info')
-        self.logger.set_file(directory=self._test_dir)
+        self.logger.start_log_to_file(directory=self._test_dir)
         logger.debug(self._message)
         logfile = os.path.join(self._test_dir, self.logger.filename)
         self.assertFalse(os.path.isfile(logfile))
