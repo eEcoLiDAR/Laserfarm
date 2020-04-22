@@ -82,6 +82,33 @@ def check_options(options):
         raise RuntimeError
 
 
+def list_remote(wdclient,remote_path):
+    """
+    List remote path.
+
+    NOTE: list method returns directory queried as first argument when querying
+    webdav API to SURFsara dCache. This implementation accounts for that.
+
+    :param wdclient: webdav client
+    :param remote_path: path to remote directory
+    :return list of files and directories at the remote path
+    """
+    records = wdclient.list(remote_path)
+    return records[1:]
+
+
+def get_info_remote(wdclient,remote_path):
+    """
+    Get information about remote path
+
+    :param wdclient: webdav client
+    :param remote_path: path to remote file or directory
+    :return dictionaries with info about the remote path
+    """
+    return wdclient.info(remote_path)
+
+
+
 def pull_from_remote(wdclient,local_directory,remote_record):
     """
     Download/pull a record (file or directory) from remote to a local directory.
@@ -193,14 +220,7 @@ def pull_directory_from_remote(wdclient,local_dir,remote_dir):
         raise RemoteResourceNotFound(remote_dir)
 
     logger.debug('... get content of {}'.format(remote_dir))
-    records = wdclient.list(remote_dir)
-
-    """
-    list method returns directory queried as first argument when querying
-    webdav API to SURFsara dCache. This implementation accounts for that.
-    """
-
-    records=records[1:]
+    records = list_remote(wdclient,remote_dir)
 
     os.makedirs(local_dir)
 
