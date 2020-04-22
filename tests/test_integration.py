@@ -33,7 +33,7 @@ class TestRetiler(TestDerivedRemoteDataPipeline):
                 'output_folder': self._test_dir,
                 'input_file': self._input_file
             },
-            'tiling': {
+            'set_grid': {
                 'min_x': -113107.8100,
                 'max_x': 398892.1900,
                 'min_y': 214783.8700,
