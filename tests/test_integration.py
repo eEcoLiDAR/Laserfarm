@@ -140,7 +140,7 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
                 'feature_names': self._features,
             },
             'export_targets': {
-                'attributes': ['point_density', 'band_ratio_z<0.0'],
+                'attributes': self._features,
                 'multi_band_files': False
             }
         }
