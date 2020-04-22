@@ -4,6 +4,6 @@ fire
 lazperf
 numpy
 pylas
-laserchicken @ git+git://github.com/eEcoLiDAR/laserchicken@feature_extra_io_tools#egg=laserchicken
+laserchicken @ git+git://github.com/eEcoLiDAR/laserchicken@development#egg=laserchicken
 plyfile
 webdavclient3
