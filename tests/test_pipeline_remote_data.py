@@ -33,7 +33,7 @@ class TestLocalfs(unittest.TestCase):
         self.pipeline.localfs(self._test_dir,
                               self._test_dir,
                               self._test_filename)
-        self.assertEqual(self.pipeline.input_file.as_posix(),
+        self.assertEqual(self.pipeline.input_path.as_posix(),
                          self._test_filepath)
 
     def test_logfileIsCreated(self):
@@ -81,7 +81,7 @@ class TestPullRemote(unittest.TestCase):
     @patch('lc_macro_pipeline.pipeline_remote_data.pull_from_remote')
     def test_withInputFile(self, _, pull_from_remote):
         self.pipeline.input_folder = pathlib.Path(self._test_dir)
-        self.pipeline.input_file = self.pipeline.input_folder.joinpath(self._test_filename)
+        self.pipeline.input_path = self.pipeline.input_folder.joinpath(self._test_filename)
         self.pipeline.pullremote({}, '/path/to/remote')
         pull_from_remote.assert_called_once()
 

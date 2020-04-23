@@ -30,7 +30,7 @@ class Geotiff_writer(PipelineRemoteData):
             - Length of a single band
             - x and y resolution
         """
-        self._check_input(input_folder=True)
+        utils.check_dir_exists(self.input_folder, should_exist=True)
 
         # Get list of input tiles
         self.InputTiles = [TileFile
@@ -142,7 +142,7 @@ class Geotiff_writer(PipelineRemoteData):
         :param band_export: list of features names to export
         :param EPSG: (Optional) EPSG code of the spatial reference system of the input data. Default 28992.
         """
-        self._check_input(input_folder=True, output_folder=True)
+        utils.check_dir_exists(self.output_folder, should_exist=True)
         outfilestem = os.path.join(self.output_folder.as_posix(), outputhandle)
         for subTiffNumber in range(len(self.subtilelists)):
             infiles = self.subtilelists[subTiffNumber]
@@ -164,16 +164,6 @@ class Geotiff_writer(PipelineRemoteData):
                 logger.warning('No data in sub-region no. '+str(subTiffNumber))
             logger.info('... processing of sub-region completed.')
         return self
-
-    def _check_input(self, input_folder=False, output_folder=False):
-        if input_folder:
-            if self.input_folder is None:
-                raise ValueError('The input folder has not been set!')
-            utils.check_dir_exists(self.input_folder, should_exist=True)
-        if output_folder:
-            if self.output_folder is None:
-                raise ValueError('The output folder has not been set!')
-            utils.check_dir_exists(self.output_folder, should_exist=True)
 
 
 def _make_geotiff_per_band(infiles,outfile,band_export,data_directory,lengthDataRecord,xResolution,yResolution,EPSG):

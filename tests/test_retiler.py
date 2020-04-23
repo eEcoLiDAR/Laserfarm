@@ -20,7 +20,7 @@ class TestSplitAndRedistribute(unittest.TestCase):
         shutil.rmtree(self._test_dir)
 
     def test_correctInput(self):
-        self.pipeline.input_file = pathlib.Path('testdata').joinpath(self._input_file)
+        self.pipeline.input_path = pathlib.Path('testdata').joinpath(self._input_file)
         self.pipeline.output_folder = pathlib.Path(self._test_dir)
         self.pipeline.grid.setup(*self._grid_input)
         self.pipeline.split_and_redistribute()
@@ -31,17 +31,11 @@ class TestSplitAndRedistribute(unittest.TestCase):
     def test_inputFileNotSet(self):
         self.pipeline.output_folder = pathlib.Path(self._test_dir)
         self.pipeline.grid.setup(*self._grid_input)
-        with self.assertRaises(ValueError):
-            self.pipeline.split_and_redistribute()
-
-    def test_outputFolderNotSet(self):
-        self.pipeline.input_file = pathlib.Path('testdata').joinpath(self._input_file)
-        self.pipeline.grid.setup(*self._grid_input)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(OSError):
             self.pipeline.split_and_redistribute()
 
     def test_gridNotSet(self):
-        self.pipeline.input_file = pathlib.Path('testdata').joinpath(self._input_file)
+        self.pipeline.input_path = pathlib.Path('testdata').joinpath(self._input_file)
         self.pipeline.output_folder = pathlib.Path(self._test_dir)
         with self.assertRaises(ValueError):
             self.pipeline.split_and_redistribute()
@@ -72,14 +66,14 @@ class TestValidate(unittest.TestCase):
         return os.path.join(self._test_dir, json_filename)
 
     def test_correctInput(self):
-        self.pipeline.input_file = pathlib.Path('testdata').joinpath(self._input_file)
+        self.pipeline.input_path = pathlib.Path('testdata').joinpath(self._input_file)
         self.pipeline.output_folder = pathlib.Path(self._test_dir)
         self.pipeline.grid.setup(*self._grid_input)
         self.pipeline.validate()
         self.assertTrue(os.path.isfile(self.json_record_file_path))
 
     def test_correctInputNoWriteRecord(self):
-        self.pipeline.input_file = pathlib.Path('testdata').joinpath(self._input_file)
+        self.pipeline.input_path = pathlib.Path('testdata').joinpath(self._input_file)
         self.pipeline.output_folder = pathlib.Path(self._test_dir)
         self.pipeline.grid.setup(*self._grid_input)
         self.pipeline.validate(write_record_to_file=False)
@@ -88,31 +82,25 @@ class TestValidate(unittest.TestCase):
     def test_inputFileNotSet(self):
         self.pipeline.output_folder = pathlib.Path(self._test_dir)
         self.pipeline.grid.setup(*self._grid_input)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(OSError):
             self.pipeline.validate()
 
     def test_inputFileNonexistent(self):
-        self.pipeline.input_file = pathlib.Path('testdata').joinpath(self._input_file)
-        self.pipeline.output_folder = 'nonexistent_dir'
-        self.pipeline.grid.setup(*self._grid_input)
-        with self.assertRaises(FileNotFoundError):
-            self.pipeline.validate()
-
-    def test_outputFolderNotSet(self):
-        self.pipeline.input_file = pathlib.Path('testdata').joinpath(self._input_file)
-        self.pipeline.grid.setup(*self._grid_input)
-        with self.assertRaises(ValueError):
-            self.pipeline.validate()
-
-    def test_outputFolderNonexistent(self):
-        self.pipeline.input_file = 'nonexistent_file'
+        self.pipeline.input_path = pathlib.Path('testdata').joinpath('tmp.LAZ')
         self.pipeline.output_folder = pathlib.Path(self._test_dir)
         self.pipeline.grid.setup(*self._grid_input)
         with self.assertRaises(FileNotFoundError):
             self.pipeline.validate()
 
+    def test_outputFolderNonexistent(self):
+        self.pipeline.input_path = pathlib.Path('testdata').joinpath(self._input_file)
+        self.pipeline.output_folder = 'nonexistent_dir'
+        self.pipeline.grid.setup(*self._grid_input)
+        with self.assertRaises(FileNotFoundError):
+            self.pipeline.validate()
+
     def test_gridNotSet(self):
-        self.pipeline.input_file = pathlib.Path('testdata').joinpath(self._input_file)
+        self.pipeline.input_path = pathlib.Path('testdata').joinpath(self._input_file)
         self.pipeline.output_folder = pathlib.Path(self._test_dir)
         with self.assertRaises(ValueError):
             self.pipeline.validate()

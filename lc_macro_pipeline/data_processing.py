@@ -78,7 +78,8 @@ class DataProcessing(PipelineRemoteData):
 
         :param load_opts: Arguments passed to the laserchicken load function
         """
-        input_file_list = _get_input_file_list(self._get_input_path())
+        check_path_exists(self.input_path, should_exist=True)
+        input_file_list = _get_input_file_list(self.input_path)
         logger.info('Loading point cloud data ...')
         for file in input_file_list:
             logger.info('... loading {}'.format(file))
@@ -257,23 +258,12 @@ class DataProcessing(PipelineRemoteData):
             logger.info('... exporting {}'.format(file))
             export(point_cloud, file, attributes=feature_set, **export_opts)
 
-    def _get_input_path(self):
-        if self.input_file is not None:
-            check_file_exists(self.input_file, should_exist=True)
-            return self.input_file
-        else:
-            if self.input_folder is None:
-                raise ValueError('The input folder has not been set!')
-            else:
-                check_dir_exists(self.input_folder, should_exist=True)
-                return self.input_folder
 
     def _get_export_path(self, filename=''):
-        if self.output_folder is None:
-            raise ValueError('The output folder has not been set!')
+        check_dir_exists(self.output_folder, should_exist=True)
         if pathlib.Path(filename).parent.name:
             raise IOError('filename should not include path!')
-        return pathlib.Path(self.output_folder).joinpath(filename).as_posix()
+        return self.output_folder.joinpath(filename).as_posix()
 
 
 def _check_parameters_for_extractor(extractor, parameters):
@@ -312,8 +302,7 @@ def _get_required_attributes(features=[]):
     return attributes
 
 
-def _get_input_file_list(path):
-    p = pathlib.Path(path)
+def _get_input_file_list(p):
     check_path_exists(p, should_exist=True)
     if p.is_file():
         files = [str(p.absolute())]
@@ -321,9 +310,9 @@ def _get_input_file_list(path):
         files = sorted([str(f.absolute()) for f in p.iterdir()
                         if f.suffix.lstrip('.').lower() in io_handlers.keys()])
         if not files:
-            raise ValueError('Empty directory: {}'.format(path))
+            raise FileNotFoundError('No point-cloud file in: {}'.format(p))
     else:
-        raise IOError('Unable to read from path: {}'.format(path))
+        raise IOError('Unable to read from path: {}'.format(p))
     return files
 
 

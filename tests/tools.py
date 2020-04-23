@@ -91,7 +91,7 @@ class TestDerivedRemoteDataPipeline(TestDerivedPipeline):
             self.assertTrue(hasattr(self.pipeline, task))
 
     def test_remoteDataAttributes(self):
-        for attribute in ('input_folder', 'output_folder', 'input_file'):
+        for attribute in ('input_folder', 'output_folder', 'input_path'):
             self.assertTrue(hasattr(self.pipeline, attribute))
 
 

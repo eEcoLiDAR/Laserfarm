@@ -60,13 +60,13 @@ class TestLoad(unittest.TestCase):
                          self._points_in_file)
 
     def test_loadDataFromFile(self):
-        self.pipeline.input_file = self._input_file_path
+        self.pipeline.input_path = self._input_file_path
         self.pipeline.load()
         self.assertEqual(_get_point_cloud_size(self.pipeline.point_cloud),
                          self._points_in_file)
 
     def test_loadDataWithOptions(self):
-        self.pipeline.input_file = self._input_file_path
+        self.pipeline.input_path = self._input_file_path
         attr_to_read = ['intensity', 'gps_time']
         self.pipeline.load(attributes=attr_to_read)
         read_attr = list(self.pipeline.point_cloud['vertex'].keys())
@@ -74,18 +74,14 @@ class TestLoad(unittest.TestCase):
         self.assertListEqual(read_attr, expected_attr)
 
     def test_provenanceIsAdded(self):
-        self.pipeline.input_file = self._input_file_path
+        self.pipeline.input_path = self._input_file_path
         self.pipeline.load()
         self.assertEqual(len(self.pipeline.point_cloud['log']), 1)
-
-    def test_loadDataDirectoryNotSet(self):
-        with self.assertRaises(ValueError):
-            self.pipeline.load()
 
     def test_loadDataEmptyDirectory(self):
         os.mkdir(self._test_dir)
         self.pipeline.input_folder = self._test_dir
-        with self.assertRaises(ValueError):
+        with self.assertRaises(FileNotFoundError):
             self.pipeline.load()
 
     def test_loadDataNonexistentDirectory(self):
@@ -94,7 +90,7 @@ class TestLoad(unittest.TestCase):
             self.pipeline.load()
 
     def test_loadDataNonexistentFile(self):
-        self.pipeline.input_file = 'nonexistent_file'
+        self.pipeline.input_path = 'nonexistent_file'
         with self.assertRaises(FileNotFoundError):
             self.pipeline.load()
 
@@ -223,10 +219,6 @@ class TestExportPointCloud(unittest.TestCase):
         with open(os.path.join(self._test_dir, 'point_cloud.ply')) as f:
             with self.assertRaises(UnicodeDecodeError):
                 f.read()
-
-    def test_outputFolderNotSet(self):
-        with self.assertRaises(ValueError):
-            self.pipeline.export_point_cloud()
 
     def test_outputFolderNonexistent(self):
         self.pipeline.output_folder = os.path.join(self._test_dir, 'tmp')
@@ -428,10 +420,6 @@ class TestExportTargets(unittest.TestCase):
         with open(os.path.join(self._test_dir, self._output_name)) as f:
             with self.assertRaises(UnicodeDecodeError):
                 f.read()
-
-    def test_outputFolderNotSet(self):
-        with self.assertRaises(ValueError):
-            self.pipeline.export_targets()
 
     def test_outputFolderNonexistent(self):
         self.pipeline.output_folder = os.path.join(self._test_dir, 'tmp')

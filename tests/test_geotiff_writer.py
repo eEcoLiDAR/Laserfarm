@@ -75,10 +75,6 @@ class test_parsePointCloud(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.pipeline.parse_point_cloud()
 
-    def test_inputFolderNotSet(self):
-        with self.assertRaises(ValueError):
-            self.pipeline.parse_point_cloud()
-
     def test_inputFolderNonexistent(self):
         self.pipeline.input_folder = os.path.join(self._test_dir, 'tmp')
         with self.assertRaises(FileNotFoundError):
