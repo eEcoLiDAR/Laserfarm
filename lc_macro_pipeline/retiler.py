@@ -15,11 +15,13 @@ logger = logging.getLogger(__name__)
 class Retiler(PipelineRemoteData):
     """ Split point cloud data into smaller tiles on a regular grid. """
 
-    def __init__(self, input_file=None):
+    def __init__(self, input_file=None, label=None):
         self.pipeline = ('set_grid', 'split_and_redistribute', 'validate')
         self.grid = Grid()
         if input_file is not None:
             self.input_path = input_file
+        if label is not None:
+            self.label = label
 
     def set_grid(self, min_x, min_y, max_x, max_y, n_tiles_side):
         """

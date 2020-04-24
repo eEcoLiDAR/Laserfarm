@@ -45,7 +45,7 @@ class MacroPipeline(object):
     def tasks(self, tasks):
         try:
             _ = iter(tasks)
-        except TypeError as err:
+        except TypeError:
             logger.error('The collection of tasks should be an iterable object.')
             raise
         for task in tasks:
@@ -62,6 +62,18 @@ class MacroPipeline(object):
         assert isinstance(task, Pipeline)
         self.tasks.append(task)
         return self
+
+    def set_labels(self, labels):
+        labels_ = [labels]*len(self.tasks) if isinstance(labels, str) else labels
+        try:
+            _ = iter(labels_)
+        except TypeError:
+            logger.error('The labels provided should be an iterable object.')
+            raise
+        assert len(labels_) == len(self.tasks), ('labels length does not match'
+                                                 'the number of pipelines!')
+        for pipeline, label in zip(self.tasks, labels_):
+            pipeline.label = label
 
     @staticmethod
     def _run_task(f):

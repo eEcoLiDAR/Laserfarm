@@ -8,12 +8,14 @@ from osgeo import osr
 from lc_macro_pipeline import utils
 from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
 
+
 logger = logging.getLogger(__name__)
+
 
 class GeotiffWriter(PipelineRemoteData):
     """ Write specified bands from point cloud data into separate geotiff files. """
 
-    def __init__(self, input_dir=None, bands=None):
+    def __init__(self, input_dir=None, bands=None, label=None):
         self.pipeline = ('parse_point_cloud',
                          'data_split',
                          'create_subregion_geotiffs')
@@ -26,6 +28,8 @@ class GeotiffWriter(PipelineRemoteData):
             self.input_path = input_dir
         if bands is not None:
             self.bands = [bands] if isinstance(bands, str) else bands
+        if label is not None:
+            self.label = label
 
     def parse_point_cloud(self):
         """

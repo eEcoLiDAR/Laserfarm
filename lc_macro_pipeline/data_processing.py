@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class DataProcessing(PipelineRemoteData):
     """ Read, process and write point cloud data using laserchicken. """
 
-    def __init__(self, input=None):
+    def __init__(self, input=None, label=None):
         self.pipeline = ('add_custom_feature',
                          'load',
                          'normalize',
@@ -51,6 +51,8 @@ class DataProcessing(PipelineRemoteData):
         self._tile_index = None
         if input is not None:
             self.input_path = input
+        if label is not None:
+            self.label = label
 
     @property
     def features(self):
