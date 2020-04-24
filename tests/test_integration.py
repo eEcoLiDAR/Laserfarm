@@ -216,13 +216,13 @@ class TestGeotiffWriter(TestDerivedRemoteDataPipeline):
             "data_split": {"xSub": self._n_subregions[0],
                            "ySub": self._n_subregions[1]},
             "create_subregion_geotiffs": {
-                "outputhandle": self._handle,
-                "band_export": self._features
+                "output_handle": self._handle,
             }
         }
         return _input
 
     def test_FullPipeline(self):
+        self.pipeline.bands = self._features
         self.pipeline.input = self.input
         self.pipeline.run()
 
