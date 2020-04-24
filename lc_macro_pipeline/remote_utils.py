@@ -108,7 +108,6 @@ def get_info_remote(wdclient,remote_path):
     return wdclient.info(remote_path)
 
 
-
 def pull_from_remote(wdclient,local_directory,remote_record):
     """
     Download/pull a record (file or directory) from remote to a local directory.
@@ -210,11 +209,6 @@ def pull_directory_from_remote(wdclient,local_dir,remote_dir):
     :param local_dir: local directory to be downloaded to/created
     :param remote_dir: remote directory to be downloaded
     """
-
-    if os.path.exists(local_dir):
-        logger.error('A file or directory already exists with this name')
-        raise FileExistsError(local_dir)
-
     if not wdclient.check(remote_dir):
         logger.error('remote resource could not be found')
         raise RemoteResourceNotFound(remote_dir)
@@ -222,7 +216,7 @@ def pull_directory_from_remote(wdclient,local_dir,remote_dir):
     logger.debug('... get content of {}'.format(remote_dir))
     records = list_remote(wdclient,remote_dir)
 
-    os.makedirs(local_dir)
+    os.makedirs(local_dir, exist_ok=True)
 
     for record in records:
         rpath = os.path.join(remote_dir,record)
@@ -304,7 +298,7 @@ def push_to_remote(wdclient,local_record,remote_directory):
     if os.path.isdir(local_record):
         push_directory_to_remote(wdclient,local_record,remote_directory)
     else:
-        local_path =os.path.split(local_record)
+        local_path = os.path.split(local_record)
         file = local_path[1]
         localdir = local_path[0]
         push_file_to_remote(wdclient,localdir,remote_directory,file)

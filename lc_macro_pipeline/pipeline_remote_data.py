@@ -16,6 +16,7 @@ class PipelineRemoteData(Pipeline):
     _input_folder = pathlib.Path('.')
     _output_folder = pathlib.Path('.')
     _input_path = None
+    _wdclient = None
 
     def localfs(self, input_folder, output_folder, input_file=None):
         """
@@ -41,34 +42,41 @@ class PipelineRemoteData(Pipeline):
             self.logger.start_log_to_file(directory=self.output_folder.as_posix())
         return self
 
-    def pullremote(self, options, remote_origin):
+    def setup_webdav_client(self, webdav_options):
+        self._wdclient = get_wdclient(webdav_options)
+        return self
+
+    def pullremote(self, remote_origin):
         """
         pull directory with input file(s) from remote to local fs
 
-        :param options: setup options for webdav client. Can be a filepath
         :param remote_origin: path to directory on remote fs
         """
-        wdclient = get_wdclient(options)
+        if self._wdclient is None:
+            raise RuntimeError('WebDAV client not setup!')
         remote_path = pathlib.Path(remote_origin)
-        if self.input_path.suffix:
-            remote_path.joinpath(self.input_path.name)
-        logger.info('Pulling from WebDAV {} ...'.format(remote_origin))
-        pull_from_remote(wdclient,
-                         self.input_folder.as_posix(),
+        local_path = self.input_path
+        if self.input_path.absolute() != self.input_folder.absolute():
+            remote_path = remote_path.joinpath(self.input_path.name)
+            if self.input_path.suffix:
+                local_path = self.input_folder
+        logger.info('Pulling from WebDAV {} ...'.format(remote_path))
+        pull_from_remote(self._wdclient,
+                         local_path.as_posix(),
                          remote_path.as_posix())
         logger.info('... pulling completed.')
         return self
 
-    def pushremote(self, options, remote_destination):
+    def pushremote(self, remote_destination):
         """
         push directory with output from local fs to remote_dir
 
-        :param options: setup options for webdavclient. Can be filepath
         :param remote_destination: path to remote target directory
         """
-        wdclient = get_wdclient(options)
+        if self._wdclient is None:
+            raise RuntimeError('WebDAV client not setup!')
         logger.info('Pushing to WebDAV {} ...'.format(remote_destination))
-        push_to_remote(wdclient,
+        push_to_remote(self._wdclient,
                        self.output_folder.as_posix(),
                        remote_destination)
         logger.info('... pushing completed.')

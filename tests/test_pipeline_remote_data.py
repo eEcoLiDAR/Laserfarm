@@ -3,6 +3,7 @@ import pathlib
 import shutil
 import unittest
 
+from webdav3.client import Client
 from unittest.mock import patch
 
 from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
@@ -11,7 +12,7 @@ from lc_macro_pipeline.logger import Logger
 from .tools import ShortPipelineRemoteData
 
 
-class TestLocalfs(unittest.TestCase):
+class TestSetupLocalFS(unittest.TestCase):
 
     _test_dir = 'test_tmp_dir'
     _test_filename = 'file.txt'
@@ -70,20 +71,32 @@ class TestPullRemote(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._test_dir)
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.get_wdclient')
     @patch('lc_macro_pipeline.pipeline_remote_data.pull_from_remote')
-    def test_noInputFile(self, _, pull_from_remote):
-        self.pipeline.input_folder = pathlib.Path(self._test_dir)
-        self.pipeline.pullremote({}, '/path/to/remote')
-        pull_from_remote.assert_called_once()
+    def test_noInputPath(self, pull_from_remote):
+        client = Client({})
+        input_folder = pathlib.Path(self._test_dir)
+        remote_origin = '/path/to/remote'
+        self.pipeline._wdclient = client
+        self.pipeline.input_folder = input_folder
+        self.pipeline.pullremote(remote_origin)
+        pull_from_remote.assert_called_once_with(client,
+                                                 input_folder.as_posix(),
+                                                 remote_origin)
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.get_wdclient')
     @patch('lc_macro_pipeline.pipeline_remote_data.pull_from_remote')
-    def test_withInputFile(self, _, pull_from_remote):
-        self.pipeline.input_folder = pathlib.Path(self._test_dir)
-        self.pipeline.input_path = self.pipeline.input_folder.joinpath(self._test_filename)
-        self.pipeline.pullremote({}, '/path/to/remote')
-        pull_from_remote.assert_called_once()
+    def test_withInputPath(self, pull_from_remote):
+        client = Client({})
+        input_folder = pathlib.Path(self._test_dir)
+        remote_origin = '/path/to/remote'
+        input_path = self.pipeline.input_folder.joinpath(self._test_filename)
+        self.pipeline._wdclient = client
+        self.pipeline.input_folder = input_folder
+        self.pipeline.input_path = input_path
+        self.pipeline.pullremote('/path/to/remote')
+        pull_from_remote.assert_called_once_with(client,
+                                                 input_folder.as_posix(),
+                                                 os.path.join(remote_origin,
+                                                              input_path.name))
 
 
 class TestPushRemote(unittest.TestCase):
@@ -97,12 +110,17 @@ class TestPushRemote(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._test_dir)
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.get_wdclient')
     @patch('lc_macro_pipeline.pipeline_remote_data.push_to_remote')
-    def test_validInput(self, _, push_to_remote):
-        self.pipeline.output_folder = pathlib.Path(self._test_dir)
-        self.pipeline.pushremote({}, '/path/to/remote')
-        push_to_remote.assert_called_once()
+    def test_validInput(self, push_to_remote):
+        client = Client({})
+        output_folder = pathlib.Path(self._test_dir)
+        remote_origin = '/path/to/remote'
+        self.pipeline._wdclient = client
+        self.pipeline.output_folder = output_folder
+        self.pipeline.pushremote(remote_origin)
+        push_to_remote.assert_called_once_with(client,
+                                               output_folder.as_posix(),
+                                               remote_origin)
 
 
 class TestPurgeLocal(unittest.TestCase):

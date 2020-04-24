@@ -144,12 +144,6 @@ class TestPullFromRemote(unittest.TestCase):
                              self._test_local_dir,
                              remote_path)
 
-    def test_localDirectoryExists(self):
-        with self.assertRaises(FileExistsError):
-            pull_from_remote(self.client,
-                             self._test_local_dir,
-                             self._test_remote_dir)
-
 
 class TestPushToRemote(unittest.TestCase):
 
