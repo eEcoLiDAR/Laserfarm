@@ -31,6 +31,7 @@ class Pipeline(object):
     _pipeline = tuple()
     _input = dict()
     logger = None
+    label = 'pipeline'
 
     @property
     def pipeline(self):

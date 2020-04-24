@@ -28,10 +28,9 @@ class TestRetiler(TestDerivedRemoteDataPipeline):
             'log_config': {
                 'filename': self._log_filename
             },
-            'localfs': {
+            'setup_local_fs': {
                 'input_folder': 'testdata',
-                'output_folder': self._test_dir,
-                'input_file': self._input_file
+                'output_folder': self._test_dir
             },
             'set_grid': {
                 'min_x': -113107.8100,
@@ -46,6 +45,7 @@ class TestRetiler(TestDerivedRemoteDataPipeline):
         return _input
 
     def test_FullPipeline(self):
+        self.pipeline.input_path = self._input_file
         self.pipeline.input = self.input
         self.pipeline.run()
 
@@ -105,7 +105,7 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
             'log_config': {
                 'filename': self._log_filename
             },
-            'localfs': {
+            'setup_local_fs': {
                 'input_folder': self._test_dir,
                 'output_folder': self._test_dir,
             },
@@ -208,7 +208,7 @@ class TestGeotiffWriter(TestDerivedRemoteDataPipeline):
             'log_config': {
                 'filename': self._log_filename
             },
-            'localfs': {
+            'setup_local_fs': {
                 'input_folder': self._test_dir,
                 'output_folder': self._test_dir,
             },

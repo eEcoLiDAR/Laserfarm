@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class DataProcessing(PipelineRemoteData):
     """ Read, process and write point cloud data using laserchicken. """
 
-    def __init__(self):
+    def __init__(self, input=None):
         self.pipeline = ('add_custom_feature',
                          'load',
                          'normalize',
@@ -49,6 +49,8 @@ class DataProcessing(PipelineRemoteData):
         self.extractors = DictToObj(_get_extractor_dict())
         self._features = None
         self._tile_index = None
+        if input is not None:
+            self.input_path = input
 
     @property
     def features(self):
@@ -126,7 +128,6 @@ class DataProcessing(PipelineRemoteData):
         Write environment point cloud to disk.
 
         :param filename: optional filename where to write point-cloud data
-                         (relative to self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param export_opts: Optional arguments passed to the laserchicken
                             export function
@@ -223,7 +224,6 @@ class DataProcessing(PipelineRemoteData):
         Write target point cloud to disk.
 
         :param filename: optional filename where to write point-cloud data
-                         (relative to self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param multi_band_files: If true, write all attributes in one file
         :param export_opts: Optional arguments passed to the laserchicken
@@ -246,6 +246,7 @@ class DataProcessing(PipelineRemoteData):
         :param path: Path where to write point-cloud data
         :param attributes: List of attributes to be written in the output file
         :param multi_band_files: If true, write all attributes in one file
+        :param file_handle: Stem for the file name(s) if path is a directory
         :param export_opts: Optional arguments passed to the laserchicken
         export function
         """

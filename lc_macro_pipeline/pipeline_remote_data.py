@@ -18,23 +18,28 @@ class PipelineRemoteData(Pipeline):
     _input_path = None
     _wdclient = None
 
-    def localfs(self, input_folder, output_folder, input_file=None):
+    def setup_local_fs(self, input_folder=None, output_folder=None,
+                       tmp_folder='.'):
         """
         IO setup for the local file system.
 
-        :param input_folder: full path to input folder on local filesystem.
-        :param output_folder: full path to output folder on local filesystem \
-                              This folder is considered root for all output \
-                              paths specified
-        :param input_file: (optional) name of the input file to be retrieved
+        :param input_folder: path to input folder on local filesystem.
+        :param output_folder: path to output folder on local filesystem. This
+                              folder is considered root for all output paths
+                              specified.
+        :param tmp_folder: path of the temporary folder, used to set default
+                           input and output folders if not specified.
         """
+        tmp_path = pathlib.Path(tmp_folder)
+
+        if input_folder is None:
+            input_folder = tmp_path / '_'.join(self.label, 'input')
+        check_dir_exists(input_folder, should_exist=True, mkdir=True)
         self.input_folder = input_folder
         logger.info('Input dir set to {}'.format(self.input_folder))
-        if input_file is not None:
-            self.input_path = input_file
-            logger.info('Input path set to {}'.format(self.input_path))
-        # Do not check existence of input folder as it may be retrieved from
-        # remote fs
+
+        if output_folder is None:
+            output_folder = tmp_path / '_'.join(self.label, 'output')
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
         self.output_folder = output_folder
         logger.info('Output dir set to {}'.format(self.output_folder))
@@ -96,8 +101,9 @@ class PipelineRemoteData(Pipeline):
         :param pipeline: (optional) Consider the input pipeline if provided
         """
         _pipeline = pipeline if pipeline is not None else self.pipeline
-        _pipeline = ('localfs', 'pullremote') + _pipeline + ('pushremote',
-                                                             'cleanlocalfs')
+        _pipeline = (('setup_local_fs', 'pullremote')
+                     + _pipeline
+                     + ('pushremote', 'cleanlocalfs'))
         super(PipelineRemoteData, self).run(pipeline=_pipeline)
 
     @property

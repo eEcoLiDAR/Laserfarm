@@ -26,35 +26,28 @@ class TestSetupLocalFS(unittest.TestCase):
         shutil.rmtree(self._test_dir)
 
     def test_noInputFile(self):
-        self.pipeline.localfs(self._test_dir, self._test_dir)
+        self.pipeline.setup_local_fs(self._test_dir, self._test_dir)
         self.assertIsInstance(self.pipeline.input_folder, pathlib.Path)
         self.assertIsInstance(self.pipeline.output_folder, pathlib.Path)
-
-    def test_withInputFile(self):
-        self.pipeline.localfs(self._test_dir,
-                              self._test_dir,
-                              self._test_filename)
-        self.assertEqual(self.pipeline.input_path.as_posix(),
-                         self._test_filepath)
 
     def test_logfileIsCreated(self):
         self.pipeline.logger = Logger()
         self.pipeline.logger.config(filename=self._test_filename)
-        self.pipeline.localfs(self._test_dir, self._test_dir)
+        self.pipeline.setup_local_fs(self._test_dir, self._test_dir)
         self.assertTrue(os.path.isfile(self._test_filepath))
 
     def test_inputDirectoryNonexistent(self):
-        # should not be created
+        # should be created
         subdirname = 'tmp'
         directory = os.path.join(self._test_dir, subdirname)
-        self.pipeline.localfs(directory, self._test_dir)
-        self.assertFalse(os.path.isdir(directory))
+        self.pipeline.setup_local_fs(directory, self._test_dir)
+        self.assertTrue(os.path.isdir(directory))
 
     def test_outputDirectoryNonexistent(self):
         # should be created
         subdirname = 'tmp'
         directory = os.path.join(self._test_dir, subdirname)
-        self.pipeline.localfs(self._test_dir, directory)
+        self.pipeline.setup_local_fs(self._test_dir, directory)
         self.assertTrue(os.path.isdir(directory))
 
 
@@ -151,7 +144,7 @@ class TestRun(unittest.TestCase):
     def test_emptyPipeline(self, mock_super):
         pipeline = PipelineRemoteData()
         pipeline.run()
-        mock_super().run.assert_called_once_with(pipeline=('localfs',
+        mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
                                                            'pullremote',
                                                            'pushremote',
                                                            'cleanlocalfs'))
@@ -160,7 +153,7 @@ class TestRun(unittest.TestCase):
     def test_pipelinePassedThrough(self, mock_super):
         pipeline = PipelineRemoteData()
         pipeline.run(pipeline=('test_task',))
-        mock_super().run.assert_called_once_with(pipeline=('localfs',
+        mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
                                                            'pullremote',
                                                            'test_task',
                                                            'pushremote',
@@ -170,7 +163,7 @@ class TestRun(unittest.TestCase):
     def test_pipelinePresent(self, mock_super):
         pipeline = ShortPipelineRemoteData()
         pipeline.run()
-        mock_super().run.assert_called_once_with(pipeline=('localfs',
+        mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
                                                            'pullremote',
                                                            'foo',
                                                            'bar',
@@ -181,7 +174,7 @@ class TestRun(unittest.TestCase):
     def test_pipelinePresentAndPassedThrough(self, mock_super):
         pipeline = ShortPipelineRemoteData()
         pipeline.run(pipeline=('test_task',))
-        mock_super().run.assert_called_once_with(pipeline=('localfs',
+        mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
                                                            'pullremote',
                                                            'test_task',
                                                            'pushremote',

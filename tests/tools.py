@@ -87,7 +87,7 @@ class TestDerivedRemoteDataPipeline(TestDerivedPipeline):
         self.pipeline = PipelineRemoteData()
 
     def test_remoteDataMethods(self):
-        for task in ('localfs', 'pullremote', 'pushremote', 'cleanlocalfs'):
+        for task in ('setup_local_fs', 'pullremote', 'pushremote', 'cleanlocalfs'):
             self.assertTrue(hasattr(self.pipeline, task))
 
     def test_remoteDataAttributes(self):
