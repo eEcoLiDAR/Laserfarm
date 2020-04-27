@@ -64,7 +64,7 @@ class Classification(PipelineRemoteData):
 
     def classification(self, ground_type):
         """
-        Classify tthe pointset according to the given shape file.
+        Classify the pointset according to the given shape file.
         A new feature "ground_type" will be added to the point cloud. The value of the column identify the ground type.
         
         :param ground_type: identifier of the groud type. 0 is not identified.
