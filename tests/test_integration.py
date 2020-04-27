@@ -129,8 +129,6 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
                 'min_y': 214784.,
                 'max_y': 726784.,
                 'n_tiles_side': 256,
-                'index_tile_x': self._tile_index[0],
-                'index_tile_y': self._tile_index[1],
                 'tile_mesh_size': 10.,
                 'validate': True,
             },
@@ -151,6 +149,7 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
                                          lower_limit=None,
                                          upper_limit=0.,
                                          data_key='z')
+        self.pipeline._tile_index = self._tile_index
         self.pipeline.input = self.input
         self.pipeline.run()
 

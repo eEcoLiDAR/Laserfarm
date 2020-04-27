@@ -310,13 +310,12 @@ class TestGenerateTargets(unittest.TestCase):
         self.pipeline = DataProcessing()
         self.pipeline.point_cloud = create_test_point_cloud(nx_values=10,
                                                             grid_spacing=1.)
+        self.pipeline._tile_index = (0, 0)
         self._input = {'min_x': 0.,
                        'min_y': 0.,
                        'max_x': 100.,
                        'max_y': 100.,
                        'n_tiles_side': 10,
-                       'index_tile_x': 0,
-                       'index_tile_y': 0,
                        'tile_mesh_size': 1.}
         self._expected_target_size = 100
 
@@ -327,7 +326,7 @@ class TestGenerateTargets(unittest.TestCase):
 
     def test_wrongTileSelected(self):
         input = self._input.copy()
-        input['index_tile_x'] = 1
+        self.pipeline._tile_index = (1, 0)
         with self.assertRaises(AssertionError):
             self.pipeline.generate_targets(**input)
 
@@ -342,14 +341,14 @@ class TestGenerateTargets(unittest.TestCase):
         x_array = self.pipeline.point_cloud['vertex']['x']['data']
         mask = np.isclose(x_array, 0.)
         x_array[mask] -= 0.05
-        self.pipeline.generate_targets(**self._input, validate_precision=0.1)
+        self.pipeline.generate_targets(validate_precision=0.1, **self._input)
         self.assertEqual(_get_point_cloud_size(self.pipeline.targets),
                          self._expected_target_size)
 
     def test_skipValidation(self):
         input = self._input.copy()
-        input['index_tile_x'] = 1
-        self.pipeline.generate_targets(**input, validate=False)
+        self.pipeline._tile_index = (0, 1)
+        self.pipeline.generate_targets(validate=False, **input)
         self.assertEqual(_get_point_cloud_size(self.pipeline.targets),
                          self._expected_target_size)
 
