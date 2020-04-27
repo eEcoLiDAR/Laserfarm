@@ -9,12 +9,16 @@ if __name__ == '__main__':
     pipeline = GeotiffWriter()
     if mode_test == 'local':
         for i in range(2):
-            pipeline.config('local_config/geotiff_writing_config_{}.json'.format(i))
+            pipeline.config(
+                from_file='local_config/geotiff_writing_config_{}.json'.format(
+                    i))
             macro.add_task(pipeline)
             macro.setup_client(mode='local')
     elif mode_test == 'ssh':
         for i in range(2):
-            pipeline.config('cluster_config/geotiff_writing_config_{}.json'.format(i))
+            pipeline.config(
+                from_file='cluster_config/geotiff_writing_config_{}.json'.format(
+                    i))
             macro.add_task(pipeline)
         macro.setup_client(mode = 'ssh',
                     hosts = ["172.17.0.2", "172.17.0.2", "172.17.0.3"], 

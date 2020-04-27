@@ -8,11 +8,12 @@ if __name__ == '__main__':
     macro = MacroPipeline()
     pipeline = Retiler()
     if mode_test == 'local':
-        pipeline.config('local_config/example_retiling_config.json')
+        pipeline.config(from_file='local_config/example_retiling_config.json')
         macro.add_task(pipeline)
         macro.setup_client(mode='local')
     elif mode_test == 'ssh':
-        pipeline.config('cluster_config/example_retiling_config.json')
+        pipeline.config(
+            from_file='cluster_config/example_retiling_config.json')
         macro.add_task(pipeline)
         macro.setup_client( mode = 'ssh',
                             hosts = ["172.17.0.2", "172.17.0.2", "172.17.0.3"], 

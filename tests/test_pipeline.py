@@ -58,7 +58,7 @@ class TestShortPipeline(unittest.TestCase):
         with open(config_path, 'w') as f:
             json.dump(input, f)
         pip = ShortPipeline()
-        pip.config(config_path)
+        pip.config(from_file=config_path)
         self.assertDictEqual(input, pip.input)
         pip.run()
         self.assertDictEqual(expected_output, pip.output)
