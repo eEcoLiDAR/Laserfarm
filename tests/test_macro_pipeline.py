@@ -118,6 +118,6 @@ class TestToyMacroPipeline(unittest.TestCase):
         mp = MacroPipeline()
         mp.tasks = [a, b]
         mp.setup_client(cluster=self.cluster)
-        errs = mp.run()
-        self.assertListEqual(list(errs[0]), [None, None])
-        self.assertTrue(errs[1][0], IsADirectoryError)
+        mp.run()
+        self.assertListEqual(list(mp.errors[0]), [None, None])
+        self.assertTrue(mp.errors[1][0], IsADirectoryError)

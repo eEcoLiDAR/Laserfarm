@@ -34,6 +34,7 @@ class MacroPipeline(object):
     """
     def __init__(self):
         self._tasks = list()
+        self.errors = list()
         self.client = None
 
     @property
@@ -108,9 +109,28 @@ class MacroPipeline(object):
         """ Run the macro pipeline. """
         futures = [self.client.submit(self._run_task, task.run)
                    for task in self.tasks]
-        results = self.client.gather(futures)
-        
-        return results
+        self.errors = self.client.gather(futures)
+
+    def print_outcome(self, to_file=None):
+        """
+        Write outcome of the tasks run. If a file path is not specified, the
+        log outcome is printed to the standard output.
+
+        :param to_file: file path
+        """
+        fd = sys.stdout if to_file is None else open(to_file, 'w')
+        for nt, (err, task) in enumerate(zip(self.errors, self.tasks)):
+            if err == (None, None):
+                outcome = 'Completed'
+            else:
+                outcome = 'Error: {}, {}'.format(err[0].__name__, err[1])
+            fd.write('{:03d} {:30s} {}\n'.format(nt+1, task.label, outcome))
+        if to_file is not None:
+            fd.close()
+
+    def get_failed_pipelines(self):
+        return [task for err, task in zip(self.errors, self.tasks)
+                if err != (None, None)]
 
     def shutdown(self):
         address = self.client.scheduler.address  # get adress
