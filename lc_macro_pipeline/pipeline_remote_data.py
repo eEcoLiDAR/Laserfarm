@@ -33,13 +33,13 @@ class PipelineRemoteData(Pipeline):
         tmp_path = pathlib.Path(tmp_folder)
 
         if input_folder is None:
-            input_folder = tmp_path / '_'.join(self.label, 'input')
+            input_folder = tmp_path / '_'.join([self.label, 'input'])
         check_dir_exists(input_folder, should_exist=True, mkdir=True)
         self.input_folder = input_folder
         logger.info('Input dir set to {}'.format(self.input_folder))
 
         if output_folder is None:
-            output_folder = tmp_path / '_'.join(self.label, 'output')
+            output_folder = tmp_path / '_'.join([self.label, 'output'])
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
         self.output_folder = output_folder
         logger.info('Output dir set to {}'.format(self.output_folder))
