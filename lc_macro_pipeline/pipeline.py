@@ -92,7 +92,7 @@ class Pipeline(object):
         _pipeline = pipeline if pipeline is not None else self.pipeline
         _pipeline = ('log_config',) + _pipeline
 
-        self.logger = Logger()
+        self.logger = Logger(label=self.label)
 
         for task_name in _pipeline:
             if task_name in _input:

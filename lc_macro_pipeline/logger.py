@@ -13,11 +13,11 @@ _stream_dict = {'stderr': sys.stderr, 'stdout': sys.stdout}
 class Logger(object):
     """ Manage the log of the (macro) pipelines. """
 
-    def __init__(self):
+    def __init__(self, label='lc_macro_pipeline'):
         self.level = 'DEBUG'
         self.formatter = logging.Formatter(_default_format)
         self.stream = _stream_dict['stderr']
-        self.filename = pathlib.Path('lc_macro_pipeline.log')
+        self.filename = pathlib.Path(label).with_suffix('.log')
 
         self.logger = logging.getLogger()
         self.logger.setLevel(self.level)
