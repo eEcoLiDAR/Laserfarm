@@ -397,8 +397,7 @@ class TestExportTargets(unittest.TestCase):
         self.pipeline.output_folder = self._test_dir
         self.pipeline.export_targets(multi_band_files=False)
         for feature in ['feature_1', 'feature_2']:
-            output_name = self._output_name.replace('.ply',
-                                                    '_{}.ply'.format(feature))
+            output_name = os.path.join(feature, self._output_name)
             output_path = os.path.join(self._test_dir, output_name)
             self.assertListEqual(['x', 'y', 'z', feature],
                                  _get_attributes_in_PLY_file(output_path))
@@ -408,7 +407,7 @@ class TestExportTargets(unittest.TestCase):
         feature = 'feature_1'
         self.pipeline.export_targets(attributes=[feature],
                                      multi_band_files=False)
-        output_name = self._output_name.replace('.ply', '_{}.ply'.format(feature))
+        output_name = os.path.join(feature, self._output_name)
         path = os.path.join(self._test_dir, output_name)
         self.assertListEqual(['x', 'y', 'z', feature],
                              _get_attributes_in_PLY_file(path))

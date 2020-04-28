@@ -166,9 +166,9 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
 
         for feature in self._features:
             # feature-specific target files are present
-            filename = 'tile_{}_{}_{}.ply'.format(self._tile_index[0],
-                                                  self._tile_index[1],
-                                                  feature)
+            filename = '{}/tile_{}_{}.ply'.format(feature,
+                                                  self._tile_index[0],
+                                                  self._tile_index[1])
             filepath = os.path.join(self._test_dir, filename)
             self.assertTrue(os.path.isfile(filepath))
 

@@ -335,10 +335,10 @@ def _get_output_file_dict(path,
         if features and not multi_band_files:
             files = {}
             for feature in features:
-                file_name = "_".join([file_handle, feature])
-                file_name = ".".join([file_name, format.strip('.')])
-                file_path = (p/file_name).as_posix()
-                files.update({file_path: [feature]})
+                sub_path = p/feature
+                check_dir_exists(sub_path, should_exist=True, mkdir=True)
+                file_path = (sub_path/file_handle).with_suffix(format)
+                files.update({file_path.as_posix(): [feature]})
         else:
             file_path = (p/file_handle).with_suffix(format).as_posix()
             if features:
