@@ -86,15 +86,12 @@ def list_remote(wdclient,remote_path):
     """
     List remote path.
 
-    NOTE: list method returns directory queried as first argument when querying
-    webdav API to SURFsara dCache. This implementation accounts for that.
-
     :param wdclient: webdav client
     :param remote_path: path to remote directory
     :return list of files and directories at the remote path
     """
     records = wdclient.list(remote_path)
-    return records[1:]
+    return records
 
 
 def get_info_remote(wdclient,remote_path):

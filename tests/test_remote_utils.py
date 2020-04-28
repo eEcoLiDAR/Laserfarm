@@ -247,7 +247,7 @@ def _get_mock_webdav_client():
     client.check.side_effect = os.path.exists
     client.is_dir.side_effect = os.path.isdir
     client.download_file.side_effect = shutil.copy
-    client.list.side_effect = lambda x: [x] + os.listdir(x)
+    client.list.side_effect = os.listdir
     client.upload_sync.side_effect = lambda x, y: shutil.copy(y, x)
     client.mkdir.side_effect = os.mkdir
     return client
