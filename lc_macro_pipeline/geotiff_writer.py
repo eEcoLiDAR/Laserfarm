@@ -235,15 +235,11 @@ def _getGeoCoding(xyData, arrayinfo):
     '''
         Geocoding the point-wise x/y to a raster grid
     '''
-    listX = numpy.arange(arrayinfo[3], dtype='float32')*arrayinfo[2] + arrayinfo[0]
-    listY = numpy.arange(arrayinfo[7], dtype='float32')*arrayinfo[6]*(-1.) + arrayinfo[5]
-    dictX = dict(zip(listX, range(len(listX))))
-    dictY = dict(zip(listY, range(len(listY))))
-    xx = numpy.float32(xyData[:, 0])
-    yy = numpy.float32(xyData[:, 1])
-    indexX = [dictX[x] for x in xx]
-    indexY = [dictY[y] for y in yy]
-    return indexX, indexY
+    x_idx = (xyData[:, 0] - arrayinfo[0]) / arrayinfo[2]
+    y_idx = -(xyData[:, 1] - arrayinfo[5]) / arrayinfo[6]
+    assert numpy.allclose(x_idx, numpy.rint(x_idx)), 'Geo coding failed!'
+    assert numpy.allclose(y_idx, numpy.rint(y_idx)), 'Geo coding failed!'
+    return x_idx.astype(int).tolist(), y_idx.astype(int).tolist()
 
 
 def _writeGeoTiff(featureArrays, bandName, geoTransform, outputFileName, ncols, nrows, nbands, EPSG_code): #TODO: READ EPSG_code FROM INPUT PLY
