@@ -36,7 +36,7 @@ class Classification(PipelineRemoteData):
         if isinstance(point_cloud, str):
             pc_path=self.input_folder/point_cloud
             lc_macro_pipeline.utils.check_path_exists(pc_path, should_exist=True)
-            pc = load(pc_path)
+            pc = load(pc_path.as_posix())
         else:
             pc = point_cloud
         
@@ -45,12 +45,10 @@ class Classification(PipelineRemoteData):
         lc_macro_pipeline.utils.check_path_exists(shp_path, should_exist=True)
 
         # Get boundary of the point cloud
-        
         self.point_cloud = pc
         x = pc[laserchicken.keys.point]['x']['data']
         y = pc[laserchicken.keys.point]['y']['data']
         point_box = shapely.geometry.box(np.min(x), np.min(y), np.max(x), np.max(y))
-
 
         for shp in sorted([f.absolute() for f in shp_path.iterdir() if f.suffix=='.shp']):
             sf = shapefile.Reader(shp.as_posix())
