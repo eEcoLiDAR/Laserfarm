@@ -42,6 +42,13 @@ class TestMacroPipelineObject(unittest.TestCase):
         with self.assertRaises(AssertionError):
             mp.add_task(['load'])
 
+    def test_setLabels(self):
+        mp = MacroPipeline()
+        mp.tasks = [Pipeline(), Pipeline()]
+        labels = ['a', 'b']
+        mp.set_labels(labels)
+        self.assertListEqual(labels, [task.label for task in mp.tasks])
+
 
 class TestSetupClientMacroPipeline(unittest.TestCase):
 
@@ -73,11 +80,12 @@ class TestToyMacroPipeline(unittest.TestCase):
 
     _test_dir = 'test_tmp_dir'
     _tmp_dask_worker_dir = 'dask-worker-space'
+    _outcome_file_path = os.path.join(_test_dir, 'outcome.out')
 
     def setUp(self):
         os.mkdir(self._test_dir)
         self.cluster = LocalCluster(processes=True,
-                                    n_workers=2,
+                                    n_workers=1,
                                     threads_per_worker=1)
 
     def tearDown(self):
@@ -104,6 +112,12 @@ class TestToyMacroPipeline(unittest.TestCase):
         self.assertTrue(all([os.path.isfile(f) for f in [file_a, file_b]]))
         lines_a, lines_b = [open(f).readlines() for f in [file_a, file_b]]
         self.assertEqual(lines_a, lines_b)
+        self.assertListEqual(mp.get_failed_pipelines(), [])
+        mp.print_outcome(to_file=self._outcome_file_path)
+        self.assertTrue(os.path.isfile(self._outcome_file_path))
+        with open(self._outcome_file_path, 'r') as f:
+            res = [line.split()[-1] for line in f.readlines()]
+        self.assertListEqual(res, ['Completed']*2)
 
     def test_runInvalidPipeline(self):
         a, b = ShortIOPipeline(), ShortIOPipeline()
@@ -119,5 +133,12 @@ class TestToyMacroPipeline(unittest.TestCase):
         mp.tasks = [a, b]
         mp.setup_client(cluster=self.cluster)
         mp.run()
+        self.assertListEqual(mp.get_failed_pipelines(), [b])
         self.assertListEqual(list(mp.errors[0]), [None, None])
         self.assertTrue(mp.errors[1][0], IsADirectoryError)
+        mp.print_outcome(to_file=self._outcome_file_path)
+        self.assertTrue(os.path.isfile(self._outcome_file_path))
+        with open(self._outcome_file_path, 'r') as f:
+            res = [line.split()[-1] for line in f.readlines()]
+        self.assertEqual(res[0], 'Completed')
+        self.assertNotEqual(res[1], 'Completed')

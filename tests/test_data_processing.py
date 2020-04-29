@@ -1,4 +1,5 @@
 import os
+import pathlib
 import shutil
 import unittest
 
@@ -6,6 +7,25 @@ import numpy as np
 
 from lc_macro_pipeline.data_processing import DataProcessing
 from .tools import create_test_point_cloud, get_number_of_points_in_LAZ_file
+
+
+class TestInitializeDataProcessing(unittest.TestCase):
+
+    def test_initDefault(self):
+        dp = DataProcessing()
+        self.assertIsInstance(dp.input_path, pathlib.Path)
+        self.assertEqual(dp.input_path.absolute().as_posix(), os.getcwd())
+
+    def test_initRelativePath(self):
+        filepath = 'dir/file.dat'
+        dp = DataProcessing(input=filepath)
+        self.assertEqual(dp.input_path.absolute().as_posix(),
+                         os.path.join(os.getcwd(), filepath))
+
+    def test_initAbsolutePath(self):
+        filepath = '/dir/file.dat'
+        dp = DataProcessing(input=filepath)
+        self.assertEqual(dp.input_path.absolute().as_posix(), filepath)
 
 
 class TestAddCustomFeature(unittest.TestCase):
@@ -310,7 +330,6 @@ class TestGenerateTargets(unittest.TestCase):
         self.pipeline = DataProcessing()
         self.pipeline.point_cloud = create_test_point_cloud(nx_values=10,
                                                             grid_spacing=1.)
-        self.pipeline._tile_index = (0, 0)
         self._input = {'min_x': 0.,
                        'min_y': 0.,
                        'max_x': 100.,
@@ -320,20 +339,21 @@ class TestGenerateTargets(unittest.TestCase):
         self._expected_target_size = 100
 
     def test_validInput(self):
+        self.pipeline._tile_index = (0, 0)
         self.pipeline.generate_targets(**self._input)
         self.assertEqual(_get_point_cloud_size(self.pipeline.targets),
                          self._expected_target_size)
 
     def test_wrongTileSelected(self):
-        input = self._input.copy()
         self.pipeline._tile_index = (1, 0)
         with self.assertRaises(AssertionError):
-            self.pipeline.generate_targets(**input)
+            self.pipeline.generate_targets(**self._input)
 
     def test_validationRaiseError(self):
         x_array = self.pipeline.point_cloud['vertex']['x']['data']
         mask = np.isclose(x_array, 0.)
         x_array[mask] -= 0.05
+        self.pipeline._tile_index = (0, 0)
         with self.assertRaises(AssertionError):
             self.pipeline.generate_targets(**self._input)
 
@@ -341,6 +361,7 @@ class TestGenerateTargets(unittest.TestCase):
         x_array = self.pipeline.point_cloud['vertex']['x']['data']
         mask = np.isclose(x_array, 0.)
         x_array[mask] -= 0.05
+        self.pipeline._tile_index = (0, 0)
         self.pipeline.generate_targets(validate_precision=0.1, **self._input)
         self.assertEqual(_get_point_cloud_size(self.pipeline.targets),
                          self._expected_target_size)
@@ -355,9 +376,14 @@ class TestGenerateTargets(unittest.TestCase):
     def test_emptyPointCloud(self):
         self.pipeline.point_cloud = create_test_point_cloud(nx_values=0,
                                                             log=False)
+        self.pipeline._tile_index = (0, 0)
         self.pipeline.generate_targets(**self._input)
         self.assertEqual(_get_point_cloud_size(self.pipeline.targets),
                          self._expected_target_size)
+
+    def test_tileIndexNotSet(self):
+        with self.assertRaises(RuntimeError):
+            self.pipeline.generate_targets(**self._input)
 
 
 class TestExportTargets(unittest.TestCase):

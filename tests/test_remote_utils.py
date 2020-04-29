@@ -7,8 +7,8 @@ import unittest
 from unittest.mock import create_autospec
 from webdav3.client import Client, RemoteResourceNotFound
 
-from lc_macro_pipeline.remote_utils import get_wdclient, pull_from_remote, \
-    push_to_remote, purge_local
+from lc_macro_pipeline.remote_utils import get_wdclient, list_remote, \
+    get_info_remote, pull_from_remote, push_to_remote, purge_local
 
 class TestGetWdclient(unittest.TestCase):
 
@@ -88,6 +88,26 @@ class TestGetWdclient(unittest.TestCase):
             json.dump(options, f)
         with self.assertRaises(FileNotFoundError):
             _ = get_wdclient(options_filepath)
+
+
+class TestListRemote(unittest.TestCase):
+
+    def setUp(self):
+        self.client = _get_mock_webdav_client()
+
+    def test_correctMethodIsCalled(self):
+        list_remote(self.client, os.getcwd())
+        self.client.list.assert_called_once_with(os.getcwd())
+
+
+class TestGetInfoRemote(unittest.TestCase):
+
+    def setUp(self):
+        self.client = _get_mock_webdav_client()
+
+    def test_correctMethodIsCalled(self):
+        get_info_remote(self.client, os.getcwd())
+        self.client.info.assert_called_once_with(os.getcwd())
 
 
 class TestPullFromRemote(unittest.TestCase):

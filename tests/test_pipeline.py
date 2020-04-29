@@ -51,6 +51,18 @@ class TestShortPipeline(unittest.TestCase):
         pip.input = input
         self.assertDictEqual(input, pip.input)
 
+    def test_setInputWithConfigMethod(self):
+        pip = ShortPipeline()
+        input = {'foo': 1, 'bar': 2}
+        pip.config(from_dict=input)
+        self.assertDictEqual(input, pip.input)
+
+    def test_setInputWithConfigMethodImplicit(self):
+        pip = ShortPipeline()
+        input = {'foo': 1, 'bar': 2}
+        pip.config(input)
+        self.assertDictEqual(input, pip.input)
+
     def test_setInputFromJSONConfigFile(self):
         expected_output = {'a': 1, 'b': 'test', 'c': None}
         input = {'foo': {'a': 1}, 'bar': ['test']}

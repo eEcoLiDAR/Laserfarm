@@ -91,6 +91,12 @@ class TestPullRemote(unittest.TestCase):
                                                  os.path.join(remote_origin,
                                                               input_path.name))
 
+    def test_webdavClientNotSet(self):
+        remote_origin = '/path/to/remote'
+        self.pipeline.input_folder = pathlib.Path(self._test_dir)
+        with self.assertRaises(RuntimeError):
+            self.pipeline.pullremote(remote_origin)
+
 
 class TestPushRemote(unittest.TestCase):
 
@@ -114,6 +120,12 @@ class TestPushRemote(unittest.TestCase):
         push_to_remote.assert_called_once_with(client,
                                                output_folder.as_posix(),
                                                remote_origin)
+
+    def test_webdavClientNotSet(self):
+        remote_origin = '/path/to/remote'
+        self.pipeline.input_folder = pathlib.Path(self._test_dir)
+        with self.assertRaises(RuntimeError):
+            self.pipeline.pullremote(remote_origin)
 
 
 class TestPurgeLocal(unittest.TestCase):
