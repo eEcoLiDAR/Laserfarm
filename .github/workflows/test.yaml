@@ -1,0 +1,33 @@
+name: build and test
+
+on:
+  push:
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup-conda
+      uses: s-weigand/setup-conda@v1.0.2
+      with:
+        update-conda: true
+        python-version: 3.7
+        conda-channels: 'conda-forge'
+    - run: conda --version
+    - run: which python
+    - run: conda install pdal python-pdal gdal
+    - name: Install the package
+      env:
+        CONDA_PREFIX: /usr/share/miniconda
+      run: pip install -e .
+    - name: Test with pytest
+      env:
+        CONDA_PREFIX: /usr/share/miniconda
+      run: |
+        pip install pytest pytest-cov
+        pytest tests --cov=lc_macro_pipeline --cov-report=xml

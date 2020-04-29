@@ -1,5 +1,7 @@
 # Laserchicken Macro(-ecology) Pipeline
 
+[![Actions Status](https://github.com/eEcoLiDAR/lcMacroPipeline/workflows/build%20and%20test/badge.svg?branch=add_unit_tests)](https://github.com/eEcoLiDAR/lcMacroPipeline/actions)
+
 ## Description
 
 Laserchicken (LC) is a FOSS tool for extracting statistical properties of subgroups of points from a
