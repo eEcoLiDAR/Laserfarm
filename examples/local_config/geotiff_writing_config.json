@@ -1,0 +1,23 @@
+{
+  "setup_local_fs":{
+    "tmp_folder":"./tmp"
+  },
+  "setup_webdav_client": {
+    "webdav_options":"./local_config/example_webdav_option_file.json"
+  },
+  "pullremote":{
+    "remote_origin":"/pnfs/grid.sara.nl/data/projects.nl/eecolidar/01_Escience/test_pipeline/testdata/PLY"
+  },
+  "parse_point_cloud": {},
+  "data_split": {
+    "xSub": 1,
+    "ySub": 1
+  },
+  "create_subregion_geotiffs": {
+    "output_handle": "TestGeotiff"
+  },
+  "pushremote":{
+    "remote_destination":"/pnfs/grid.sara.nl/data/projects.nl/eecolidar/01_Escience/test_pipeline/output/"
+  },
+  "cleanlocalfs":{}
+}
