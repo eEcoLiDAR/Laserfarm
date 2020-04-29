@@ -1,6 +1,6 @@
 # Laserchicken Macro(-ecology) Pipeline
 
-[![Actions Status](https://github.com/eEcoLiDAR/lcMacroPipeline/workflows/build%20and%20test/badge.svg?branch=add_unit_tests)](https://github.com/eEcoLiDAR/lcMacroPipeline/actions) [![codecov](https://codecov.io/gh/eEcoLiDAR/lcMacroPipeline/branch/add_unit_tests/graph/badge.svg)](http://codecov.io/github/mirumee/saleor?branch=add_unit_tests)
+[![Actions Status](https://github.com/eEcoLiDAR/lcMacroPipeline/workflows/build%20and%20test/badge.svg?branch=add_unit_tests)](https://github.com/eEcoLiDAR/lcMacroPipeline/actions) [![codecov](https://codecov.io/gh/eEcoLiDAR/lcMacroPipeline/branch/add_unit_tests/graph/badge.svg)](http://codecov.io/github/eEcoLiDAR/lcMacroPipeline/branch/add_unit_tests)
 
 ## Description
 
