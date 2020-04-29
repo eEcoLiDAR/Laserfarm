@@ -157,6 +157,7 @@ class TestRun(unittest.TestCase):
         pipeline = PipelineRemoteData()
         pipeline.run()
         mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
+                                                           'setup_webdav_client',
                                                            'pullremote',
                                                            'pushremote',
                                                            'cleanlocalfs'))
@@ -166,6 +167,7 @@ class TestRun(unittest.TestCase):
         pipeline = PipelineRemoteData()
         pipeline.run(pipeline=('test_task',))
         mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
+                                                           'setup_webdav_client',
                                                            'pullremote',
                                                            'test_task',
                                                            'pushremote',
@@ -176,6 +178,7 @@ class TestRun(unittest.TestCase):
         pipeline = ShortPipelineRemoteData()
         pipeline.run()
         mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
+                                                           'setup_webdav_client',
                                                            'pullremote',
                                                            'foo',
                                                            'bar',
@@ -187,6 +190,7 @@ class TestRun(unittest.TestCase):
         pipeline = ShortPipelineRemoteData()
         pipeline.run(pipeline=('test_task',))
         mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
+                                                           'setup_webdav_client',
                                                            'pullremote',
                                                            'test_task',
                                                            'pushremote',

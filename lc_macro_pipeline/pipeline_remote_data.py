@@ -101,7 +101,7 @@ class PipelineRemoteData(Pipeline):
         :param pipeline: (optional) Consider the input pipeline if provided
         """
         _pipeline = pipeline if pipeline is not None else self.pipeline
-        _pipeline = (('setup_local_fs', 'pullremote')
+        _pipeline = (('setup_local_fs', 'setup_webdav_client', 'pullremote')
                      + _pipeline
                      + ('pushremote', 'cleanlocalfs'))
         super(PipelineRemoteData, self).run(pipeline=_pipeline)
