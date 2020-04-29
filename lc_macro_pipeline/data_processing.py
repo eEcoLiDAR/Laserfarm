@@ -166,6 +166,9 @@ class DataProcessing(PipelineRemoteData):
         logger.info('Setting up the target grid')
         self.grid.setup(min_x, min_y, max_x, max_y, n_tiles_side)
 
+        if any([idx is None for idx in self._tile_index]):
+            raise RuntimeError('Tile index not set!')
+
         if validate:
             logger.info('Checking whether points belong to cell '
                         '({},{})'.format(*self._tile_index))
