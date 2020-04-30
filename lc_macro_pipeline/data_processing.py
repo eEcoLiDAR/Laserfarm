@@ -310,7 +310,7 @@ def _get_input_file_list(p):
         files = [str(p.absolute())]
     elif p.is_dir():
         files = sorted([str(f.absolute()) for f in p.iterdir()
-                        if f.suffix.lstrip('.').lower() in io_handlers.keys()])
+                        if f.suffix.lower() in io_handlers.keys()])
         if not files:
             raise FileNotFoundError('No point-cloud file in: {}'.format(p))
     else:
