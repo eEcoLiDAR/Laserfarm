@@ -16,12 +16,71 @@ if matplotlib_available:
     import matplotlib.pyplot as plt
 
 
+class TestValidGridSetup(unittest.TestCase):
+    def setUp(self):
+        self.grid = Grid()
+        self.grid.setup(0., 0., 20., 20., 5)
+
+    def test_gridMins(self):
+        np.testing.assert_allclose(self.grid.grid_mins, [0., 0.])
+
+    def test_gridMaxs(self):
+        np.testing.assert_allclose(self.grid.grid_maxs, [20., 20.])
+
+    def test_gridWidth(self):
+        np.testing.assert_allclose(self.grid.grid_width, 20.)
+
+    def test_tileWidth(self):
+        np.testing.assert_allclose(self.grid.tile_width, 4.)
+
+    def test_tileIndexForPoint(self):
+        np.testing.assert_array_equal(self.grid.get_tile_index(0.1, 0.2),
+                                      (0, 0))
+
+    def test_tileIndexForArray(self):
+        np.testing.assert_array_equal(self.grid.get_tile_index((0.1, 19.9),
+                                                               (0.2, 19.8)),
+                                      ((0, 0), (4, 4)))
+
+    def test_tileBoundsForPoint(self):
+        np.testing.assert_array_equal(self.grid.get_tile_bounds(0, 0),
+                                      ((0., 0.), (4., 4.)))
+
+    def test_tileBoundsForArray(self):
+        np.testing.assert_array_equal(self.grid.get_tile_bounds((0, 0),
+                                                                (0, 1)),
+                                      (((0., 0.), (0., 4.)),
+                                       ((4., 4.), (4., 8.))))
+
+
+class TestInvalidGridSetup(unittest.TestCase):
+    def test_fractionalNumberOfTilesGrid(self):
+        with self.assertRaises(ValueError):
+            grid = Grid()
+            grid.setup(0., 0., 20., 20., 0.1)
+
+    def test_zeroNumberOfTilesGrid(self):
+        with self.assertRaises(ValueError):
+            grid = Grid()
+            grid.setup(0., 0., 20., 20., 0)
+
+    def test_zeroWidthGrid(self):
+        with self.assertRaises(ValueError):
+            grid = Grid()
+            grid.setup(0., 0., 0., 20., 5)
+
+    def test_rectangularGrid(self):
+        with self.assertRaises(ValueError):
+            grid = Grid()
+            grid.setup(0., 0., 10., 20., 5)
+
+
 class TestRealGridValid(unittest.TestCase):
     _test_dir = 'test_tmp_dir'
     _test_data_dir = 'testdata'
-    _test_tile_idx = [169, 108]
+    _test_tile_idx = [101, 101]
 
-    _test_file_name = 'C_41CZ2_3_valid.LAZ'
+    _test_file_name = 'C_43FN1_1_1.LAZ'
     _min_x = -113107.8100
     _min_y = 214783.8700
     _max_x = 398892.1900
@@ -53,13 +112,13 @@ class TestRealGridLowPrecision(TestRealGridValid):
     in the PDAL LAS writer. Some points thus fall outside the tile boundary
     when read from the file.
     """
-    _test_file_name = 'C_41CZ2_3_lowprec.LAZ'
+    _test_file_name = 'C_43FN1_1.LAZ'
 
     def test_isPointInTile(self):
         x_pts, y_pts = self.points.T
         mask_valid_points = self.grid.is_point_in_tile(x_pts, y_pts,
                                                        *self._test_tile_idx)
-        if (self.plot and matplotlib_available):
+        if self.plot and matplotlib_available:
             _plot_points_and_tile(self.grid,
                                   self.points[~mask_valid_points],
                                   self._test_tile_idx,
@@ -68,9 +127,10 @@ class TestRealGridLowPrecision(TestRealGridValid):
 
     def test_isPointInTileWithPrecision(self):
         x_pts, y_pts = self.points.T
+        precision = np.abs(np.rint(self._max_y) - self._max_y)
         mask_valid_points = self.grid.is_point_in_tile(x_pts, y_pts,
                                                        *self._test_tile_idx,
-                                                       precision=0.1)
+                                                       precision=precision)
         self.assertTrue(np.all(mask_valid_points))
 
 
@@ -92,7 +152,7 @@ class TestRealGridLowPrecisionRoundedOrigin(TestRealGridValid):
         x_pts, y_pts = self.points.T
         mask_valid_points = self.grid.is_point_in_tile(x_pts, y_pts,
                                                        *self._test_tile_idx)
-        if (self.plot and matplotlib_available):
+        if self.plot and matplotlib_available:
             _plot_points_and_tile(self.grid,
                                   self.points[~mask_valid_points],
                                   self._test_tile_idx,

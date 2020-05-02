@@ -1,5 +1,8 @@
 import numpy as np
-import warnings
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class Grid(object):
@@ -14,6 +17,7 @@ class Grid(object):
         self.max_x = 0.
         self.max_y = 0.
         self.n_tiles_side = 1
+        self.is_set = False
 
     def setup(self, min_x, min_y, max_x, max_y, n_tiles_side):
         """
@@ -32,6 +36,8 @@ class Grid(object):
         self.max_x = max_x
         self.max_y = max_y
         self._check_finite_extent()
+        self._check_grid_is_square()
+        self.is_set = True
 
     @property
     def n_tiles_side(self):
@@ -80,11 +86,11 @@ class Grid(object):
         mask_invalid_indices = np.logical_or(indices >= self.n_tiles_side,
                                              indices < 0)
         if mask_invalid_indices.any():
-        #     axis = 1 if len(mask_invalid_indices.shape) > 1 else 0
-        #     num_invalid_points = np.all(mask_invalid_indices, axis=axis).sum()
-            warnings.warn("Points fall outside the grid bounds Min X={} Y={}, "
-                          "Max X={} Y={}".format(*self.grid_mins,
-                                                 *self.grid_maxs))
+            # axis = 1 if len(mask_invalid_indices.shape) > 1 else 0
+            # num_invalid_points = np.all(mask_invalid_indices, axis=axis).sum()
+            logger.warning("Points fall outside the bounds Min X={} Y={}, "
+                           "Max X={} Y={}".format(*self.grid_mins,
+                                                  *self.grid_maxs))
         return indices
 
     def get_tile_bounds(self, tile_index_x, tile_index_y):
@@ -119,8 +125,8 @@ class Grid(object):
             point_cart = np.array([px, py], dtype=np.float).T
             tile_mins, tile_maxs = self.get_tile_bounds(tile_index_x,
                                                         tile_index_y)
-            mask = np.logical_and(tile_mins - point_cart < precision,
-                                  point_cart - tile_maxs < precision)
+            mask = np.logical_and(tile_mins - point_cart <= precision,
+                                  point_cart - tile_maxs <= precision)
         return np.all(mask, axis=1)
 
     def generate_tile_mesh(self, tile_index_x, tile_index_y, tile_mesh_size):
@@ -151,3 +157,7 @@ class Grid(object):
         for n_dim in range(1):
             if np.isclose(self.grid_width[n_dim], 0.):
                 raise ValueError('Zero grid extend in {}!'.format('xy'[n_dim]))
+
+    def _check_grid_is_square(self):
+        if not np.isclose(self.tile_width[0], self.tile_width[1]):
+            raise ValueError('Grid is not square!')
