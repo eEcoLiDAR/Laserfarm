@@ -29,7 +29,7 @@ class Classification(PipelineRemoteData):
         Locate the corresponding ESRI shape file of the point cloud
         
         :param point_cloud: target point cloud for classification. 
-                            Path to the poiunt cloud file (relative to self.output_folder root)
+                            Path to the point cloud file (relative to self.output_folder root)
                             or point cloud instance 
         :param shp_dir: directory which contains all candidate shp file for classification
         """
