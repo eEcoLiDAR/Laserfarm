@@ -33,12 +33,10 @@ class Classification(PipelineRemoteData):
                             or point cloud instance 
         :param shp_dir: directory which contains all candidate shp file for classification
         """
-        if isinstance(point_cloud, str):
-            pc_path=self.input_folder/point_cloud
-            lc_macro_pipeline.utils.check_path_exists(pc_path, should_exist=True)
-            pc = load(pc_path.as_posix())
-        else:
-            pc = point_cloud
+        
+        pc_path=self.input_folder/point_cloud
+        lc_macro_pipeline.utils.check_path_exists(pc_path, should_exist=True)
+        pc = load(pc_path.as_posix())
         
         shp_path=self.input_folder/shp_dir
         
@@ -52,7 +50,7 @@ class Classification(PipelineRemoteData):
 
         for shp in sorted([f.absolute() for f in shp_path.iterdir() if f.suffix=='.shp']):
             sf = shapefile.Reader(shp.as_posix())
-            mbr = shape(sf.shapeRecords()[0].shape.__geo_interface__).envelope
+            mbr = shapely.geometry.box(*sf.bbox)
             
             if point_box.intersects(mbr):
                 self.input_shp.append(shp)
