@@ -293,7 +293,7 @@ def _get_input_file_list(path):
         files = [str(p.absolute())]
     elif p.is_dir():
         files = sorted([str(f.absolute()) for f in p.iterdir()
-                        if f.suffix.lstrip('.').lower() in io_handlers.keys()])
+                        if f.suffix.lower() in io_handlers.keys()])
     else:
         raise IOError('Unable to read from path: {}'.format(path))
     return files
