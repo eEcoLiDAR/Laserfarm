@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 class PipelineRemoteData(Pipeline):
     """ Pipeline extension to deal with remote input/output """
 
-    input_folder = None
-    output_folder = None
-    input_file = None
+    _input_folder = pathlib.Path('.')
+    _output_folder = pathlib.Path('.')
+    _input_path = None
 
     def localfs(self, input_folder, output_folder, input_file=None):
         """
@@ -27,17 +27,18 @@ class PipelineRemoteData(Pipeline):
                               paths specified
         :param input_file: (optional) name of the input file to be retrieved
         """
-        self.input_folder = pathlib.Path(input_folder)
+        self.input_folder = input_folder
         logger.info('Input dir set to {}'.format(self.input_folder))
         if input_file is not None:
-            self.input_file = self.input_folder.joinpath(input_file)
-            logger.info('Input file set to {}'.format(self.input_file))
+            self.input_path = input_file
+            logger.info('Input path set to {}'.format(self.input_path))
         # Do not check existence of input folder as it may be retrieved from
         # remote fs
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
-        self.output_folder = pathlib.Path(output_folder)
+        self.output_folder = output_folder
         logger.info('Output dir set to {}'.format(self.output_folder))
-        self.logger.set_file(directory=self.output_folder.as_posix())
+        if self.logger is not None:
+            self.logger.set_file(directory=self.output_folder.as_posix())
         return self
 
     def pullremote(self, options, remote_origin):
@@ -49,8 +50,8 @@ class PipelineRemoteData(Pipeline):
         """
         wdclient = get_wdclient(options)
         remote_path = pathlib.Path(remote_origin)
-        if self.input_file is not None:
-            remote_path.joinpath(self.input_file.name)
+        if self.input_path.suffix:
+            remote_path.joinpath(self.input_path.name)
         logger.info('Pulling from WebDAV {} ...'.format(remote_origin))
         pull_from_remote(wdclient,
                          self.input_folder.as_posix(),
@@ -90,4 +91,31 @@ class PipelineRemoteData(Pipeline):
         _pipeline = ('localfs', 'pullremote') + _pipeline + ('pushremote',
                                                              'cleanlocalfs')
         super(PipelineRemoteData, self).run(pipeline=_pipeline)
+
+    @property
+    def input_folder(self):
+        return self._input_folder
+
+    @input_folder.setter
+    def input_folder(self, input_folder):
+        self._input_folder = pathlib.Path(input_folder)
+
+    @property
+    def output_folder(self):
+        return self._output_folder
+
+    @output_folder.setter
+    def output_folder(self, output_folder):
+        self._output_folder = pathlib.Path(output_folder)
+
+    @property
+    def input_path(self):
+        path = self.input_folder
+        if self._input_path is not None:
+            path /= self._input_path
+        return path
+
+    @input_path.setter
+    def input_path(self, path):
+        self._input_path = pathlib.Path(path)
 

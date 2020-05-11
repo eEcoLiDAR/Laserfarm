@@ -9,6 +9,7 @@ from lc_macro_pipeline.pipeline import Pipeline
 
 from .tools import ShortIOPipeline
 
+
 class TestMacroPipelineObject(unittest.TestCase):
 
     _tmp_dask_worker_dir = 'dask-worker-space'
@@ -19,7 +20,7 @@ class TestMacroPipelineObject(unittest.TestCase):
 
     def test_tasksDefault(self):
         mp = MacroPipeline()
-        self.assertTrue(isinstance(mp.tasks, list))
+        self.assertIsInstance(mp.tasks, list)
         self.assertTrue(len(mp.tasks) == 0)
 
     def test_setTasksNotValid(self):
@@ -40,6 +41,33 @@ class TestMacroPipelineObject(unittest.TestCase):
             mp.add_task('load')
         with self.assertRaises(AssertionError):
             mp.add_task(['load'])
+
+
+class TestSetupClientMacroPipeline(unittest.TestCase):
+
+    def test_localClusterFromInput(self):
+        mp = MacroPipeline()
+        cluster = LocalCluster(processes=True,
+                               n_workers=1,
+                               threads_per_worker=1)
+        mp.setup_client(cluster=cluster)
+        self.assertEqual(mp.client.status, 'running')
+        mp.client.cluster.close()
+        self.assertEqual(mp.client.cluster.status, 'closed')
+
+    def test_localClusterFromMethod(self):
+        mp = MacroPipeline()
+        mp.setup_client(mode='local', processes=True, n_workers=1,
+                        threads_per_worker=1)
+        self.assertEqual(mp.client.status, 'running')
+        mp.client.cluster.close()
+        self.assertEqual(mp.client.cluster.status, 'closed')
+
+    def test_invalidCluster(self):
+        mp = MacroPipeline()
+        with self.assertRaises(RuntimeError):
+            mp.setup_client(mode='newcluster')
+
 
 class TestToyMacroPipeline(unittest.TestCase):
 

@@ -42,18 +42,18 @@ class Retiler(PipelineRemoteData):
         Split the input file using PDAL and organize the tiles in subfolders
         using the location on the input grid as naming scheme.
         """
-        check_file_exists(self.input_file, should_exist=True)
-        logger.info('Splitting file {} with PDAL ...'.format(self.input_file))
-        _run_PDAL_splitter(self.input_file, self.output_folder,
+        self._check_input()
+        logger.info('Splitting file {} with PDAL ...'.format(self.input_path))
+        _run_PDAL_splitter(self.input_path, self.output_folder,
                            self.grid.grid_mins, self.grid.grid_maxs,
                            self.grid.n_tiles_side)
         logger.info('... splitting completed.')
         tiles = [f for f in self.output_folder.iterdir()
                  if (f.is_file()
-                     and f.suffix.lower() == self.input_file.suffix.lower()
-                     and f.stem.startswith(self.input_file.stem)
-                     and f.name != self.input_file.name)]
-        logger.info('Redistributing files to tiles ...'.format(self.input_file))
+                     and f.suffix.lower() == self.input_path.suffix.lower()
+                     and f.stem.startswith(self.input_path.stem)
+                     and f.name != self.input_path.name)]
+        logger.info('Redistributing files to tiles ...')
         for tile in tiles:
             (_, tile_mins, tile_maxs, _, _) = _get_details_pc_file(str(tile))
 
@@ -74,14 +74,14 @@ class Retiler(PipelineRemoteData):
         Validate the produced output by checking consistency in the number
         of input and output points.
         """
-        check_file_exists(self.input_file, should_exist=True)
+        self._check_input()
         logger.info('Validating split ...')
-        (parent_points, _, _, _, _) = _get_details_pc_file(self.input_file.as_posix())
+        (parent_points, _, _, _, _) = _get_details_pc_file(self.input_path.as_posix())
         logger.info('... {} points in parent file'.format(parent_points))
         valid_split = False
         split_points = 0
         redistributed_to = []
-        tiles = self.output_folder.glob('tile_*/{}*'.format(self.input_file.stem))
+        tiles = self.output_folder.glob('tile_*/{}*'.format(self.input_path.stem))
 
         for tile in tiles:
             if tile.is_file():
@@ -97,15 +97,21 @@ class Retiler(PipelineRemoteData):
         else:
             logger.error('Number of points in parent and child tiles differ!')
 
-        retile_record = {'file': self.input_file.as_posix(),
+        retile_record = {'file': self.input_path.as_posix(),
                          'redistributed_to': redistributed_to,
                          'validated': valid_split}
 
         if write_record_to_file:
-            _write_record(self.input_file.stem,
+            _write_record(self.input_path.stem,
                           self.output_folder,
                           retile_record)
         return self
+
+    def _check_input(self):
+        if not self.grid.is_set:
+            raise ValueError('The grid has not been set!')
+        check_file_exists(self.input_path, should_exist=True)
+        check_dir_exists(self.output_folder, should_exist=True)
 
 
 def _get_details_pc_file(filename):

@@ -47,8 +47,7 @@ class DataProcessing(PipelineRemoteData):
                                            select_polygon]})
         self.extractors = DictToObj(_get_extractor_dict())
         self._features = None
-        self.input_folder = None
-        self.output_folder = None
+        self._tile_index = None
 
     @property
     def features(self):
@@ -68,6 +67,7 @@ class DataProcessing(PipelineRemoteData):
         :param parameters: Extractor-specific parameters
         """
         extractor = _get_attribute(self.extractors, extractor_name)
+        _check_parameters_for_extractor(extractor, parameters)
         logger.info('Setting up feature extractor {}'.format(extractor_name))
         register_new_feature_extractor(extractor(**parameters))
         return self
@@ -78,13 +78,12 @@ class DataProcessing(PipelineRemoteData):
 
         :param load_opts: Arguments passed to the laserchicken load function
         """
-        check_dir_exists(self.input_folder, should_exist=True)
-        logger.info('Loading point cloud data from dir '
-                    '{} ...'.format(self.input_folder))
-        for file in _get_input_file_list(self.input_folder):
+        check_path_exists(self.input_path, should_exist=True)
+        input_file_list = _get_input_file_list(self.input_path)
+        logger.info('Loading point cloud data ...')
+        for file in input_file_list:
             logger.info('... loading {}'.format(file))
-            add_to_point_cloud(self.point_cloud,
-                               load(file, **load_opts))
+            add_to_point_cloud(self.point_cloud, load(file, **load_opts))
         logger.info('... loading completed.')
         return self
 
@@ -96,6 +95,9 @@ class DataProcessing(PipelineRemoteData):
         normalization (in m)
         :return:
         """
+        if not cell_size > 0.:
+            raise ValueError('Cell size should be > 0.!')
+        _check_point_cloud_is_not_empty(self.point_cloud)
         logger.info('Normalizing point-cloud heights ...')
         normalize(self.point_cloud, cell_size)
         logger.info('... normalization completed.')
@@ -112,6 +114,7 @@ class DataProcessing(PipelineRemoteData):
         :param filter_type: Type of filter to apply.
         :param filter_input: Filter-specific input.
         """
+        _check_point_cloud_is_not_empty(self.point_cloud)
         filter = _get_attribute(self.filter, filter_type)
         logger.info('Filtering point-cloud data')
         self.point_cloud = filter(self.point_cloud, **filter_input)
@@ -127,21 +130,19 @@ class DataProcessing(PipelineRemoteData):
         :param export_opts: Optional arguments passed to the laserchicken
                             export function
         """
-        if pathlib.Path(filename).parent.name:
-            raise IOError('filename should not include path!')
-        expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
+        expath = self._get_export_path(filename)
         logger.info('Exporting environment point-cloud ...')
         self._export(self.point_cloud,
                      expath,
                      attributes,
-                     multi_band_files=False,
+                     multi_band_files=True,
                      **export_opts)
         logger.info('... exporting completed.')
         return self
 
     def generate_targets(self, min_x, min_y, max_x, max_y, n_tiles_side,
                          index_tile_x, index_tile_y, tile_mesh_size,
-                         validate=False, validate_precision=None):
+                         validate=True, validate_precision=None):
         """
         Generate the target point cloud.
 
@@ -185,6 +186,7 @@ class DataProcessing(PipelineRemoteData):
         self.targets = create_point_cloud(x_trgts,
                                           y_trgts,
                                           np.zeros_like(x_trgts))
+        self._tile_index = (index_tile_x, index_tile_y)
         return self
 
     def extract_features(self, volume_type, volume_size, feature_names,
@@ -219,7 +221,6 @@ class DataProcessing(PipelineRemoteData):
         """
         Write target point cloud to disk.
 
-
         :param filename: optional filename where to write point-cloud data
                          (relative to self.output_folder root)
         :param attributes: List of attributes to be written in the output file
@@ -227,18 +228,17 @@ class DataProcessing(PipelineRemoteData):
         :param export_opts: Optional arguments passed to the laserchicken
                             export function
         """
-        if pathlib.Path(filename).parent.name:
-            raise IOError('filename should not include path!')
-        expath = pathlib.Path(self.output_folder).joinpath(filename).as_posix()
+        expath = self._get_export_path(filename)
+        file_handle = 'tile_{}_{}'.format(*self._tile_index)
         logger.info('Exporting target point-cloud ...')
         self._export(self.targets, expath, attributes, multi_band_files,
-                     **export_opts)
+                     file_handle, **export_opts)
         logger.info('... exporting completed.')
         return self
 
     @staticmethod
     def _export(point_cloud, path, attributes='all', multi_band_files=True,
-                **export_opts):
+                file_handle='point_cloud', **export_opts):
         """
         Write generic point-cloud data to disk.
 
@@ -251,11 +251,27 @@ class DataProcessing(PipelineRemoteData):
         features = [f for f in point_cloud[laserchicken.keys.point].keys()
                     if f not in 'xyz'] if attributes == 'all' else attributes
         for file, feature_set in _get_output_file_dict(path,
+                                                       file_handle,
                                                        features,
                                                        multi_band_files,
                                                        **export_opts).items():
             logger.info('... exporting {}'.format(file))
             export(point_cloud, file, attributes=feature_set, **export_opts)
+
+
+    def _get_export_path(self, filename=''):
+        check_dir_exists(self.output_folder, should_exist=True)
+        if pathlib.Path(filename).parent.name:
+            raise IOError('filename should not include path!')
+        return self.output_folder.joinpath(filename).as_posix()
+
+
+def _check_parameters_for_extractor(extractor, parameters):
+    try:
+        _ = extractor(**parameters)
+    except TypeError:
+        raise ValueError('Wrong set of parameters for extractor '
+                         '{}'.format(extractor.__name__))
 
 
 def _get_extractor_dict():
@@ -286,41 +302,57 @@ def _get_required_attributes(features=[]):
     return attributes
 
 
-def _get_input_file_list(path):
-    p = pathlib.Path(path)
+def _get_input_file_list(p):
     check_path_exists(p, should_exist=True)
     if p.is_file():
         files = [str(p.absolute())]
     elif p.is_dir():
         files = sorted([str(f.absolute()) for f in p.iterdir()
                         if f.suffix.lower() in io_handlers.keys()])
+        if not files:
+            raise FileNotFoundError('No point-cloud file in: {}'.format(p))
     else:
-        raise IOError('Unable to read from path: {}'.format(path))
+        raise IOError('Unable to read from path: {}'.format(p))
     return files
 
 
+def _check_point_cloud_is_not_empty(point_cloud):
+    pts = point_cloud['vertex']
+    if not all([pts[attr]['data'].size > 0 for attr in pts.keys()]):
+        raise RuntimeError('Point cloud is empty!')
+
+
 def _get_output_file_dict(path,
+                          file_handle='point_cloud',
                           features=[],
                           multi_band_files=True,
-                          format='ply',
+                          format='.ply',
                           overwrite=False,
                           **kwargs):
     p = pathlib.Path(path)
-    if p.suffix == '':
+    if not p.suffix:
         # expected dir
         check_dir_exists(p, should_exist=True)
         if features and not multi_band_files:
-            files = {str(p.joinpath('.'.join([feature, format]))): feature
-                     for feature in features}
+            files = {}
+            for feature in features:
+                file_name = "_".join([file_handle, feature])
+                file_name = ".".join([file_name, format.strip('.')])
+                file_path = (p/file_name).as_posix()
+                files.update({file_path: [feature]})
         else:
-            files = {str(p.joinpath('.'.join(['all', format]))): 'all'}
+            file_path = (p/file_handle).with_suffix(format).as_posix()
+            if features:
+                files = {file_path: features}
+            else:
+                files = {file_path: 'all'}
     else:
         # expected file - check parent dir
         check_dir_exists(p.parent, should_exist=True)
         if features:
-            files = {str(p.absolute()): features}
+            files = {p.as_posix(): features}
         else:
-            files = {str(p.absolute()): 'all'}
+            files = {p.as_posix(): 'all'}
 
     if not overwrite:
         for file in files.keys():
