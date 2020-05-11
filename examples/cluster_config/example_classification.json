@@ -1,0 +1,17 @@
+{
+  "localfs":{
+    "input_folder":"/home/ubuntu/examples/testdata/",
+    "output_folder":"/home/ubuntu/examples/tmp/target_pnt_output/"
+  },
+  "locate_shp":{
+    "point_cloud":"tile_170_107.ply",
+    "shp_dir":"shp/"
+  },
+  "classification":{
+    "ground_type":5
+  },
+  "export_point_cloud":{
+    "filename":"tile_170_107_classified.ply",
+    "overwrite":true
+  }
+}
