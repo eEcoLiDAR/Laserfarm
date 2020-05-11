@@ -4,17 +4,18 @@ User Manual
 ``lcMacroPipeline`` provides a set of tools to process massive LiDAR point-cloud data sets. In order to tackle volumes
 of data such as the ones produced by airborne laser scanning, ``lcMacroPipeline`` makes use of a *divide-et-impera*
 strategy. First, the raw data is split into tiles whose size is manageable by standard computing infrastructures.
-Then, point-cloud properties ("features") are extracted from the re-tiled data using the cells of a
-second user-defined grid as ensembles for the statistical averaging. Finally, the properties computed for
-each sub-cell are exported in a raster format and all tile contributions merged to form a single output GeoTIFF file,
-ideally covering the same area as the initial raw data.
+Then, point-cloud properties ("features") are extracted from the re-tiled data using the cells of a second user-defined
+grid as ensembles for the statistical averaging. The mesh size of this second finer grid ultimately defines the
+resolution (i.e. the pixel size) of the raster data. Finally, the properties computed for each sub-cell are exported in
+a raster format and all tile contributions merged to form a single output GeoTIFF file, ideally covering the same area
+as the initial raw data.
 
-The full processing pipeline can be thus subdivided into three steps: the raw data re-tiling, the point-cloud data
-processing and the raster-data merging and export. Each of these tasks can be run in a Python script that imports the
-dedicated ``lcMacroPipeline`` module or through the command line tool ``lc_macro_pipeline``. The following sections
+The full processing pipeline can be thus subdivided into three pipeline steps: the raw data re-tiling, the point-cloud
+data processing and the raster-data merging and export. Each of these tasks can be run in a Python script that imports
+the dedicated ``lcMacroPipeline`` module or through the command line tool ``lc_macro_pipeline``. The following sections
 describes the main features of each of these pipelines and their general use. User interested in more advanced features
-and in how these tasks can be implemented for large-scale macro-ecology calculations should have a look at the Jupyter
-notebooks provided (see the [Examples](#examples) section).
+and in how these tasks can be implemented for large-scale macro-ecology calculations can have a look at the Jupyter
+notebooks provided (see :ref:`Examples`).
 
 .. _Retiling:
 Raw Data Re-tiling
@@ -28,7 +29,7 @@ according to a regular grid:
 
     from lc_macro_pipeline import Retiler
 
-    pipeline = Retiler(filename="point_cloud.LAZ")
+    pipeline = Retiler(input_file="point_cloud.LAZ")
     input_dict = {
         'set_grid': {
             'min_x': -113107.81,
@@ -43,9 +44,16 @@ according to a regular grid:
     pipeline.config(input_dict)
     pipeline.run()
 
-The re-tiling pipeline is configured here using a dictionary, whose keys identify the pipeline sub-tasks that need to be
-run and the values the corresponding arguments. Alternatively, if the input dictionary is serialized to JSON format and
-stored in a file, it can be directly imported in the following way:
+The re-tiling pipeline is configured using a dictionary, whose keys identify the pipeline sub-tasks that need to be
+run and the values the corresponding arguments.
+
+.. NOTE::
+    The input dictionary elements can be provided in any order. The order in which the tasks are executed is defined in
+    a dedicated list (the ``pipeline`` attribute of the ``Retiler`` class), which can be inspected using the
+    command-line tool: ``lc_macro_pipeline retiling pipeline``.
+
+Alternatively, if the input dictionary is serialized to JSON format and stored in a file, the pipeline can be directly
+configured in the following way:
 
 .. code-block:: python
 
@@ -66,14 +74,14 @@ The same calculation can be run using the command-line tool in the following way
 
 .. code-block:: shell
 
-    lc_macro_pipeline retiling --filename=point_cloud.LAZ - set_grid --min_x=-113107.81 --max_x=398892.19 --min_y=214783.87 --max_y=726783.87 --n_tiles_side=256 - split_and_redistribute - validate
+    lc_macro_pipeline retiling --input_file=point_cloud.LAZ - set_grid --min_x=-113107.81 --max_x=398892.19 --min_y=214783.87 --max_y=726783.87 --n_tiles_side=256 - split_and_redistribute - validate
 
-Note that the list of tasks with the corresponding arguments is chained using a hyphens. If the tasks and arguments are
+Note that the various tasks with the corresponding arguments are chained using hyphens. If the tasks and arguments are
 provided as a JSON configuration file, the pipeline can be executed in the following way:
 
 .. code-block:: shell
 
-    lc_macro_pipeline retiling --filename=point_cloud.LAZ - config --from_file=retiling_config.json - run
+    lc_macro_pipeline retiling --input_file=point_cloud.LAZ - config --from_file=retiling_config.json - run
 
 Point-Cloud Data Processing
 ---------------------------
@@ -81,7 +89,7 @@ Point-Cloud Data Processing
 Once the raw data is split into tiles whose volume can be handled by the infrastructure available to the user,
 point-cloud-based properties can be extracted. ``lcMacroPipeline`` implements a wrapper to `laserchicken`_, which is the
 engine employed to parse and process point-cloud data. The following example Python script processes a LAZ file that
-contains the point-cloud subset assigned to the ``(X=0, Y=0)`` tile in the chosen tiling scheme:
+contains the point-cloud subset corresponding to the ``(X=0, Y=0)`` tile in the chosen tiling scheme:
 
 .. code-block:: python
 
@@ -108,9 +116,9 @@ contains the point-cloud subset assigned to the ``(X=0, Y=0)`` tile in the chose
 
 .. _laserchicken: https://github.com/eEcoLiDAR/laserchicken
 
-Also here a dictionary is employed to configure the pipeline, but a JSON file could be equivalently be used (see
-:ref:`Retiling`). The data processing pipeline can also be run with the command-line tool by issuing the
-``data_processing`` command:
+Also here a dictionary is employed to configure the pipeline (a JSON file could be used exactly as in :ref:`Retiling`).
+The command-line tool can also be used to run the data processing pipeline (the ``data_processing`` command is issued
+here):
 
 .. code-block:: shell
 
@@ -122,11 +130,18 @@ or, if the configuration dictionary is serialized in the ``data_processing.json`
 
     lc_macro_pipeline data_processing --input=tile.LAZ --tile_index=[0,0] - config --from_file=data_processing.json - run
 
+The full (ordered) list of tasks that can be executed within the data processing pipeline can be inspected from the
+command line:
+
+.. code-block:: shell
+
+    lc_macro_pipeline data_processing pipeline
+
 The example pipeline above entails five steps. First, the point-cloud data is loaded into memory. Note that the input
 path provided can point to either a file or a directory, in which case all files in a point-cloud format that is known
 to ``laserchicken`` are considered. In order to reduce the memory requirements, one can load only the attributes that are
 necessary for further data processing from the input LAZ file(s). These attributes can be provided using the optional
-argument ``attributes`` of the ``load`` method:
+argument ``attributes`` of the ``DataProcessing``'s ``load`` method:
 
 .. code-block:: python
 
@@ -149,25 +164,25 @@ using contiguous square cells, and the properties computed over each neighborhoo
 (see also the ``laserchicken`` `manual`_. For a given tile the full set of centroids, i.e. the target points, is
 generated by the ``generate_targets`` method, which requires information about the tiling scheme and the desired mesh
 size of the target grid (``tile_mesh_size``, in meters). Note that ``tile_mesh_size`` ultimately sets the desired
-resolution of the raster maps, since it essentially corresponds to the pixel size in the final GeoTIFFs. If ``validate``
-is set to true, the points belonging to the input point cloud are checked to lie within the boundaries of the tile for
-which target points are generated (recommended).
+resolution of the raster maps, since it corresponds to the pixel size in the final GeoTIFFs. If ``validate`` is set to
+true, the points belonging to the input point cloud are checked to lie within the boundaries of the tile for which
+target points are generated (recommended).
 
 Once the target point set is generated, the desired properties of the input point cloud can be computed. The example
 above will calculate a single feature, i.e. ``point_density``, but multiple features can be extracted in a single run.
 Statistical properties can be computed over a subset of points in each neighborhoods (for instance, to mimic data
 sets with lower point densities). This is achieved by specifying the ``sample_size`` argument to the ``extract_features``
 method, which defines the number of randomly-selected points considered in each cell (all points are considered for
-cells that include $N\leq$``sample_size`` points).
+cells that include :math:`N\leq` ``sample_size`` points).
 
 Finally, the target points and the associated properties are written to disk. By default, the polygon (PLY) format
 is employed, with one output file including all extracted features. However, single-feature files can also be exported
 by setting the ``multi_band_files`` argument to false.
 
 Additional steps that can be optionally included in the data-processing pipeline allows the user to generate
-parametrized features using the extractors available in ``laserchicken``
-(see the `manual`_) and to select a subset of the input point cloud for the feature extraction. Specific information on
-the required arguments can be obtained from the corresponding command line helpers:
+parametrized features using the extractors available in ``laserchicken`` (see the `manual`_) and to select a subset of
+the input point cloud for the feature extraction. Specific information on the required arguments can be obtained from
+the corresponding command line helpers:
 
 .. code-block:: shell
 
@@ -187,7 +202,7 @@ GeoTIFF Export
 In the last step of the full processing pipeline the properties extracted from the raw input point cloud in a tile-wise
 fashion are tiled back together and exported as raster maps. The following example illustrates how to generate
 a single-band GeoTIFF file for the ``point_density`` feature from a set of PLY files containing the target points for
-all the tiles:
+all the tiles in which an initial LAZ file has been split:
 
 .. code-block:: python
 
@@ -207,7 +222,7 @@ to configure and run the pipeline, respectively. The same pipeline can be run vi
 
 .. code-block:: shell
 
-    lc_macro_pipeline geotiff_export --input_dir=/path/to/PLY/files --bands=point_density - parse_point_cloud - data_split --xSub=1 --ySub=1 - create_region_geotiffs --output_handle=geotiff
+    lc_macro_pipeline geotiff_writer --input_dir=/path/to/PLY/files --bands=point_density - parse_point_cloud - data_split --xSub=1 --ySub=1 - create_subregion_geotiffs --output_handle=geotiff
 
 This example pipeline entails the following steps. First, the list of PLY files to be parsed is constructed and a
 representative file is parsed in order to obtain information on the number or target points per tile and the spacing
@@ -216,15 +231,16 @@ between target points.
 .. NOTE::
     All tiles are assumed to be square and to include the same number of target points with the same target mesh size.
 
-For data sets with large lateral extend or very large resolution (i.e. very small target meshes), a single GeoTIFF file
+For data sets with large lateral extend or very large resolution (i.e. very fine target meshes), a single GeoTIFF file
 could be difficult to handle with standard GIS tools. It is thus possible to partition the area covered by the tiles
-into (``xSub`` $\times$ ``ySub``) sub-regions and to generate a GeoTIFF for each of the sub-regions. In the example above,
+into (``xSub`` :math:`\times` ``ySub``) sub-regions and to generate a GeoTIFF for each of the sub-regions. In the example above,
 ``xSub = ySub = 1`` sets a single GeoTIFF file to cover all tiles.
 
 .. NOTE::
-    The sub-region dimensions should be a multiple of the corresponding tile dimensions.
+    The sub-region dimensions should be multiple of the corresponding tile dimensions.
 
-Finally, the GeoTIFF file(s) are generated using `GDAL`_ (``output_handle`` is employed as filename handle).
+Finally, ``lcMacroPipeline`` generates the GeoTIFF file(s) using `GDAL`_ (``output_handle`` is employed as file-name
+handle).
 
 .. _GDAL: https://gdal.org
 
@@ -232,11 +248,12 @@ Pipelines with Remote Data
 --------------------------
 
 LiDAR-based macro-ecology studies could easily involve several TBs of raw point-cloud data. These data volumes are
-difficult to handle on standard local machines. In addition, the data should also be accessible to the infrastructure
+difficult to handle on standard local machines. In addition, the data should also be accessible to the infrastructure(s)
 where the processing takes place (e.g. to all the nodes of a compute cluster). In order to avoid data duplication and to
-limit the disk-space requirement of the compute nodes, storage infrastructure can be used to dump the raw data and the
-result of the pipeline calculations. The raw-data re-tiling, point-cloud data-processing and GeoTIFF-writing pipelines
-implement methods to retrieve input and drop output to storage services using the WebDAV protocol.
+limit the disk-space requirement of the processing unit(s), a remote storage infrastructure can be used to dump the raw
+data and the result of the pipeline calculations. The raw-data re-tiling, point-cloud data-processing and
+GeoTIFF-writing pipelines implement methods to retrieve input and drop output to storage services using the WebDAV
+protocol.
 
 The following example shows how the example in :ref:`Retiling` can be modified to retrieve ``point_cloud.LAZ`` from the
 storage facility with hostname ``https://webdav.hostname.com`` (connecting to port ``8888``) using the specified
@@ -247,7 +264,7 @@ credentials to log in:
 
     from lc_macro_pipeline import Retiler
 
-    pipeline = Retiler(filename="point_cloud.LAZ")
+    pipeline = Retiler(input_file="point_cloud.LAZ")
     webdav_options = {
         'webdav_hostname': 'https://webdav.hostname.com:8888',
         'webdav_login': 'username',
@@ -275,9 +292,9 @@ credentials to log in:
 ``lcMacroPipeline`` will create two directories for input and output as sub-folders of ``tmp_folder``, download the
 input file ``point_cloud.LAZ`` from the path ``/remote/path/to/input`` on the WebDAV server to the input folder,
 perform the re-tiling as described in :ref:`Retiling`, upload the results from the output folder to the remote path
-``/remote/path/to/output`` on the WebDAV server and delete input and output local folders.
+``/remote/path/to/output`` on the WebDAV server and delete the local input and output folders.
 
-It is possible to set arbitrary paths for the input and output folders:
+It is also possible to set arbitrary paths for the input and output folders:
 
 .. code-block:: python
 
@@ -319,15 +336,15 @@ exploiting the parallelization over input files:
         'validate': {}
     }
     filenames = ['point_cloud_{}.LAZ'.format(n) for n in range(10)]
-    macro.tasks = [Retiler(filename=f, label=f).config(input_dict) for f in filenames]
+    macro.tasks = [Retiler(input_file=f, label=f).config(input_dict) for f in filenames]
     macro.setup_cluster(mode='local', processes=True, n_workers=2, threads_per_worker=1)
     macro.run()
     macro.print_outcome(to_file='results.txt')
 
 The parallelization is achieved using `Dask`_, which is employed to deploy the cluster and to distribute the tasks. In
 the example above, the computing cluster consists of two local processes (two 'workers') spawning one thread each
-(recommended, and required for the feature extraction tasks that involve ``laserchicken``). Each of the workers takes
-care of the execution of one task at the time until all tasks are completed.
+(recommended for all pipelines, and required for the feature extraction tasks that involve ``laserchicken``). Each of
+the workers takes care of the execution of one task at a time until all tasks are completed.
 
 In order to distribute tasks to a cluster deployed over compute nodes using SSH, the script above can be modified in the
 following way:
@@ -348,7 +365,8 @@ The first address or hostname in the host list is employed for the scheduler, al
 used for the workers. The ``nprocs`` and ``nthreads`` arguments set the number of workers running on each host and the
 number of threads spawned by each worker, respectively. For further information we refer to the `Dask documentation`_.
 
-Any other deployed Dask cluster can be used to distribute tasks within ``MacroPipeline``, for instance:
+Any other deployed Dask cluster can be used to distribute tasks within ``MacroPipeline`` if passed as an argument to the
+``setup_cluster`` method, for instance:
 
 .. code-block:: python
 
@@ -364,6 +382,7 @@ Any other deployed Dask cluster can be used to distribute tasks within ``MacroPi
 .. NOTE::
     No command line support is provided in ``lcMacroPipeline`` for macro-pipeline calculations.
 
+.. _Examples
 Examples
 --------
 
