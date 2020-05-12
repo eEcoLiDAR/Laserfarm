@@ -7,3 +7,5 @@ pylas
 laserchicken @ git+git://github.com/eEcoLiDAR/laserchicken@development#egg=laserchicken
 plyfile
 webdavclient3
+PyShp
+shapely
