@@ -14,7 +14,7 @@ class Logger(object):
     """ Manage the log of the (macro) pipelines. """
 
     def __init__(self, label='lc_macro_pipeline'):
-        self.level = 'DEBUG'
+        self.level = 'INFO'
         self.formatter = logging.Formatter(_default_format)
         self.stream = _stream_dict['stderr']
         self.filename = pathlib.Path(label).with_suffix('.log')

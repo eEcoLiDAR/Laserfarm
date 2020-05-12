@@ -32,7 +32,8 @@ class TestSetupLocalFS(unittest.TestCase):
 
     def test_logfileIsCreated(self):
         self.pipeline.logger = Logger()
-        self.pipeline.logger.config(filename=self._test_filename)
+        self.pipeline.logger.config(filename=self._test_filename,
+                                    level='DEBUG')
         self.pipeline.setup_local_fs(self._test_dir, self._test_dir)
         self.assertTrue(os.path.isfile(self._test_filepath))
 
