@@ -26,7 +26,7 @@ def check_dir_exists(path, should_exist, mkdir=False):
         check_path_exists(p, should_exist)
     except FileNotFoundError:
         if mkdir:
-            p.mkdir(parents=True)
+            p.mkdir(parents=True, exist_ok=True)
         else:
             raise
     if should_exist and not p.is_dir():
