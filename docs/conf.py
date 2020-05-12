@@ -10,17 +10,24 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
+import lc_macro_pipeline
 
 # -- Project information -----------------------------------------------------
 
 project = 'lc_macro_pipeline'
-copyright = '2020, Meiert Grootes, Ou Ku, Francesco Nattino'
+copyright = '2020, Netherlands eScience Center'
 author = 'Meiert Grootes, Ou Ku, Francesco Nattino'
 
+# The short X.Y version.
+version = lc_macro_pipeline.__version__
+# The full version, including alpha/beta/rc tags.
+release = lc_macro_pipeline.__version__
+
+html_logo = 'figures/ESCIENCE_logo_C_nl_cyanblack.png'
+latex_logo = 'figures/ESCIENCE_logo_C_nl_cyanblack.png'
 
 # -- General configuration ---------------------------------------------------
 
