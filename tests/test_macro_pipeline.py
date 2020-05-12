@@ -57,15 +57,15 @@ class TestSetupClientMacroPipeline(unittest.TestCase):
         cluster = LocalCluster(processes=True,
                                n_workers=1,
                                threads_per_worker=1)
-        mp.setup_client(cluster=cluster)
+        mp.setup_cluster(cluster=cluster)
         self.assertEqual(mp.client.status, 'running')
         mp.client.cluster.close()
         self.assertEqual(mp.client.cluster.status, 'closed')
 
     def test_localClusterFromMethod(self):
         mp = MacroPipeline()
-        mp.setup_client(mode='local', processes=True, n_workers=1,
-                        threads_per_worker=1)
+        mp.setup_cluster(mode='local', processes=True, n_workers=1,
+                         threads_per_worker=1)
         self.assertEqual(mp.client.status, 'running')
         mp.client.cluster.close()
         self.assertEqual(mp.client.cluster.status, 'closed')
@@ -73,7 +73,7 @@ class TestSetupClientMacroPipeline(unittest.TestCase):
     def test_invalidCluster(self):
         mp = MacroPipeline()
         with self.assertRaises(RuntimeError):
-            mp.setup_client(mode='newcluster')
+            mp.setup_cluster(mode='newcluster')
 
 
 class TestToyMacroPipeline(unittest.TestCase):
@@ -107,7 +107,7 @@ class TestToyMacroPipeline(unittest.TestCase):
                    'close': {}}
         mp = MacroPipeline()
         mp.tasks = [a, b]
-        mp.setup_client(cluster=self.cluster)
+        mp.setup_cluster(cluster=self.cluster)
         mp.run()
         self.assertTrue(all([os.path.isfile(f) for f in [file_a, file_b]]))
         lines_a, lines_b = [open(f).readlines() for f in [file_a, file_b]]
@@ -131,7 +131,7 @@ class TestToyMacroPipeline(unittest.TestCase):
                    'close': {}}
         mp = MacroPipeline()
         mp.tasks = [a, b]
-        mp.setup_client(cluster=self.cluster)
+        mp.setup_cluster(cluster=self.cluster)
         mp.run()
         self.assertListEqual(mp.get_failed_pipelines(), [b])
         self.assertListEqual(list(mp.errors[0]), [None, None])
