@@ -1,14 +1,15 @@
 {
-  "localfs": {
+  "setup_local_fs": {
     "input_folder": "./testdata",
-    "output_folder": "./tmp",
-    "input_file": "C_41CZ2.LAZ"
+    "output_folder": "./tmp"
+  },
+  "setup_webdav_client": {
+    "webdav_options":"./local_config/example_webdav_option_file.json"
   },
   "pullremote":{
-    "options":"./local_config/example_webdav_option_file.json",
-    "remote_origin":"01_Escience/test_pipeline/testdata/LAZ/"
+    "remote_origin":"/pnfs/grid.sara.nl/data/projects.nl/eecolidar/01_Escience/test_pipeline/testdata/LAZ/"
   },
-  "tiling": {
+  "set_grid": {
     "min_x": -113107.8100,
     "max_x": 398892.1900,
     "min_y": 214783.8700,
@@ -18,8 +19,7 @@
   "split_and_redistribute": {},
   "validate": {},
   "pushremote":{
-    "options":"./local_config/example_webdav_option_file.json",
-    "remote_destination":"01_Escience/test_pipeline/output"
+    "remote_destination":"/pnfs/grid.sara.nl/data/projects.nl/eecolidar/01_Escience/test_pipeline/output"
   },
   "cleanlocalfs":{}
 }

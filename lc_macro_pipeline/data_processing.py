@@ -29,8 +29,9 @@ logger = logging.getLogger(__name__)
 class DataProcessing(PipelineRemoteData):
     """ Read, process and write point cloud data using laserchicken. """
 
-    def __init__(self):
-        self.pipeline = ('load',
+    def __init__(self, input=None, label=None, tile_index=(None, None)):
+        self.pipeline = ('add_custom_feature',
+                         'load',
                          'normalize',
                          'apply_filter',
                          'export_point_cloud',
@@ -47,7 +48,11 @@ class DataProcessing(PipelineRemoteData):
                                            select_polygon]})
         self.extractors = DictToObj(_get_extractor_dict())
         self._features = None
-        self._tile_index = None
+        self._tile_index = tile_index
+        if input is not None:
+            self.input_path = input
+        if label is not None:
+            self.label = label
 
     @property
     def features(self):
@@ -125,7 +130,6 @@ class DataProcessing(PipelineRemoteData):
         Write environment point cloud to disk.
 
         :param filename: optional filename where to write point-cloud data
-                         (relative to self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param export_opts: Optional arguments passed to the laserchicken
                             export function
@@ -141,8 +145,8 @@ class DataProcessing(PipelineRemoteData):
         return self
 
     def generate_targets(self, min_x, min_y, max_x, max_y, n_tiles_side,
-                         index_tile_x, index_tile_y, tile_mesh_size,
-                         validate=True, validate_precision=None):
+                         tile_mesh_size, validate=True,
+                         validate_precision=None):
         """
         Generate the target point cloud.
 
@@ -152,10 +156,6 @@ class DataProcessing(PipelineRemoteData):
         :param max_y: Max y value of the tiling schema
         :param n_tiles_side: Number of tiles along X and Y (tiling MUST be
         square)
-        :param index_tile_x: Tile index along X (from 0 to n_tiles_side
-        - 1)
-        :param index_tile_y: Tile index along Y (from 0 to n_tiles_side
-        - 1)
         :param tile_mesh_size: Spacing between target points (in m). The tiles'
         width must be an integer times this spacing
         :param validate: If True, check if all points in the point-cloud belong
@@ -166,27 +166,29 @@ class DataProcessing(PipelineRemoteData):
         logger.info('Setting up the target grid')
         self.grid.setup(min_x, min_y, max_x, max_y, n_tiles_side)
 
+        if any([idx is None for idx in self._tile_index]):
+            raise RuntimeError('Tile index not set!')
+
         if validate:
             logger.info('Checking whether points belong to cell '
-                        '({},{})'.format(index_tile_x, index_tile_y))
+                        '({},{})'.format(*self._tile_index))
             x_all, y_all, _ = get_point(self.point_cloud, ...)
             mask = self.grid.is_point_in_tile(x_all,
                                               y_all,
-                                              index_tile_x,
-                                              index_tile_y,
+                                              self._tile_index[0],
+                                              self._tile_index[1],
                                               validate_precision)
             assert np.all(mask), ('{} points belong to (a) different tile(s)'
                                   '!'.format(len(x_all[~mask])))
 
         logger.info('Generating target point mesh with '
                     '{}m spacing '.format(tile_mesh_size))
-        x_trgts, y_trgts = self.grid.generate_tile_mesh(index_tile_x,
-                                                        index_tile_y,
+        x_trgts, y_trgts = self.grid.generate_tile_mesh(self._tile_index[0],
+                                                        self._tile_index[1],
                                                         tile_mesh_size)
         self.targets = create_point_cloud(x_trgts,
                                           y_trgts,
                                           np.zeros_like(x_trgts))
-        self._tile_index = (index_tile_x, index_tile_y)
         return self
 
     def extract_features(self, volume_type, volume_size, feature_names,
@@ -222,7 +224,6 @@ class DataProcessing(PipelineRemoteData):
         Write target point cloud to disk.
 
         :param filename: optional filename where to write point-cloud data
-                         (relative to self.output_folder root)
         :param attributes: List of attributes to be written in the output file
         :param multi_band_files: If true, write all attributes in one file
         :param export_opts: Optional arguments passed to the laserchicken
@@ -245,6 +246,7 @@ class DataProcessing(PipelineRemoteData):
         :param path: Path where to write point-cloud data
         :param attributes: List of attributes to be written in the output file
         :param multi_band_files: If true, write all attributes in one file
+        :param file_handle: Stem for the file name(s) if path is a directory
         :param export_opts: Optional arguments passed to the laserchicken
         export function
         """
@@ -336,10 +338,10 @@ def _get_output_file_dict(path,
         if features and not multi_band_files:
             files = {}
             for feature in features:
-                file_name = "_".join([file_handle, feature])
-                file_name = ".".join([file_name, format.strip('.')])
-                file_path = (p/file_name).as_posix()
-                files.update({file_path: [feature]})
+                sub_path = p/feature
+                check_dir_exists(sub_path, should_exist=True, mkdir=True)
+                file_path = (sub_path/file_handle).with_suffix(format)
+                files.update({file_path.as_posix(): [feature]})
         else:
             file_path = (p/file_handle).with_suffix(format).as_posix()
             if features:

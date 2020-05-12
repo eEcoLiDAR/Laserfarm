@@ -1,18 +1,21 @@
-from lc_macro_pipeline import DataProcessing, MacroPipeline
+from lc_macro_pipeline import GeotiffWriter, MacroPipeline
 
 mode_test = 'local'  # 'local' or 'ssh'
 
 if __name__ == '__main__':
 
     macro = MacroPipeline()
-    pipeline = DataProcessing(input="C_43FN1_1.LAZ", tile_index=(101, 101))
     if mode_test == 'local':
-        pipeline.config(from_file='local_config/example_data_processing.json')
-        macro.add_task(pipeline)
-        macro.setup_client(mode='local', )
+        for band in ["mean_norm_z", "std_norm_z"]:
+            pipeline = GeotiffWriter(bands=band, label=band)
+            pipeline.config(from_file='local_config/geotiff_writing_config.json')
+            macro.add_task(pipeline)
+        macro.setup_client(mode='local')
     elif mode_test == 'ssh':
-        pipeline.config(from_file='cluster_config/example_data_processing.json')
-        macro.add_task(pipeline)
+        for band in ["mean_norm_z", "std_norm_z"]:
+            pipeline = GeotiffWriter(bands=band, label=band)
+            pipeline.config(from_file='cluster_config/geotiff_writing_config.json')
+            macro.add_task(pipeline)
         macro.setup_client(mode='ssh',
                            hosts=["172.17.0.2", "172.17.0.3"],
                            connect_options={"known_hosts": None,

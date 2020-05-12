@@ -16,59 +16,72 @@ class PipelineRemoteData(Pipeline):
     _input_folder = pathlib.Path('.')
     _output_folder = pathlib.Path('.')
     _input_path = None
+    _wdclient = None
 
-    def localfs(self, input_folder, output_folder, input_file=None):
+    def setup_local_fs(self, input_folder=None, output_folder=None,
+                       tmp_folder='.'):
         """
         IO setup for the local file system.
 
-        :param input_folder: full path to input folder on local filesystem.
-        :param output_folder: full path to output folder on local filesystem \
-                              This folder is considered root for all output \
-                              paths specified
-        :param input_file: (optional) name of the input file to be retrieved
+        :param input_folder: path to input folder on local filesystem.
+        :param output_folder: path to output folder on local filesystem. This
+                              folder is considered root for all output paths
+                              specified.
+        :param tmp_folder: path of the temporary folder, used to set default
+                           input and output folders if not specified.
         """
+        tmp_path = pathlib.Path(tmp_folder)
+
+        if input_folder is None:
+            input_folder = tmp_path / '_'.join([self.label, 'input'])
+        check_dir_exists(input_folder, should_exist=True, mkdir=True)
         self.input_folder = input_folder
         logger.info('Input dir set to {}'.format(self.input_folder))
-        if input_file is not None:
-            self.input_path = input_file
-            logger.info('Input path set to {}'.format(self.input_path))
-        # Do not check existence of input folder as it may be retrieved from
-        # remote fs
+
+        if output_folder is None:
+            output_folder = tmp_path / '_'.join([self.label, 'output'])
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
         self.output_folder = output_folder
         logger.info('Output dir set to {}'.format(self.output_folder))
         if self.logger is not None:
-            self.logger.set_file(directory=self.output_folder.as_posix())
+            self.logger.start_log_to_file(directory=self.output_folder.as_posix())
         return self
 
-    def pullremote(self, options, remote_origin):
+    def setup_webdav_client(self, webdav_options):
+        self._wdclient = get_wdclient(webdav_options)
+        return self
+
+    def pullremote(self, remote_origin):
         """
         pull directory with input file(s) from remote to local fs
 
-        :param options: setup options for webdav client. Can be a filepath
         :param remote_origin: path to directory on remote fs
         """
-        wdclient = get_wdclient(options)
+        if self._wdclient is None:
+            raise RuntimeError('WebDAV client not setup!')
         remote_path = pathlib.Path(remote_origin)
-        if self.input_path.suffix:
-            remote_path.joinpath(self.input_path.name)
-        logger.info('Pulling from WebDAV {} ...'.format(remote_origin))
-        pull_from_remote(wdclient,
-                         self.input_folder.as_posix(),
+        local_path = self.input_path
+        if self.input_path.absolute() != self.input_folder.absolute():
+            remote_path = remote_path.joinpath(self.input_path.name)
+            if self.input_path.suffix:
+                local_path = self.input_folder
+        logger.info('Pulling from WebDAV {} ...'.format(remote_path))
+        pull_from_remote(self._wdclient,
+                         local_path.as_posix(),
                          remote_path.as_posix())
         logger.info('... pulling completed.')
         return self
 
-    def pushremote(self, options, remote_destination):
+    def pushremote(self, remote_destination):
         """
         push directory with output from local fs to remote_dir
 
-        :param options: setup options for webdavclient. Can be filepath
         :param remote_destination: path to remote target directory
         """
-        wdclient = get_wdclient(options)
+        if self._wdclient is None:
+            raise RuntimeError('WebDAV client not setup!')
         logger.info('Pushing to WebDAV {} ...'.format(remote_destination))
-        push_to_remote(wdclient,
+        push_to_remote(self._wdclient,
                        self.output_folder.as_posix(),
                        remote_destination)
         logger.info('... pushing completed.')
@@ -88,8 +101,9 @@ class PipelineRemoteData(Pipeline):
         :param pipeline: (optional) Consider the input pipeline if provided
         """
         _pipeline = pipeline if pipeline is not None else self.pipeline
-        _pipeline = ('localfs', 'pullremote') + _pipeline + ('pushremote',
-                                                             'cleanlocalfs')
+        _pipeline = (('setup_local_fs', 'setup_webdav_client', 'pullremote')
+                     + _pipeline
+                     + ('pushremote', 'cleanlocalfs'))
         super(PipelineRemoteData, self).run(pipeline=_pipeline)
 
     @property

@@ -17,14 +17,18 @@ logger = logging.getLogger(__name__)
 class Classification(PipelineRemoteData):
     """ Classify point cloud w.r.t. the kadaster data """
 
-    def __init__(self):
+    def __init__(self, input_file=None, label=None):
         self.pipeline = ('locate_shp',
                          'classification',
                          'export_point_cloud')
         self.input_shp = []
         self.point_cloud = None
+        if input_file is not None:
+            self.input_path = input_file
+        if label is not None:
+            self.label = label
 
-    def locate_shp(self, point_cloud, shp_dir):
+    def locate_shp(self, shp_dir):
         """
         Locate the corresponding ESRI shape file of the point cloud
         
@@ -34,13 +38,13 @@ class Classification(PipelineRemoteData):
         :param shp_dir: directory which contains all candidate shp file for classification
         """
         
-        pc_path=self.input_folder/point_cloud
-        lc_macro_pipeline.utils.check_path_exists(pc_path, should_exist=True)
-        pc = load(pc_path.as_posix())
+        lc_macro_pipeline.utils.check_file_exists(self.input_path,
+                                                  should_exist=True)
+        pc = load(self.input_path.as_posix())
         
         shp_path=self.input_folder/shp_dir
         
-        lc_macro_pipeline.utils.check_path_exists(shp_path, should_exist=True)
+        lc_macro_pipeline.utils.check_dir_exists(shp_path, should_exist=True)
 
         # Get boundary of the point cloud
         self.point_cloud = pc
@@ -92,6 +96,9 @@ class Classification(PipelineRemoteData):
         """
         if pathlib.Path(filename).parent.name:
             raise IOError('filename should not include path!')
+        if not filename:
+            filename = '_classification'.join([self.input_path.stem,
+                                               self.input_path.suffix])
         export_path = (self.output_folder/filename).as_posix()
 
         export(self.point_cloud, export_path, overwrite=overwrite)

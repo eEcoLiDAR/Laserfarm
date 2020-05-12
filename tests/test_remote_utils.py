@@ -7,8 +7,8 @@ import unittest
 from unittest.mock import create_autospec
 from webdav3.client import Client, RemoteResourceNotFound
 
-from lc_macro_pipeline.remote_utils import get_wdclient, pull_from_remote, \
-    push_to_remote, purge_local
+from lc_macro_pipeline.remote_utils import get_wdclient, list_remote, \
+    get_info_remote, pull_from_remote, push_to_remote, purge_local
 
 class TestGetWdclient(unittest.TestCase):
 
@@ -90,6 +90,26 @@ class TestGetWdclient(unittest.TestCase):
             _ = get_wdclient(options_filepath)
 
 
+class TestListRemote(unittest.TestCase):
+
+    def setUp(self):
+        self.client = _get_mock_webdav_client()
+
+    def test_correctMethodIsCalled(self):
+        list_remote(self.client, os.getcwd())
+        self.client.list.assert_called_once_with(os.getcwd())
+
+
+class TestGetInfoRemote(unittest.TestCase):
+
+    def setUp(self):
+        self.client = _get_mock_webdav_client()
+
+    def test_correctMethodIsCalled(self):
+        get_info_remote(self.client, os.getcwd())
+        self.client.info.assert_called_once_with(os.getcwd())
+
+
 class TestPullFromRemote(unittest.TestCase):
 
     _test_dir = 'test_tmp_dir'
@@ -143,12 +163,6 @@ class TestPullFromRemote(unittest.TestCase):
             pull_from_remote(self.client,
                              self._test_local_dir,
                              remote_path)
-
-    def test_localDirectoryExists(self):
-        with self.assertRaises(FileExistsError):
-            pull_from_remote(self.client,
-                             self._test_local_dir,
-                             self._test_remote_dir)
 
 
 class TestPushToRemote(unittest.TestCase):
@@ -253,7 +267,7 @@ def _get_mock_webdav_client():
     client.check.side_effect = os.path.exists
     client.is_dir.side_effect = os.path.isdir
     client.download_file.side_effect = shutil.copy
-    client.list.side_effect = lambda x: [x] + os.listdir(x)
+    client.list.side_effect = os.listdir
     client.upload_sync.side_effect = lambda x, y: shutil.copy(y, x)
     client.mkdir.side_effect = os.mkdir
     return client

@@ -3,6 +3,7 @@ import pathlib
 import shutil
 import unittest
 
+from webdav3.client import Client
 from unittest.mock import patch
 
 from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
@@ -11,7 +12,7 @@ from lc_macro_pipeline.logger import Logger
 from .tools import ShortPipelineRemoteData
 
 
-class TestLocalfs(unittest.TestCase):
+class TestSetupLocalFS(unittest.TestCase):
 
     _test_dir = 'test_tmp_dir'
     _test_filename = 'file.txt'
@@ -25,35 +26,28 @@ class TestLocalfs(unittest.TestCase):
         shutil.rmtree(self._test_dir)
 
     def test_noInputFile(self):
-        self.pipeline.localfs(self._test_dir, self._test_dir)
+        self.pipeline.setup_local_fs(self._test_dir, self._test_dir)
         self.assertIsInstance(self.pipeline.input_folder, pathlib.Path)
         self.assertIsInstance(self.pipeline.output_folder, pathlib.Path)
-
-    def test_withInputFile(self):
-        self.pipeline.localfs(self._test_dir,
-                              self._test_dir,
-                              self._test_filename)
-        self.assertEqual(self.pipeline.input_path.as_posix(),
-                         self._test_filepath)
 
     def test_logfileIsCreated(self):
         self.pipeline.logger = Logger()
         self.pipeline.logger.config(filename=self._test_filename)
-        self.pipeline.localfs(self._test_dir, self._test_dir)
+        self.pipeline.setup_local_fs(self._test_dir, self._test_dir)
         self.assertTrue(os.path.isfile(self._test_filepath))
 
     def test_inputDirectoryNonexistent(self):
-        # should not be created
+        # should be created
         subdirname = 'tmp'
         directory = os.path.join(self._test_dir, subdirname)
-        self.pipeline.localfs(directory, self._test_dir)
-        self.assertFalse(os.path.isdir(directory))
+        self.pipeline.setup_local_fs(directory, self._test_dir)
+        self.assertTrue(os.path.isdir(directory))
 
     def test_outputDirectoryNonexistent(self):
         # should be created
         subdirname = 'tmp'
         directory = os.path.join(self._test_dir, subdirname)
-        self.pipeline.localfs(self._test_dir, directory)
+        self.pipeline.setup_local_fs(self._test_dir, directory)
         self.assertTrue(os.path.isdir(directory))
 
 
@@ -70,20 +64,38 @@ class TestPullRemote(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._test_dir)
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.get_wdclient')
     @patch('lc_macro_pipeline.pipeline_remote_data.pull_from_remote')
-    def test_noInputFile(self, _, pull_from_remote):
-        self.pipeline.input_folder = pathlib.Path(self._test_dir)
-        self.pipeline.pullremote({}, '/path/to/remote')
-        pull_from_remote.assert_called_once()
+    def test_noInputPath(self, pull_from_remote):
+        client = Client({})
+        input_folder = pathlib.Path(self._test_dir)
+        remote_origin = '/path/to/remote'
+        self.pipeline._wdclient = client
+        self.pipeline.input_folder = input_folder
+        self.pipeline.pullremote(remote_origin)
+        pull_from_remote.assert_called_once_with(client,
+                                                 input_folder.as_posix(),
+                                                 remote_origin)
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.get_wdclient')
     @patch('lc_macro_pipeline.pipeline_remote_data.pull_from_remote')
-    def test_withInputFile(self, _, pull_from_remote):
+    def test_withInputPath(self, pull_from_remote):
+        client = Client({})
+        input_folder = pathlib.Path(self._test_dir)
+        remote_origin = '/path/to/remote'
+        input_path = self.pipeline.input_folder.joinpath(self._test_filename)
+        self.pipeline._wdclient = client
+        self.pipeline.input_folder = input_folder
+        self.pipeline.input_path = input_path
+        self.pipeline.pullremote('/path/to/remote')
+        pull_from_remote.assert_called_once_with(client,
+                                                 input_folder.as_posix(),
+                                                 os.path.join(remote_origin,
+                                                              input_path.name))
+
+    def test_webdavClientNotSet(self):
+        remote_origin = '/path/to/remote'
         self.pipeline.input_folder = pathlib.Path(self._test_dir)
-        self.pipeline.input_path = self.pipeline.input_folder.joinpath(self._test_filename)
-        self.pipeline.pullremote({}, '/path/to/remote')
-        pull_from_remote.assert_called_once()
+        with self.assertRaises(RuntimeError):
+            self.pipeline.pullremote(remote_origin)
 
 
 class TestPushRemote(unittest.TestCase):
@@ -97,12 +109,23 @@ class TestPushRemote(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._test_dir)
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.get_wdclient')
     @patch('lc_macro_pipeline.pipeline_remote_data.push_to_remote')
-    def test_validInput(self, _, push_to_remote):
-        self.pipeline.output_folder = pathlib.Path(self._test_dir)
-        self.pipeline.pushremote({}, '/path/to/remote')
-        push_to_remote.assert_called_once()
+    def test_validInput(self, push_to_remote):
+        client = Client({})
+        output_folder = pathlib.Path(self._test_dir)
+        remote_origin = '/path/to/remote'
+        self.pipeline._wdclient = client
+        self.pipeline.output_folder = output_folder
+        self.pipeline.pushremote(remote_origin)
+        push_to_remote.assert_called_once_with(client,
+                                               output_folder.as_posix(),
+                                               remote_origin)
+
+    def test_webdavClientNotSet(self):
+        remote_origin = '/path/to/remote'
+        self.pipeline.input_folder = pathlib.Path(self._test_dir)
+        with self.assertRaises(RuntimeError):
+            self.pipeline.pullremote(remote_origin)
 
 
 class TestPurgeLocal(unittest.TestCase):
@@ -133,7 +156,8 @@ class TestRun(unittest.TestCase):
     def test_emptyPipeline(self, mock_super):
         pipeline = PipelineRemoteData()
         pipeline.run()
-        mock_super().run.assert_called_once_with(pipeline=('localfs',
+        mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
+                                                           'setup_webdav_client',
                                                            'pullremote',
                                                            'pushremote',
                                                            'cleanlocalfs'))
@@ -142,7 +166,8 @@ class TestRun(unittest.TestCase):
     def test_pipelinePassedThrough(self, mock_super):
         pipeline = PipelineRemoteData()
         pipeline.run(pipeline=('test_task',))
-        mock_super().run.assert_called_once_with(pipeline=('localfs',
+        mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
+                                                           'setup_webdav_client',
                                                            'pullremote',
                                                            'test_task',
                                                            'pushremote',
@@ -152,7 +177,8 @@ class TestRun(unittest.TestCase):
     def test_pipelinePresent(self, mock_super):
         pipeline = ShortPipelineRemoteData()
         pipeline.run()
-        mock_super().run.assert_called_once_with(pipeline=('localfs',
+        mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
+                                                           'setup_webdav_client',
                                                            'pullremote',
                                                            'foo',
                                                            'bar',
@@ -163,7 +189,8 @@ class TestRun(unittest.TestCase):
     def test_pipelinePresentAndPassedThrough(self, mock_super):
         pipeline = ShortPipelineRemoteData()
         pipeline.run(pipeline=('test_task',))
-        mock_super().run.assert_called_once_with(pipeline=('localfs',
+        mock_super().run.assert_called_once_with(pipeline=('setup_local_fs',
+                                                           'setup_webdav_client',
                                                            'pullremote',
                                                            'test_task',
                                                            'pushremote',

@@ -1,4 +1,5 @@
 import os
+import pathlib
 import shutil
 import unittest
 
@@ -6,6 +7,25 @@ import numpy as np
 
 from lc_macro_pipeline.data_processing import DataProcessing
 from .tools import create_test_point_cloud, get_number_of_points_in_LAZ_file
+
+
+class TestInitializeDataProcessing(unittest.TestCase):
+
+    def test_initDefault(self):
+        dp = DataProcessing()
+        self.assertIsInstance(dp.input_path, pathlib.Path)
+        self.assertEqual(dp.input_path.absolute().as_posix(), os.getcwd())
+
+    def test_initRelativePath(self):
+        filepath = 'dir/file.dat'
+        dp = DataProcessing(input=filepath)
+        self.assertEqual(dp.input_path.absolute().as_posix(),
+                         os.path.join(os.getcwd(), filepath))
+
+    def test_initAbsolutePath(self):
+        filepath = '/dir/file.dat'
+        dp = DataProcessing(input=filepath)
+        self.assertEqual(dp.input_path.absolute().as_posix(), filepath)
 
 
 class TestAddCustomFeature(unittest.TestCase):
@@ -315,26 +335,25 @@ class TestGenerateTargets(unittest.TestCase):
                        'max_x': 100.,
                        'max_y': 100.,
                        'n_tiles_side': 10,
-                       'index_tile_x': 0,
-                       'index_tile_y': 0,
                        'tile_mesh_size': 1.}
         self._expected_target_size = 100
 
     def test_validInput(self):
+        self.pipeline._tile_index = (0, 0)
         self.pipeline.generate_targets(**self._input)
         self.assertEqual(_get_point_cloud_size(self.pipeline.targets),
                          self._expected_target_size)
 
     def test_wrongTileSelected(self):
-        input = self._input.copy()
-        input['index_tile_x'] = 1
+        self.pipeline._tile_index = (1, 0)
         with self.assertRaises(AssertionError):
-            self.pipeline.generate_targets(**input)
+            self.pipeline.generate_targets(**self._input)
 
     def test_validationRaiseError(self):
         x_array = self.pipeline.point_cloud['vertex']['x']['data']
         mask = np.isclose(x_array, 0.)
         x_array[mask] -= 0.05
+        self.pipeline._tile_index = (0, 0)
         with self.assertRaises(AssertionError):
             self.pipeline.generate_targets(**self._input)
 
@@ -342,23 +361,29 @@ class TestGenerateTargets(unittest.TestCase):
         x_array = self.pipeline.point_cloud['vertex']['x']['data']
         mask = np.isclose(x_array, 0.)
         x_array[mask] -= 0.05
-        self.pipeline.generate_targets(**self._input, validate_precision=0.1)
+        self.pipeline._tile_index = (0, 0)
+        self.pipeline.generate_targets(validate_precision=0.1, **self._input)
         self.assertEqual(_get_point_cloud_size(self.pipeline.targets),
                          self._expected_target_size)
 
     def test_skipValidation(self):
         input = self._input.copy()
-        input['index_tile_x'] = 1
-        self.pipeline.generate_targets(**input, validate=False)
+        self.pipeline._tile_index = (0, 1)
+        self.pipeline.generate_targets(validate=False, **input)
         self.assertEqual(_get_point_cloud_size(self.pipeline.targets),
                          self._expected_target_size)
 
     def test_emptyPointCloud(self):
         self.pipeline.point_cloud = create_test_point_cloud(nx_values=0,
                                                             log=False)
+        self.pipeline._tile_index = (0, 0)
         self.pipeline.generate_targets(**self._input)
         self.assertEqual(_get_point_cloud_size(self.pipeline.targets),
                          self._expected_target_size)
+
+    def test_tileIndexNotSet(self):
+        with self.assertRaises(RuntimeError):
+            self.pipeline.generate_targets(**self._input)
 
 
 class TestExportTargets(unittest.TestCase):
@@ -398,8 +423,7 @@ class TestExportTargets(unittest.TestCase):
         self.pipeline.output_folder = self._test_dir
         self.pipeline.export_targets(multi_band_files=False)
         for feature in ['feature_1', 'feature_2']:
-            output_name = self._output_name.replace('.ply',
-                                                    '_{}.ply'.format(feature))
+            output_name = os.path.join(feature, self._output_name)
             output_path = os.path.join(self._test_dir, output_name)
             self.assertListEqual(['x', 'y', 'z', feature],
                                  _get_attributes_in_PLY_file(output_path))
@@ -409,7 +433,7 @@ class TestExportTargets(unittest.TestCase):
         feature = 'feature_1'
         self.pipeline.export_targets(attributes=[feature],
                                      multi_band_files=False)
-        output_name = self._output_name.replace('.ply', '_{}.ply'.format(feature))
+        output_name = os.path.join(feature, self._output_name)
         path = os.path.join(self._test_dir, output_name)
         self.assertListEqual(['x', 'y', 'z', feature],
                              _get_attributes_in_PLY_file(path))

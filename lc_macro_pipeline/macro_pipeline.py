@@ -34,6 +34,7 @@ class MacroPipeline(object):
     """
     def __init__(self):
         self._tasks = list()
+        self.errors = list()
         self.client = None
 
     @property
@@ -45,7 +46,7 @@ class MacroPipeline(object):
     def tasks(self, tasks):
         try:
             _ = iter(tasks)
-        except TypeError as err:
+        except TypeError:
             logger.error('The collection of tasks should be an iterable object.')
             raise
         for task in tasks:
@@ -62,6 +63,18 @@ class MacroPipeline(object):
         assert isinstance(task, Pipeline)
         self.tasks.append(task)
         return self
+
+    def set_labels(self, labels):
+        labels_ = [labels]*len(self.tasks) if isinstance(labels, str) else labels
+        try:
+            _ = iter(labels_)
+        except TypeError:
+            logger.error('The labels provided should be an iterable object.')
+            raise
+        assert len(labels_) == len(self.tasks), ('labels length does not match'
+                                                 'the number of pipelines!')
+        for pipeline, label in zip(self.tasks, labels_):
+            pipeline.label = label
 
     @staticmethod
     def _run_task(f):
@@ -96,9 +109,28 @@ class MacroPipeline(object):
         """ Run the macro pipeline. """
         futures = [self.client.submit(self._run_task, task.run)
                    for task in self.tasks]
-        results = self.client.gather(futures)
-        
-        return results
+        self.errors = self.client.gather(futures)
+
+    def print_outcome(self, to_file=None):
+        """
+        Write outcome of the tasks run. If a file path is not specified, the
+        log outcome is printed to the standard output.
+
+        :param to_file: file path
+        """
+        fd = sys.stdout if to_file is None else open(to_file, 'w')
+        for nt, (err, task) in enumerate(zip(self.errors, self.tasks)):
+            if err == (None, None):
+                outcome = 'Completed'
+            else:
+                outcome = 'Error: {}, {}'.format(err[0].__name__, err[1])
+            fd.write('{:03d} {:30s} {}\n'.format(nt+1, task.label, outcome))
+        if to_file is not None:
+            fd.close()
+
+    def get_failed_pipelines(self):
+        return [task for err, task in zip(self.errors, self.tasks)
+                if err != (None, None)]
 
     def shutdown(self):
         address = self.client.scheduler.address  # get adress

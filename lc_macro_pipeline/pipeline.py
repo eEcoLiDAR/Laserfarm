@@ -31,6 +31,7 @@ class Pipeline(object):
     _pipeline = tuple()
     _input = dict()
     logger = None
+    label = 'pipeline'
 
     @property
     def pipeline(self):
@@ -69,13 +70,19 @@ class Pipeline(object):
             raise TypeError("A dictionary is expected!")
         self._input = input
 
-    def config(self, path):
+    def config(self, from_dict=None, from_file=None):
         """
-        Set the pipeline input by reading a configfile.
+        Set the pipeline input with a dictionary or by reading a configfile.
 
-        :param path: Path to the configfile
+        :param from_dict: Input is given as a dictionary
+        :param from_file: Path to the configfile
         """
-        self.input = get_args_from_configfile(path)
+        is_valid = (from_dict is None) != (from_file is None)
+        assert is_valid, 'Either a dictionary or a file path should be given!'
+        if from_dict is not None:
+            self.input = from_dict
+        elif from_file is not None:
+            self.input = get_args_from_configfile(from_file)
         return self
 
     def log_config(self, level=None, format=None, stream=None, filename=None):
@@ -91,7 +98,7 @@ class Pipeline(object):
         _pipeline = pipeline if pipeline is not None else self.pipeline
         _pipeline = ('log_config',) + _pipeline
 
-        self.logger = Logger()
+        self.logger = Logger(label=self.label)
 
         for task_name in _pipeline:
             if task_name in _input:

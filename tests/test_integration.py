@@ -3,7 +3,7 @@ import os
 import shutil
 
 from lc_macro_pipeline.data_processing import DataProcessing
-from lc_macro_pipeline.geotiff_writer import Geotiff_writer
+from lc_macro_pipeline.geotiff_writer import GeotiffWriter
 from lc_macro_pipeline.retiler import Retiler
 from .tools import TestDerivedRemoteDataPipeline, write_PLY_targets, \
     get_number_of_points_in_LAZ_file
@@ -28,12 +28,11 @@ class TestRetiler(TestDerivedRemoteDataPipeline):
             'log_config': {
                 'filename': self._log_filename
             },
-            'localfs': {
+            'setup_local_fs': {
                 'input_folder': 'testdata',
-                'output_folder': self._test_dir,
-                'input_file': self._input_file
+                'output_folder': self._test_dir
             },
-            'tiling': {
+            'set_grid': {
                 'min_x': -113107.8100,
                 'max_x': 398892.1900,
                 'min_y': 214783.8700,
@@ -46,6 +45,7 @@ class TestRetiler(TestDerivedRemoteDataPipeline):
         return _input
 
     def test_FullPipeline(self):
+        self.pipeline.input_path = self._input_file
         self.pipeline.input = self.input
         self.pipeline.run()
 
@@ -105,7 +105,7 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
             'log_config': {
                 'filename': self._log_filename
             },
-            'localfs': {
+            'setup_local_fs': {
                 'input_folder': self._test_dir,
                 'output_folder': self._test_dir,
             },
@@ -129,8 +129,6 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
                 'min_y': 214784.,
                 'max_y': 726784.,
                 'n_tiles_side': 256,
-                'index_tile_x': self._tile_index[0],
-                'index_tile_y': self._tile_index[1],
                 'tile_mesh_size': 10.,
                 'validate': True,
             },
@@ -140,7 +138,7 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
                 'feature_names': self._features,
             },
             'export_targets': {
-                'attributes': ['point_density', 'band_ratio_z<0.0'],
+                'attributes': self._features,
                 'multi_band_files': False
             }
         }
@@ -151,6 +149,7 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
                                          lower_limit=None,
                                          upper_limit=0.,
                                          data_key='z')
+        self.pipeline._tile_index = self._tile_index
         self.pipeline.input = self.input
         self.pipeline.run()
 
@@ -167,9 +166,9 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
 
         for feature in self._features:
             # feature-specific target files are present
-            filename = 'tile_{}_{}_{}.ply'.format(self._tile_index[0],
-                                                  self._tile_index[1],
-                                                  feature)
+            filename = '{}/tile_{}_{}.ply'.format(feature,
+                                                  self._tile_index[0],
+                                                  self._tile_index[1])
             filepath = os.path.join(self._test_dir, filename)
             self.assertTrue(os.path.isfile(filepath))
 
@@ -197,7 +196,7 @@ class TestGeotiffWriter(TestDerivedRemoteDataPipeline):
         os.mkdir(self._test_dir)
         indices = [(nx, ny) for nx in [10, 11] for ny in [12, 13]]
         write_PLY_targets(self._test_dir, indices=indices)
-        self.pipeline = Geotiff_writer()
+        self.pipeline = GeotiffWriter()
 
     def tearDown(self):
         shutil.rmtree(self._test_dir)
@@ -208,7 +207,7 @@ class TestGeotiffWriter(TestDerivedRemoteDataPipeline):
             'log_config': {
                 'filename': self._log_filename
             },
-            'localfs': {
+            'setup_local_fs': {
                 'input_folder': self._test_dir,
                 'output_folder': self._test_dir,
             },
@@ -216,13 +215,13 @@ class TestGeotiffWriter(TestDerivedRemoteDataPipeline):
             "data_split": {"xSub": self._n_subregions[0],
                            "ySub": self._n_subregions[1]},
             "create_subregion_geotiffs": {
-                "outputhandle": self._handle,
-                "band_export": self._features
+                "output_handle": self._handle,
             }
         }
         return _input
 
     def test_FullPipeline(self):
+        self.pipeline.bands = self._features
         self.pipeline.input = self.input
         self.pipeline.run()
 

@@ -8,12 +8,14 @@ from osgeo import osr
 from lc_macro_pipeline import utils
 from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
 
+
 logger = logging.getLogger(__name__)
 
-class Geotiff_writer(PipelineRemoteData):
-    """ Write specified bands from point cloud data into separated geotiff files. """
 
-    def __init__(self):
+class GeotiffWriter(PipelineRemoteData):
+    """ Write specified bands from point cloud data into separate geotiff files. """
+
+    def __init__(self, input_dir=None, bands=None, label=None):
         self.pipeline = ('parse_point_cloud',
                          'data_split',
                          'create_subregion_geotiffs')
@@ -22,6 +24,12 @@ class Geotiff_writer(PipelineRemoteData):
         self.LengthDataRecord = 0
         self.xResolution = 0
         self.yResolution = 0
+        if input_dir is not None:
+            self.input_path = input_dir
+        if bands is not None:
+            self.bands = [bands] if isinstance(bands, str) else bands
+        if label is not None:
+            self.label = label
 
     def parse_point_cloud(self):
         """
@@ -30,19 +38,19 @@ class Geotiff_writer(PipelineRemoteData):
             - Length of a single band
             - x and y resolution
         """
-        utils.check_dir_exists(self.input_folder, should_exist=True)
+        utils.check_dir_exists(self.input_path, should_exist=True)
 
         # Get list of input tiles
         self.InputTiles = [TileFile
-                           for TileFile in os.listdir(self.input_folder)
+                           for TileFile in os.listdir(self.input_path)
                            if TileFile.lower().endswith('.ply')]
         if not self.InputTiles:
-            raise IOError('No PLY file in dir: {}'.format(self.input_folder))
+            raise IOError('No PLY file in dir: {}'.format(self.input_path))
         else:
             logger.info('{} PLY files found'.format(len(self.InputTiles)))
 
         # Read one tile and get the template
-        file = os.path.join(self.input_folder, self.InputTiles[0])
+        file = os.path.join(self.input_path, self.InputTiles[0])
         template = plyfile.PlyData.read(file)
         if not template.elements[0].name == 'vertex':
             raise ValueError('Tile PLY file should have vertex as first object')
@@ -133,17 +141,16 @@ class Geotiff_writer(PipelineRemoteData):
                 self.subtilelists.append(subtiles)
         return self
 
-    def create_subregion_geotiffs(self, outputhandle, band_export, EPSG=28992):
+    def create_subregion_geotiffs(self, output_handle, EPSG=28992):
         """
         Export geotiff per sub-region, loop in band dimension
 
-        :param outputhandle: Handle of output file.
-                             The output will be named as <outputhandle>_TILE_<tile ID>_BAND_<band name>
-        :param band_export: list of features names to export
+        :param output_handle: Handle of output file.
+                             The output will be named as <output_handle>_TILE_<tile ID>_BAND_<band name>
         :param EPSG: (Optional) EPSG code of the spatial reference system of the input data. Default 28992.
         """
         utils.check_dir_exists(self.output_folder, should_exist=True)
-        outfilestem = os.path.join(self.output_folder.as_posix(), outputhandle)
+        outfilestem = os.path.join(self.output_folder.as_posix(), output_handle)
         for subTiffNumber in range(len(self.subtilelists)):
             infiles = self.subtilelists[subTiffNumber]
             logger.info('Processing sub-region GeoTiff no. {} '
@@ -154,8 +161,8 @@ class Geotiff_writer(PipelineRemoteData):
                 outfile = outfilestem+'_TILE_'+str(subTiffNumber)
                 _make_geotiff_per_band(infiles,
                               outfile,
-                              band_export,
-                              self.input_folder.as_posix(),
+                              self.bands,
+                              self.input_path.as_posix(),
                               self.LengthDataRecord,
                               self.xResolution,
                               self.yResolution,
@@ -228,15 +235,11 @@ def _getGeoCoding(xyData, arrayinfo):
     '''
         Geocoding the point-wise x/y to a raster grid
     '''
-    listX = numpy.arange(arrayinfo[3], dtype='float32')*arrayinfo[2] + arrayinfo[0]
-    listY = numpy.arange(arrayinfo[7], dtype='float32')*arrayinfo[6]*(-1.) + arrayinfo[5]
-    dictX = dict(zip(listX, range(len(listX))))
-    dictY = dict(zip(listY, range(len(listY))))
-    xx = numpy.float32(xyData[:, 0])
-    yy = numpy.float32(xyData[:, 1])
-    indexX = [dictX[x] for x in xx]
-    indexY = [dictY[y] for y in yy]
-    return indexX, indexY
+    x_idx = (xyData[:, 0] - arrayinfo[0]) / arrayinfo[2]
+    y_idx = -(xyData[:, 1] - arrayinfo[5]) / arrayinfo[6]
+    assert numpy.allclose(x_idx, numpy.rint(x_idx)), 'Geo coding failed!'
+    assert numpy.allclose(y_idx, numpy.rint(y_idx)), 'Geo coding failed!'
+    return x_idx.astype(int).tolist(), y_idx.astype(int).tolist()
 
 
 def _writeGeoTiff(featureArrays, bandName, geoTransform, outputFileName, ncols, nrows, nbands, EPSG_code): #TODO: READ EPSG_code FROM INPUT PLY
