@@ -25,7 +25,7 @@ from lc_macro_pipeline import __version__
 
 project = 'lc_macro_pipeline'
 copyright = '2020, Netherlands eScience Center'
-author = 'Meiert Grootes, Ou Ku, Francesco Nattino'
+author = 'Netherlands eScience Center'
 
 # The short X.Y version.
 version = __version__

@@ -20,7 +20,7 @@ setup(
                  'for macro-ecology, from data preparation to scheduling and '
                  'execution of distributed processing across a cluster of '
                  'compute nodes.'),
-    author='Meiert Grootes, Ou Ku, Francesco Nattino',
+    author='Netherlands eScience Center',
     author_email='team-atlas@esciencecenter.nl',
     license='Apache 2.0',
     keywords=['Python', 'Point cloud'],

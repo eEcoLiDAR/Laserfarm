@@ -1,5 +1,5 @@
 __license__ = 'Apache Licence 2.0'
-__author__ = "Meiert Grootes, Ou Ku, Francesco Nattino"
+__author__ = 'Netherlands eScience Center'
 __email__ = 'team-atlas@esciencecenter.nl'
 
 from .__version__ import __version__
