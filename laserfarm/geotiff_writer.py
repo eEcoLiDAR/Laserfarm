@@ -5,8 +5,8 @@ import numpy
 import gdal
 import time
 from osgeo import osr
-from lc_macro_pipeline import utils
-from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
+from laserfarm import utils
+from laserfarm.pipeline_remote_data import PipelineRemoteData
 
 
 logger = logging.getLogger(__name__)

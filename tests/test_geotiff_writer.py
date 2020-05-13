@@ -3,7 +3,7 @@ import pathlib
 import shutil
 import unittest
 
-from lc_macro_pipeline.geotiff_writer import GeotiffWriter
+from laserfarm.geotiff_writer import GeotiffWriter
 
 from .tools import write_PLY_targets
 

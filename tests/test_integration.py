@@ -2,9 +2,9 @@ import json
 import os
 import shutil
 
-from lc_macro_pipeline.data_processing import DataProcessing
-from lc_macro_pipeline.geotiff_writer import GeotiffWriter
-from lc_macro_pipeline.retiler import Retiler
+from laserfarm.data_processing import DataProcessing
+from laserfarm.geotiff_writer import GeotiffWriter
+from laserfarm.retiler import Retiler
 from .tools import TestDerivedRemoteDataPipeline, write_PLY_targets, \
     get_number_of_points_in_LAZ_file
 

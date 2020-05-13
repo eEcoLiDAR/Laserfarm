@@ -1,4 +1,4 @@
-from lc_macro_pipeline import DataProcessing, MacroPipeline
+from laserfarm import DataProcessing, MacroPipeline
 
 mode_test = 'local'  # 'local' or 'ssh'
 

@@ -3,7 +3,7 @@ import os
 import shutil
 import unittest
 
-from lc_macro_pipeline.utils import check_dir_exists, check_file_exists, \
+from laserfarm.utils import check_dir_exists, check_file_exists, \
     check_path_exists, get_args_from_configfile, shell_execute_cmd, DictToObj
 
 

@@ -6,8 +6,8 @@ import numpy as np
 
 from laserchicken import export
 
-from lc_macro_pipeline.pipeline import Pipeline
-from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
+from laserfarm.pipeline import Pipeline
+from laserfarm.pipeline_remote_data import PipelineRemoteData
 
 
 class ShortPipeline(Pipeline):

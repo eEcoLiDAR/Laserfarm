@@ -19,7 +19,7 @@ You have a question
 ===================
 
 1.  use the search functionality
-    [here](https://github.com/eEcoLiDAR/lcMacroPipeline/issues) to see
+    [here](https://github.com/eEcoLiDAR/Laserfarm/issues) to see
     if someone already filed the same issue;
 2.  if your issue search did not yield any relevant results, make a new
     issue;
@@ -29,7 +29,7 @@ You think you may have found a bug
 ==================================
 
 1.  use the search functionality
-    [here](https://github.com/eEcoLiDAR/lcMacroPipeline/issues) to see
+    [here](https://github.com/eEcoLiDAR/Laserfarm/issues) to see
     if someone already filed the same issue;
 2.  if your issue search did not yield any relevant results, make a new issue, making sure to provide enough information to the rest of the community to understand the cause and context of the problem. Depending on the issue, you may want to include:
 
@@ -61,7 +61,7 @@ You want to make some kind of change to the code base
 5.  add your own tests (if necessary);
 6.  update or expand the documentation;
 7.  [push](http://rogerdudler.github.io/git-guide/) your feature branch
-    to (your fork of) the lcMacroPipeline repository on GitHub;
+    to (your fork of) the Laserfarm repository on GitHub;
 8.  create the pull request, e.g. following the instructions
     [here](https://help.github.com/articles/creating-a-pull-request/).
 

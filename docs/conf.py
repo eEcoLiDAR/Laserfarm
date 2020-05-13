@@ -19,11 +19,11 @@ if os.environ.get('READTHEDOCS', None):
     sys.modules.update((mod_name, Mock()) for mod_name in ('pdal',
                                                            'gdal',
                                                            'osgeo'))
-from lc_macro_pipeline import __version__
+from laserfarm import __version__
 
 # -- Project information -----------------------------------------------------
 
-project = 'lc_macro_pipeline'
+project = 'laserfarm'
 copyright = '2020, Netherlands eScience Center'
 author = 'Netherlands eScience Center'
 

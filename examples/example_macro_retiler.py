@@ -1,4 +1,4 @@
-from lc_macro_pipeline import Retiler, MacroPipeline
+from laserfarm import Retiler, MacroPipeline
 
 mode_test = 'local'  # 'local' or 'ssh'
 

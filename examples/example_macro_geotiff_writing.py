@@ -1,4 +1,4 @@
-from lc_macro_pipeline import GeotiffWriter, MacroPipeline
+from laserfarm import GeotiffWriter, MacroPipeline
 
 mode_test = 'local'  # 'local' or 'ssh'
 

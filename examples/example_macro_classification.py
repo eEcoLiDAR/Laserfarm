@@ -1,5 +1,5 @@
-from lc_macro_pipeline.classification import Classification 
-from lc_macro_pipeline.macro_pipeline import MacroPipeline
+from laserfarm.classification import Classification
+from laserfarm.macro_pipeline import MacroPipeline
 
 mode_test='local' # 'local' or 'ssh'
 

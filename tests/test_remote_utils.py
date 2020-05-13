@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import create_autospec
 from webdav3.client import Client, RemoteResourceNotFound
 
-from lc_macro_pipeline.remote_utils import get_wdclient, list_remote, \
+from laserfarm.remote_utils import get_wdclient, list_remote, \
     get_info_remote, pull_from_remote, push_to_remote, purge_local
 
 class TestGetWdclient(unittest.TestCase):

@@ -3,10 +3,10 @@ import pathlib
 import numpy as np
 import shapefile
 import shapely
-import lc_macro_pipeline
+import laserfarm
 import laserchicken
 from shapely.geometry import shape
-from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
+from laserfarm.pipeline_remote_data import PipelineRemoteData
 from laserchicken.io.load import load
 from laserchicken.io.export import export
 from laserchicken import filter
@@ -38,13 +38,13 @@ class Classification(PipelineRemoteData):
         :param shp_dir: directory which contains all candidate shp file for classification
         """
         
-        lc_macro_pipeline.utils.check_file_exists(self.input_path,
-                                                  should_exist=True)
+        laserfarm.utils.check_file_exists(self.input_path,
+                                          should_exist=True)
         pc = load(self.input_path.as_posix())
         
         shp_path=self.input_folder/shp_dir
         
-        lc_macro_pipeline.utils.check_dir_exists(shp_path, should_exist=True)
+        laserfarm.utils.check_dir_exists(shp_path, should_exist=True)
 
         # Get boundary of the point cloud
         self.point_cloud = pc

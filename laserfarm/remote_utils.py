@@ -10,7 +10,7 @@ import os
 import shutil
 from webdav3.client import Client as wd3client
 from webdav3.exceptions import *
-from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
+from laserfarm.utils import check_path_exists, check_file_exists, \
     check_dir_exists, get_args_from_configfile
 
 

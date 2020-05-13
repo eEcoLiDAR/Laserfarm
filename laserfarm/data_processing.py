@@ -17,9 +17,9 @@ from laserchicken.normalize import normalize
 from laserchicken.utils import create_point_cloud, add_to_point_cloud, \
     get_point
 
-from lc_macro_pipeline.grid import Grid
-from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
-from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
+from laserfarm.grid import Grid
+from laserfarm.pipeline_remote_data import PipelineRemoteData
+from laserfarm.utils import check_path_exists, check_file_exists, \
     check_dir_exists, DictToObj
 
 
@@ -65,8 +65,8 @@ class DataProcessing(PipelineRemoteData):
 
         For information on the available extractors and the corresponding
         parameters:
-            $   lc_macro_pipeline data_processing extractors --help
-            $   lc_macro_pipeline data_processing extractors <extractor_name> --help
+            $   laserfarm data_processing extractors --help
+            $   laserfarm data_processing extractors <extractor_name> --help
 
         :param extractor_name: Name of the (customizable) extractor
         :param parameters: Extractor-specific parameters
@@ -113,8 +113,8 @@ class DataProcessing(PipelineRemoteData):
         Apply a filter to the environment point cloud.
 
         For information on filter_types and the corresponding input:
-            $   lc_macro_pipeline data_processing filter --help
-            $   lc_macro_pipeline data_processing filter <filter_type> --help
+            $   laserfarm data_processing filter --help
+            $   laserfarm data_processing filter <filter_type> --help
 
         :param filter_type: Type of filter to apply.
         :param filter_input: Filter-specific input.

@@ -6,8 +6,8 @@ import unittest
 from webdav3.client import Client
 from unittest.mock import patch
 
-from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
-from lc_macro_pipeline.logger import Logger
+from laserfarm.pipeline_remote_data import PipelineRemoteData
+from laserfarm.logger import Logger
 
 from .tools import ShortPipelineRemoteData
 
@@ -65,7 +65,7 @@ class TestPullRemote(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._test_dir)
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.pull_from_remote')
+    @patch('laserfarm.pipeline_remote_data.pull_from_remote')
     def test_noInputPath(self, pull_from_remote):
         client = Client({})
         input_folder = pathlib.Path(self._test_dir)
@@ -77,7 +77,7 @@ class TestPullRemote(unittest.TestCase):
                                                  input_folder.as_posix(),
                                                  remote_origin)
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.pull_from_remote')
+    @patch('laserfarm.pipeline_remote_data.pull_from_remote')
     def test_withInputPath(self, pull_from_remote):
         client = Client({})
         input_folder = pathlib.Path(self._test_dir)
@@ -110,7 +110,7 @@ class TestPushRemote(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self._test_dir)
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.push_to_remote')
+    @patch('laserfarm.pipeline_remote_data.push_to_remote')
     def test_validInput(self, push_to_remote):
         client = Client({})
         output_folder = pathlib.Path(self._test_dir)
@@ -153,7 +153,7 @@ class TestPurgeLocal(unittest.TestCase):
 
 class TestRun(unittest.TestCase):
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.super')
+    @patch('laserfarm.pipeline_remote_data.super')
     def test_emptyPipeline(self, mock_super):
         pipeline = PipelineRemoteData()
         pipeline.run()
@@ -163,7 +163,7 @@ class TestRun(unittest.TestCase):
                                                            'pushremote',
                                                            'cleanlocalfs'))
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.super')
+    @patch('laserfarm.pipeline_remote_data.super')
     def test_pipelinePassedThrough(self, mock_super):
         pipeline = PipelineRemoteData()
         pipeline.run(pipeline=('test_task',))
@@ -174,7 +174,7 @@ class TestRun(unittest.TestCase):
                                                            'pushremote',
                                                            'cleanlocalfs'))
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.super')
+    @patch('laserfarm.pipeline_remote_data.super')
     def test_pipelinePresent(self, mock_super):
         pipeline = ShortPipelineRemoteData()
         pipeline.run()
@@ -186,7 +186,7 @@ class TestRun(unittest.TestCase):
                                                            'pushremote',
                                                            'cleanlocalfs'))
 
-    @patch('lc_macro_pipeline.pipeline_remote_data.super')
+    @patch('laserfarm.pipeline_remote_data.super')
     def test_pipelinePresentAndPassedThrough(self, mock_super):
         pipeline = ShortPipelineRemoteData()
         pipeline.run(pipeline=('test_task',))
