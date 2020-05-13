@@ -14,7 +14,12 @@ import os
 import sys
 #sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
-import lc_macro_pipeline
+if os.environ.get('READTHEDOCS', None):
+    from unittest.mock import Mock
+    sys.modules.update((mod_name, Mock()) for mod_name in ('pdal',
+                                                           'gdal',
+                                                           'osgeo'))
+from lc_macro_pipeline import __version__
 
 # -- Project information -----------------------------------------------------
 
@@ -23,9 +28,9 @@ copyright = '2020, Netherlands eScience Center'
 author = 'Meiert Grootes, Ou Ku, Francesco Nattino'
 
 # The short X.Y version.
-version = lc_macro_pipeline.__version__
+version = __version__
 # The full version, including alpha/beta/rc tags.
-release = lc_macro_pipeline.__version__
+release = __version__
 
 html_logo = 'figures/ESCIENCE_logo_C_nl_cyanblack.png'
 latex_logo = 'figures/ESCIENCE_logo_C_nl_cyanblack.png'

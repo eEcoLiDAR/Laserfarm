@@ -10,5 +10,3 @@ pytest
 webdavclient3
 PyShp
 shapely
-PDAL
-GDAL
