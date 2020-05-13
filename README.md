@@ -27,7 +27,7 @@ conda env create -f environment.yml
 
 # Documentation
 
-The project's full documentation can be found [here]().
+The project's full documentation can be found [here](https://lcmacropipeline.readthedocs.io/en/latest/).
 
 # Contributing
 
