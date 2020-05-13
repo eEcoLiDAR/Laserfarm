@@ -10,6 +10,7 @@ from webdav3.client import Client, RemoteResourceNotFound
 from laserfarm.remote_utils import get_wdclient, list_remote, \
     get_info_remote, pull_from_remote, push_to_remote, purge_local
 
+
 class TestGetWdclient(unittest.TestCase):
 
     _test_dir = 'test_tmp_dir'
