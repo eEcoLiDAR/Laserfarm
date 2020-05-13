@@ -4,7 +4,7 @@ Contributing guidelines
 We welcome any kind of contribution to our software, from simple comment
 or question to a full fledged [pull
 request](https://help.github.com/articles/about-pull-requests/). Please
-read and follow our [Code of Conduct](CODE_OF_CONDUCT.rst).
+read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 A contribution can be one of the following cases:
 
