@@ -1,4 +1,4 @@
-# Laserchicken Macro(-ecology) Pipeline
+# Laserfarm
 
 [![Actions Status](https://github.com/eEcoLiDAR/Laserfarm/workflows/build%20and%20test/badge.svg?branch=development)](https://github.com/eEcoLiDAR/Laserfarm/actions)
 [![codecov](https://codecov.io/gh/eEcoLiDAR/Laserfarm/branch/development/graph/badge.svg)](http://codecov.io/github/eEcoLiDAR/Laserfarm/branch/development)
