@@ -4,9 +4,9 @@ import pdal
 import pylas
 import json
 
-from lc_macro_pipeline.grid import Grid
-from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
-from lc_macro_pipeline.utils import check_file_exists, check_dir_exists
+from laserfarm.grid import Grid
+from laserfarm.pipeline_remote_data import PipelineRemoteData
+from laserfarm.utils import check_file_exists, check_dir_exists
 
 
 logger = logging.getLogger(__name__)

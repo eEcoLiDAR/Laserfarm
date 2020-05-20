@@ -8,14 +8,14 @@ def read(file_name):
 
 
 version = {}
-exec(read('lc_macro_pipeline/__version__.py'), version)
+exec(read('laserfarm/__version__.py'), version)
 required = read('requirements.txt').splitlines()
 
 
 setup(
-    name='lc_macro_pipeline',
+    name='laserfarm',
     version=version['__version__'],
-    description=('lcMacroPipeline provides a FOSS wrapper to Laserchicken '
+    description=('Laserfarm provides a FOSS wrapper to Laserchicken '
                  'supporting the use of massive LiDAR point cloud data sets '
                  'for macro-ecology, from data preparation to scheduling and '
                  'execution of distributed processing across a cluster of '
@@ -24,7 +24,7 @@ setup(
     author_email='team-atlas@esciencecenter.nl',
     license='Apache 2.0',
     keywords=['Python', 'Point cloud'],
-    url='https://github.com/eEcoLiDAR/lcMacroPipeline',
+    url='https://github.com/eEcoLiDAR/Laserfarm',
     packages=find_packages(exclude=["tests"]),
     install_requires=required,
     long_description=read('README.md'),
@@ -35,7 +35,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'lc_macro_pipeline = lc_macro_pipeline.main:main',
+            'laserfarm = laserfarm.main:main',
         ],
     }
 )

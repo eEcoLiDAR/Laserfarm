@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from lc_macro_pipeline.data_processing import DataProcessing
+from laserfarm.data_processing import DataProcessing
 from .tools import create_test_point_cloud, get_number_of_points_in_LAZ_file
 
 

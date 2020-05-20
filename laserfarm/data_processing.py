@@ -17,11 +17,10 @@ from laserchicken.normalize import normalize
 from laserchicken.utils import create_point_cloud, add_to_point_cloud, \
     get_point
 
-from lc_macro_pipeline.grid import Grid
-from lc_macro_pipeline.pipeline_remote_data import PipelineRemoteData
-from lc_macro_pipeline.utils import check_path_exists, check_file_exists, \
+from laserfarm.grid import Grid
+from laserfarm.pipeline_remote_data import PipelineRemoteData
+from laserfarm.utils import check_path_exists, check_file_exists, \
     check_dir_exists, DictToObj
-
 
 logger = logging.getLogger(__name__)
 
@@ -65,8 +64,8 @@ class DataProcessing(PipelineRemoteData):
 
         For information on the available extractors and the corresponding
         parameters:
-            $   lc_macro_pipeline data_processing extractors --help
-            $   lc_macro_pipeline data_processing extractors <extractor_name> --help
+            $   laserfarm data_processing extractors --help
+            $   laserfarm data_processing extractors <extractor_name> --help
 
         :param extractor_name: Name of the (customizable) extractor
         :param parameters: Extractor-specific parameters
@@ -113,8 +112,8 @@ class DataProcessing(PipelineRemoteData):
         Apply a filter to the environment point cloud.
 
         For information on filter_types and the corresponding input:
-            $   lc_macro_pipeline data_processing filter --help
-            $   lc_macro_pipeline data_processing filter <filter_type> --help
+            $   laserfarm data_processing filter --help
+            $   laserfarm data_processing filter <filter_type> --help
 
         :param filter_type: Type of filter to apply.
         :param filter_input: Filter-specific input.
@@ -218,8 +217,8 @@ class DataProcessing(PipelineRemoteData):
         logger.info('... feature extraction completed.')
         return self
 
-    def export_targets(self, filename='', attributes='all', multi_band_files=True,
-                       **export_opts):
+    def export_targets(self, filename='', attributes='all',
+                       multi_band_files=True, **export_opts):
         """
         Write target point cloud to disk.
 
@@ -259,7 +258,6 @@ class DataProcessing(PipelineRemoteData):
                                                        **export_opts).items():
             logger.info('... exporting {}'.format(file))
             export(point_cloud, file, attributes=feature_set, **export_opts)
-
 
     def _get_export_path(self, filename=''):
         check_dir_exists(self.output_folder, should_exist=True)
@@ -338,12 +336,12 @@ def _get_output_file_dict(path,
         if features and not multi_band_files:
             files = {}
             for feature in features:
-                sub_path = p/feature
+                sub_path = p / feature
                 check_dir_exists(sub_path, should_exist=True, mkdir=True)
-                file_path = (sub_path/file_handle).with_suffix(format)
+                file_path = (sub_path / file_handle).with_suffix(format)
                 files.update({file_path.as_posix(): [feature]})
         else:
-            file_path = (p/file_handle).with_suffix(format).as_posix()
+            file_path = (p / file_handle).with_suffix(format).as_posix()
             if features:
                 files = {file_path: features}
             else:

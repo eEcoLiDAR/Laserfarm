@@ -1,10 +1,10 @@
 import logging
 import pathlib
 
-from lc_macro_pipeline.pipeline import Pipeline
-from lc_macro_pipeline.remote_utils import get_wdclient, purge_local, \
+from laserfarm.pipeline import Pipeline
+from laserfarm.remote_utils import get_wdclient, purge_local, \
     pull_from_remote, push_to_remote
-from lc_macro_pipeline.utils import check_dir_exists
+from laserfarm.utils import check_dir_exists
 
 
 logger = logging.getLogger(__name__)

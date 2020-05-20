@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import pylas
 
-from lc_macro_pipeline.grid import Grid
+from laserfarm.grid import Grid
 
 try:
     import matplotlib

@@ -1,4 +1,4 @@
-name: lc_macro_pipeline
+name: laserfarm
 
 channels:
   - conda-forge

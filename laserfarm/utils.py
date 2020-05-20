@@ -5,6 +5,7 @@ import subprocess
 
 logger = logging.getLogger(__name__)
 
+
 def check_path_exists(path, should_exist):
     p = _string_to_path(path)
     if p.exists() and not should_exist:

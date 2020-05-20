@@ -4,7 +4,7 @@ import shutil
 import sys
 import unittest
 
-from lc_macro_pipeline.logger import Logger, Log
+from laserfarm.logger import Logger, Log
 
 
 logger = logging.getLogger(__name__)

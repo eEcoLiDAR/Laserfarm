@@ -2,7 +2,7 @@ import logging
 import pathlib
 import sys
 
-from lc_macro_pipeline.utils import check_dir_exists
+from laserfarm.utils import check_dir_exists
 
 logger = logging.getLogger(__name__)
 _default_format = '%(asctime)s - %(name)40s - %(levelname)10s - %(message)s'
@@ -13,7 +13,7 @@ _stream_dict = {'stderr': sys.stderr, 'stdout': sys.stdout}
 class Logger(object):
     """ Manage the log of the (macro) pipelines. """
 
-    def __init__(self, label='lc_macro_pipeline'):
+    def __init__(self, label='laserfarm'):
         self.level = 'INFO'
         self.formatter = logging.Formatter(_default_format)
         self.stream = _stream_dict['stderr']

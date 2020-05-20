@@ -1,8 +1,8 @@
 User Manual
 ===========
 
-``lcMacroPipeline`` provides a set of tools to process massive LiDAR point-cloud data sets. In order to tackle volumes
-of data such as the ones produced by airborne laser scanning, ``lcMacroPipeline`` makes use of a *divide-et-impera*
+Laserfarm provides a set of tools to process massive LiDAR point-cloud data sets. In order to tackle volumes
+of data such as the ones produced by airborne laser scanning, Laserfarm makes use of a *divide-et-impera*
 strategy. First, the raw data is split into tiles whose size is manageable by standard computing infrastructures.
 Then, point-cloud properties ("features") are extracted from the re-tiled data using the cells of a second user-defined
 grid as ensembles for the statistical averaging. The mesh size of this second finer grid ultimately defines the
@@ -12,7 +12,7 @@ as the initial raw data.
 
 The full processing pipeline can be thus subdivided into three pipeline steps: the raw data re-tiling, the point-cloud
 data processing and the raster-data merging and export. Each of these tasks can be run in a Python script that imports
-the dedicated ``lcMacroPipeline`` module or through the command line tool ``lc_macro_pipeline``. The following sections
+the dedicated Laserfarm module or through the command line tool ``laserfarm``. The following sections
 describes the main features of each of these pipelines and their general use. User interested in more advanced features
 and in how these tasks can be implemented for large-scale macro-ecology calculations can have a look at the Jupyter
 notebooks provided (see :ref:`Examples`).
@@ -27,7 +27,7 @@ according to a regular grid:
 
 .. code-block:: python
 
-    from lc_macro_pipeline import Retiler
+    from laserfarm import Retiler
 
     pipeline = Retiler(input_file="point_cloud.LAZ")
     input_dict = {
@@ -50,7 +50,7 @@ run and the values the corresponding arguments.
 .. NOTE::
     The input dictionary elements can be provided in any order. The order in which the tasks are executed is defined in
     a dedicated list (the ``pipeline`` attribute of the ``Retiler`` class), which can be inspected using the
-    command-line tool: ``lc_macro_pipeline retiling pipeline``.
+    command-line tool: ``laserfarm retiling pipeline``.
 
 Alternatively, if the input dictionary is serialized to JSON format and stored in a file, the pipeline can be directly
 configured in the following way:
@@ -74,26 +74,26 @@ The same calculation can be run using the command-line tool in the following way
 
 .. code-block:: shell
 
-    lc_macro_pipeline retiling --input_file=point_cloud.LAZ - set_grid --min_x=-113107.81 --max_x=398892.19 --min_y=214783.87 --max_y=726783.87 --n_tiles_side=256 - split_and_redistribute - validate
+    laserfarm retiling --input_file=point_cloud.LAZ - set_grid --min_x=-113107.81 --max_x=398892.19 --min_y=214783.87 --max_y=726783.87 --n_tiles_side=256 - split_and_redistribute - validate
 
 Note that the various tasks with the corresponding arguments are chained using hyphens. If the tasks and arguments are
 provided as a JSON configuration file, the pipeline can be executed in the following way:
 
 .. code-block:: shell
 
-    lc_macro_pipeline retiling --input_file=point_cloud.LAZ - config --from_file=retiling_config.json - run
+    laserfarm retiling --input_file=point_cloud.LAZ - config --from_file=retiling_config.json - run
 
 Point-Cloud Data Processing
 ---------------------------
 
 Once the raw data is split into tiles whose volume can be handled by the infrastructure available to the user,
-point-cloud-based properties can be extracted. ``lcMacroPipeline`` implements a wrapper to `laserchicken`_, which is the
+point-cloud-based properties can be extracted. Laserfarm implements a wrapper to `laserchicken`_, which is the
 engine employed to parse and process point-cloud data. The following example Python script processes a LAZ file that
 contains the point-cloud subset corresponding to the ``(X=0, Y=0)`` tile in the chosen tiling scheme:
 
 .. code-block:: python
 
-    from lc_macro_pipeline import DataProcessing
+    from laserfarm import DataProcessing
 
     pipeline = DataProcessing(input="tile.LAZ", tile_index=(0, 0))
     input_dict = {
@@ -126,20 +126,20 @@ here):
 
 .. code-block:: shell
 
-    lc_macro_pipeline data_processing --input=tile.LAZ --tile_index=[0,0] - load - generate_targets --min_x=-113107.81 --max_x=398892.19 --min_y=214783.87 --max_y=726783.87 --n_tiles_side=256 --tile_mesh_size=10. --validate - extract_features --feature_names=[point_density] - export_targets
+    laserfarm data_processing --input=tile.LAZ --tile_index=[0,0] - load - generate_targets --min_x=-113107.81 --max_x=398892.19 --min_y=214783.87 --max_y=726783.87 --n_tiles_side=256 --tile_mesh_size=10. --validate - extract_features --feature_names=[point_density] - export_targets
 
 or, if the configuration dictionary is serialized in the ``data_processing.json`` file:
 
 .. code-block:: shell
 
-    lc_macro_pipeline data_processing --input=tile.LAZ --tile_index=[0,0] - config --from_file=data_processing.json - run
+    laserfarm data_processing --input=tile.LAZ --tile_index=[0,0] - config --from_file=data_processing.json - run
 
 The full (ordered) list of tasks that can be executed within the data processing pipeline can be inspected from the
 command line:
 
 .. code-block:: shell
 
-    lc_macro_pipeline data_processing pipeline
+    laserfarm data_processing pipeline
 
 The example pipeline above entails five steps. First, the point-cloud data is loaded into memory. Note that the input
 path provided can point to either a file or a directory, in which case all files in a point-cloud format that is known
@@ -193,13 +193,13 @@ the corresponding command line helpers:
 
 .. code-block:: shell
 
-    lc_macro_pipeline data_processing add_custom_feature --help
+    laserfarm data_processing add_custom_feature --help
 
 and:
 
 .. code-block:: shell
 
-    lc_macro_pipeline data_processing apply_filter --help
+    laserfarm data_processing apply_filter --help
 
 .. _manual: https://laserchicken.readthedocs.io/en/latest
 
@@ -213,7 +213,7 @@ all the tiles in which an initial LAZ file has been split:
 
 .. code-block:: python
 
-    from lc_macro_pipeline import GeotiffWriter
+    from laserfarm import GeotiffWriter
 
     pipeline = GeotiffWriter(input_dir="/path/to/PLY/files", bands='point_density')
     input_dict = {
@@ -229,7 +229,7 @@ to configure and run the pipeline, respectively. The same pipeline can be run vi
 
 .. code-block:: shell
 
-    lc_macro_pipeline geotiff_writer --input_dir=/path/to/PLY/files --bands=point_density - parse_point_cloud - data_split --xSub=1 --ySub=1 - create_subregion_geotiffs --output_handle=geotiff
+    laserfarm geotiff_writer --input_dir=/path/to/PLY/files --bands=point_density - parse_point_cloud - data_split --xSub=1 --ySub=1 - create_subregion_geotiffs --output_handle=geotiff
 
 As for the other pipelines, JSON files can be used to configure the pipeline as well.
 This example pipeline entails the following steps. First, the list of PLY files to be parsed is constructed and a
@@ -247,7 +247,7 @@ into (``xSub`` :math:`\times` ``ySub``) sub-regions and to generate a GeoTIFF fo
 .. NOTE::
     The sub-region dimensions should be multiple of the corresponding tile dimensions.
 
-Finally, ``lcMacroPipeline`` generates the GeoTIFF file(s) using `GDAL`_ (``output_handle`` is employed as file-name
+Finally, Laserfarm generates the GeoTIFF file(s) using `GDAL`_ (``output_handle`` is employed as file-name
 handle).
 
 .. _GDAL: https://gdal.org
@@ -255,14 +255,14 @@ handle).
 Point Classification
 --------------------
 
-``lcMacroPipeline`` allows to classify the points belonging to a point-cloud data set using (multi-)polygons defined in
+Laserfarm allows to classify the points belonging to a point-cloud data set using (multi-)polygons defined in
 a set of files in shapefile format (``.shp``). For macro-ecology applications, this can be useful, for instance, to
 classify points as part of water-bodies, buildings, vegetation, etc. In this example, the target points in
 the PLY file ``tile.ply`` are classified using the shapefiles provided at a given path:
 
 .. code-block:: python
 
-    from lc_macro_pipeline import Classification
+    from laserfarm import Classification
 
     pipeline = Classification(input_file="tile.ply")
     input_dict = {
@@ -277,7 +277,7 @@ To run the same pipeline using the command-line tool:
 
 .. code-block:: shell
 
-    lc_macro_pipeline classification --input_file=tile.ply - locate_shp --shp_dir=/path/to/dir/with/shp/files - classification --ground_type=1 - export_point_cloud
+    laserfarm classification --input_file=tile.ply - locate_shp --shp_dir=/path/to/dir/with/shp/files - classification --ground_type=1 - export_point_cloud
 
 As for all the other pipelines, JSON files can be used to configure the pipeline as well.
 The first task in the pipeline consists in identifying which among all shapefiles provided are relevant for the given
@@ -303,7 +303,7 @@ credentials to log in:
 .. code-block:: python
     :emphasize-lines: 4-9,11,12,22,23
 
-    from lc_macro_pipeline import Retiler
+    from laserfarm import Retiler
 
     pipeline = Retiler(input_file="point_cloud.LAZ")
     webdav_options = {
@@ -330,7 +330,7 @@ credentials to log in:
     pipeline.config(input_dict)
     pipeline.run()
 
-``lcMacroPipeline`` will create two directories for input and output as sub-folders of ``tmp_folder``, download the
+Laserfarm will create two directories for input and output as sub-folders of ``tmp_folder``, download the
 input file ``point_cloud.LAZ`` from the path ``/remote/path/to/input`` on the WebDAV server to the input folder,
 perform the re-tiling as described in :ref:`Retiling`, upload the results from the output folder to the remote path
 ``/remote/path/to/output`` on the WebDAV server and delete the local input and output folders.
@@ -362,7 +362,7 @@ exploiting the parallelization over input files:
 
 .. code-block:: python
 
-    from lc_macro_pipeline import Retiler, MacroPipeline
+    from laserfarm import Retiler, MacroPipeline
 
     macro = MacroPipeline()
     input_dict = {
@@ -421,18 +421,18 @@ Any other deployed Dask cluster can be used to distribute tasks within ``MacroPi
 .. _Dask documentation: https://docs.dask.org/en/latest/setup/ssh.html
 
 .. NOTE::
-    No command line support is provided in ``lcMacroPipeline`` for macro-pipeline calculations.
+    No command line support is provided in Laserfarm for macro-pipeline calculations.
 
 .. _Examples
 Examples
 --------
 
-The GitHub `repository`_ of ``lcMacroPipeline`` includes a tutorial structured as a Jupyter notebook
-(``tutorial.ipynb``). The notebook illustrates how to use ``lcMacroPipeline`` to process a subset of the
+The GitHub `repository`_ of Laserfarm includes a tutorial structured as a Jupyter notebook
+(``tutorial.ipynb``). The notebook illustrates how to use Laserfarm to process a subset of the
 *Actueel Hoogtebestand Nederland* (`AHN3`_) data set, from the retrieval of an example point-cloud data file in LAZ
 format to the export of the extracted features to a GeoTIFF file.
 
-.. _repository: https://github.com/eEcoLiDAR/lcMacroPipeline
+.. _repository: https://github.com/eEcoLiDAR/Laserfarm
 .. _AHN3: https://www.pdok.nl/introductie/-/article/actueel-hoogtebestand-nederland-ahn3-
 
 A second notebook (``workflow.ipynb``) shows the workflow employed to process the full AHN3 data set. The
@@ -443,7 +443,7 @@ Finally, Python scripts and pipeline configuration files that have been used to 
 local machines or on a virtual `docker-container-based cluster`_ can be found `here`_.
 
 .. _docker-container-based cluster: https://github.com/eEcoLiDAR/dockerTestCluster
-.. _here: https://github.com/eEcoLiDAR/lcMacroPipeline/tree/development/examples
+.. _here: https://github.com/eEcoLiDAR/Laserfarm/tree/development/examples
 
 Current Limitations
 -------------------

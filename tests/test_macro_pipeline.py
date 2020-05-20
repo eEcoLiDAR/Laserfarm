@@ -4,8 +4,8 @@ import unittest
 
 from dask.distributed import LocalCluster
 
-from lc_macro_pipeline.macro_pipeline import MacroPipeline
-from lc_macro_pipeline.pipeline import Pipeline
+from laserfarm.macro_pipeline import MacroPipeline
+from laserfarm.pipeline import Pipeline
 
 from .tools import ShortIOPipeline
 

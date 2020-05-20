@@ -3,7 +3,7 @@ import os
 import shutil
 import unittest
 
-from lc_macro_pipeline.pipeline import Pipeline
+from laserfarm.pipeline import Pipeline
 
 from .tools import ShortPipeline
 

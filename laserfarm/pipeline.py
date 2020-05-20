@@ -1,7 +1,7 @@
 import logging
 
-from lc_macro_pipeline.logger import Logger
-from lc_macro_pipeline.utils import get_args_from_configfile
+from laserfarm.logger import Logger
+from laserfarm.utils import get_args_from_configfile
 
 
 logger = logging.getLogger(__name__)

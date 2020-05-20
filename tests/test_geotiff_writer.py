@@ -3,9 +3,10 @@ import pathlib
 import shutil
 import unittest
 
-from lc_macro_pipeline.geotiff_writer import GeotiffWriter
+from laserfarm.geotiff_writer import GeotiffWriter
 
 from .tools import write_PLY_targets
+
 
 class test_parsePointCloud(unittest.TestCase):
 
@@ -83,7 +84,7 @@ class test_parsePointCloud(unittest.TestCase):
     def test_emptyDirectory(self):
         self.pipeline.input_folder = self._test_dir
         with self.assertRaises(IOError):
-           self.pipeline.parse_point_cloud()
+            self.pipeline.parse_point_cloud()
 
 
 class test_DataSplit(unittest.TestCase):

@@ -3,7 +3,7 @@ import pathlib
 import shutil
 import unittest
 
-from lc_macro_pipeline.retiler import Retiler
+from laserfarm.retiler import Retiler
 
 
 class TestSplitAndRedistribute(unittest.TestCase):

@@ -4,7 +4,7 @@ import traceback
 
 from dask.distributed import Client, LocalCluster, SSHCluster
 
-from lc_macro_pipeline.pipeline import Pipeline
+from laserfarm.pipeline import Pipeline
 
 
 logger = logging.getLogger(__name__)
