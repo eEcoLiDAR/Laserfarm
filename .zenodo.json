@@ -13,6 +13,14 @@
             "name": "Nattino, Francesco"
         },
         {
+            "affiliation": "Netherlands eScience Center",
+            "name": "Bogaardt, Laurens"
+        },
+        {
+            "affiliation": "Netherlands eScience Center",
+            "name": "Dzigan, Yifat"
+        },
+        {
             "affiliation": "Institute for Biodiversity and Ecosystem Dynamics, University of Amsterdam",
             "name": "Koma, Zsófia"
         }
@@ -26,5 +34,5 @@
     "license": {
         "id": "Apache-2.0"
     },
-    "title": "Laserfarm: A Tool for Massive LiDAR Point Clouds"
+    "title": "Laserfarm: Laserchicken Framework for Applications in Research in Macro-ecology"
 }
