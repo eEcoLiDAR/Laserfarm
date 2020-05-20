@@ -1,6 +1,8 @@
 # Laserchicken Macro(-ecology) Pipeline
 
-[![Actions Status](https://github.com/eEcoLiDAR/lcMacroPipeline/workflows/build%20and%20test/badge.svg?branch=development)](https://github.com/eEcoLiDAR/lcMacroPipeline/actions) [![codecov](https://codecov.io/gh/eEcoLiDAR/lcMacroPipeline/branch/development/graph/badge.svg)](http://codecov.io/github/eEcoLiDAR/lcMacroPipeline/branch/development)
+[![Actions Status](https://github.com/eEcoLiDAR/lcMacroPipeline/workflows/build%20and%20test/badge.svg?branch=development)](https://github.com/eEcoLiDAR/lcMacroPipeline/actions)
+[![codecov](https://codecov.io/gh/eEcoLiDAR/lcMacroPipeline/branch/development/graph/badge.svg)](http://codecov.io/github/eEcoLiDAR/lcMacroPipeline/branch/development)
+[![Documentation Status](https://readthedocs.org/projects/lcmacropipeline/badge/?version=latest)](https://lcmacropipeline.readthedocs.io/en/latest/?badge=latest)
 
 lcMacroPipeline provides a FOSS wrapper to [Laserchicken](https://github.com/eEcoLiDAR/laserchicken) supporting the use of
 massive LiDAR point cloud data sets for macro-ecology, from data preparation to scheduling and execution
