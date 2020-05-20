@@ -15,11 +15,7 @@ required = read('requirements.txt').splitlines()
 setup(
     name='laserfarm',
     version=version['__version__'],
-    description=('Laserfarm provides a FOSS wrapper to Laserchicken '
-                 'supporting the use of massive LiDAR point cloud data sets '
-                 'for macro-ecology, from data preparation to scheduling and '
-                 'execution of distributed processing across a cluster of '
-                 'compute nodes.'),
+    description='A Tool for Massive LiDAR Point Clouds',
     author='Netherlands eScience Center',
     author_email='team-atlas@esciencecenter.nl',
     license='Apache 2.0',
