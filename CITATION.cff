@@ -27,6 +27,6 @@ keywords:
   - "distributed computing"
 license: "Apache-2.0"
 message: "If you use this software, please cite it using these metadata."
-title: "Laserfarm: A Tool for Massive LiDAR Point Clouds"
+title: "Laserfarm: Laserchicken Framework for Applications in Research in Macro-ecology"
 version: "0.1.0"
 ...

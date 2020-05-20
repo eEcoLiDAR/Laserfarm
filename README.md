@@ -4,9 +4,10 @@
 [![codecov](https://codecov.io/gh/eEcoLiDAR/Laserfarm/branch/development/graph/badge.svg)](http://codecov.io/github/eEcoLiDAR/Laserfarm/branch/development)
 [![Documentation Status](https://readthedocs.org/projects/Laserfarm/badge/?version=latest)](https://laserfarm.readthedocs.io/en/latest/?badge=latest)
 
-Laserfarm provides a FOSS wrapper to [Laserchicken](https://github.com/eEcoLiDAR/laserchicken) supporting the use of
-massive LiDAR point cloud data sets for macro-ecology, from data preparation to scheduling and execution
-of distributed processing across a cluster of compute nodes.
+Laserfarm (Laserchicken Framework for Applications in Research in Macro-ecology) provides a FOSS wrapper to 
+[Laserchicken](https://github.com/eEcoLiDAR/laserchicken) supporting the use of massive LiDAR point cloud data sets for 
+macro-ecology, from data preparation to scheduling and execution of distributed processing across a cluster of compute 
+nodes.
 
 ## Installation
 

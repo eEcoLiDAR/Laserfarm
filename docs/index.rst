@@ -6,9 +6,9 @@
 Welcome to laserfarm's documentation!
 =============================================
 
-Laserfarm provides a FOSS wrapper to Laserchicken supporting the use of massive LiDAR point cloud
-data sets for macro-ecology, from data preparation to scheduling and execution of distributed processing
-across a cluster of compute nodes.
+Laserfarm (Laserchicken Framework for Applications in Research in Macro-ecology) provides a FOSS wrapper to Laserchicken
+supporting the use of massive LiDAR point cloud data sets for macro-ecology, from data preparation to scheduling and
+execution of distributed processing across a cluster of compute nodes.
 
 Laserfarm has been developed within the `eEcoLiDAR project`_ at `the Netherlands eScience Center`_.
 The code is hosted on `GitHub`_. If you want to contribute to the development of Laserfarm,
