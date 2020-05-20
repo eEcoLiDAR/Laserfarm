@@ -233,9 +233,9 @@ class TestGeotiffWriter(TestDerivedRemoteDataPipeline):
         for nx in range(self._n_subregions[0]):
             for ny in range(self._n_subregions[1]):
                 for feature in self._features:
-                    file_name = '{}_TILE_{}_BAND_{}.tif'.format(self._handle,
-                                                                index,
-                                                                feature)
+                    file_name = '{}_TILE_{:03d}_BAND_{}.tif'.format(self._handle,
+                                                                    index,
+                                                                    feature)
                     file_path = os.path.join(self._test_dir, file_name)
                     print(file_path)
                     self.assertTrue(os.path.isfile(file_path))
