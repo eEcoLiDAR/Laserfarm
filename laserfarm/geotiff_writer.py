@@ -166,7 +166,7 @@ class GeotiffWriter(PipelineRemoteData):
             logger.info('... number of constituent tiles: '
                         '{}'.format(len(infiles)))
             if infiles:
-                outfile = outfilestem + '_TILE_' + str(subTiffNumber)
+                outfile = '{}_TILE_{:03d}'.format(outfilestem, subTiffNumber)
                 _make_geotiff_per_band(infiles,
                                        outfile,
                                        self.bands,
