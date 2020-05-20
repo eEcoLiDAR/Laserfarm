@@ -29,6 +29,13 @@ conda env create -f environment.yml
 
 The project's full documentation can be found [here](https://lcmacropipeline.readthedocs.io/en/latest/).
 
+# Applications and Current Limitations
+
+This package has been tested on data provided in a metric-based 2D-projected Cartesian coordinate system, i.e. the 
+*[Actueel Hoogtebestand Nederland](https://www.pdok.nl/introductie/-/article/actueel-hoogtebestand-nederland-ahn3-)*. 
+While some of the tools of Laserfarm could be applied to data in an ellipsoidal latitude/longitude coordinate system 
+as well, this has not been tested and it is generally expected to fail. 
+
 # Contributing
 
 If you want to contribute to the development of lcMacroPipeline,

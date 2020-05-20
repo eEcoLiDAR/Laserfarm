@@ -444,3 +444,10 @@ local machines or on a virtual `docker-container-based cluster`_ can be found `h
 
 .. _docker-container-based cluster: https://github.com/eEcoLiDAR/dockerTestCluster
 .. _here: https://github.com/eEcoLiDAR/lcMacroPipeline/tree/development/examples
+
+Current Limitations
+-------------------
+
+This package has been tested on data provided in a metric-based 2D-projected Cartesian coordinate system. While some of
+the tools of Laserfarm could be applied to data in an ellipsoidal latitude/longitude coordinate system as well, this has
+not been tested and it is generally expected to fail.
