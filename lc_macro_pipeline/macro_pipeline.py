@@ -88,7 +88,7 @@ class MacroPipeline(object):
             exctype, value = sys.exc_info()[:2]
         return (exctype, value)
 
-    def setup_client(self, mode='local', cluster=None, **kwargs):
+    def setup_cluster(self, mode='local', cluster=None, **kwargs):
         if self.client is not None:
             raise ValueError('Client is already set - call shutdown first!')
 

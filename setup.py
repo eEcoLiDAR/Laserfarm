@@ -7,13 +7,21 @@ def read(file_name):
     return open(os.path.join(os.path.dirname(__file__), file_name)).read()
 
 
+version = {}
+exec(read('lc_macro_pipeline/__version__.py'), version)
 required = read('requirements.txt').splitlines()
 
 
 setup(
     name='lc_macro_pipeline',
-    version='0.1',
-    description='Point cloud toolkit for macroecology applications',
+    version=version['__version__'],
+    description=('lcMacroPipeline provides a FOSS wrapper to Laserchicken '
+                 'supporting the use of massive LiDAR point cloud data sets '
+                 'for macro-ecology, from data preparation to scheduling and '
+                 'execution of distributed processing across a cluster of '
+                 'compute nodes.'),
+    author='Netherlands eScience Center',
+    author_email='team-atlas@esciencecenter.nl',
     license='Apache 2.0',
     keywords=['Python', 'Point cloud'],
     url='https://github.com/eEcoLiDAR/lcMacroPipeline',

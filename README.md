@@ -1,14 +1,10 @@
 # Laserchicken Macro(-ecology) Pipeline
 
-[![Actions Status](https://github.com/eEcoLiDAR/lcMacroPipeline/workflows/build%20and%20test/badge.svg?branch=development)](https://github.com/eEcoLiDAR/lcMacroPipeline/actions) [![codecov](https://codecov.io/gh/eEcoLiDAR/lcMacroPipeline/branch/development/graph/badge.svg)](http://codecov.io/github/eEcoLiDAR/lcMacroPipeline/branch/development)
+[![Actions Status](https://github.com/eEcoLiDAR/lcMacroPipeline/workflows/build%20and%20test/badge.svg?branch=development)](https://github.com/eEcoLiDAR/lcMacroPipeline/actions)
+[![codecov](https://codecov.io/gh/eEcoLiDAR/lcMacroPipeline/branch/development/graph/badge.svg)](http://codecov.io/github/eEcoLiDAR/lcMacroPipeline/branch/development)
+[![Documentation Status](https://readthedocs.org/projects/lcmacropipeline/badge/?version=latest)](https://lcmacropipeline.readthedocs.io/en/latest/?badge=latest)
 
-## Description
-
-Laserchicken (LC) is a FOSS tool for extracting statistical properties of subgroups of points from a
-(LiDAR) point cloud data set. LC itself is domain agnostic, however one of its main envisaged uses is in
-large area remote-sensing, and macro-ecology in particular.
-
-The Laserchicken Macro(-ecology) Pipeline provides a FOSS wrapper to Laserchicken supporting the use of
+lcMacroPipeline provides a FOSS wrapper to [Laserchicken](https://github.com/eEcoLiDAR/laserchicken) supporting the use of
 massive LiDAR point cloud data sets for macro-ecology, from data preparation to scheduling and execution
 of distributed processing across a cluster of compute nodes.
 
@@ -30,3 +26,35 @@ YAML file provided:
 ```shell script
 conda env create -f environment.yml
 ```
+
+# Documentation
+
+The project's full documentation can be found [here](https://lcmacropipeline.readthedocs.io/en/latest/).
+
+# Applications and Current Limitations
+
+This package has been tested on data provided in a metric-based 2D-projected Cartesian coordinate system, i.e. the 
+*[Actueel Hoogtebestand Nederland](https://www.pdok.nl/introductie/-/article/actueel-hoogtebestand-nederland-ahn3-)*. 
+While some of the tools of Laserfarm could be applied to data in an ellipsoidal latitude/longitude coordinate system 
+as well, this has not been tested and it is generally expected to fail. 
+
+# Contributing
+
+If you want to contribute to the development of lcMacroPipeline,
+have a look at the  [contribution guidelines](CONTRIBUTING.md).
+
+# License
+
+Copyright (c) 2020, Netherlands eScience Center
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

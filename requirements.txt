@@ -6,6 +6,7 @@ numpy
 pylas
 laserchicken # @ git+git://github.com/eEcoLiDAR/laserchicken@development#egg=laserchicken
 plyfile
+pytest
 webdavclient3
 PyShp
 shapely
