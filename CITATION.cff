@@ -19,15 +19,11 @@ authors:
     family-names: Bogaardt
     given-names: Laurens
   -
-    affiliation: "Netherlands eScience Center"
-    family-names: Dzigan
-    given-names: Yifat
-  -
     affiliation: "Institute for Biodiversity and Ecosystem Dynamics, University of Amsterdam"
     family-names: Koma
     given-names: Zsófia
 cff-version: "1.0.3"
-date-released: 2020-05-20
+date-released: 2020-05-25
 doi: ""
 keywords:
   - "airborne laser scanning"
