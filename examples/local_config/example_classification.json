@@ -1,0 +1,15 @@
+{
+  "setup_local_fs": {
+    "input_folder": "../testdata/",
+    "output_folder": "./tmp/target_pnt_output/"
+  },
+  "locate_shp": {
+    "shp_dir": "shp/"
+  },
+  "classification": {
+    "ground_type": 5
+  },
+  "export_point_cloud": {
+    "overwrite": true
+  }
+}

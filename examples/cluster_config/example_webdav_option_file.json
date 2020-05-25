@@ -1,0 +1,4 @@
+{
+"webdav_hostname":"https://webdav.grid.surfsara.nl:2880",
+"authenticationfile":"/home/ubuntu/examples/cluster_config/example_pwf.json"
+}

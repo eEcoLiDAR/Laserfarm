@@ -1,0 +1,36 @@
+# YAML 1.2
+---
+abstract: "Laserfarm provides a FOSS wrapper to Laserchicken, supporting the use of massive LiDAR point cloud data sets for macro-ecology, from data preparation to scheduling and execution of distributed processing across a cluster of compute nodes."
+authors:
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Grootes
+    given-names: "Meiert W."
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Ku
+    given-names: Ou
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Nattino
+    given-names: Francesco
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Bogaardt
+    given-names: Laurens
+  -
+    affiliation: "Institute for Biodiversity and Ecosystem Dynamics, University of Amsterdam"
+    family-names: Koma
+    given-names: Zsófia
+cff-version: "1.0.3"
+date-released: 2020-05-25
+doi: ""
+keywords:
+  - "airborne laser scanning"
+  - "point cloud"
+  - "distributed computing"
+license: "Apache-2.0"
+message: "If you use this software, please cite it using these metadata."
+title: "Laserfarm: Laserchicken Framework for Applications in Research in Macro-ecology"
+version: "0.1.0"
+...

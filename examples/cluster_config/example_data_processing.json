@@ -1,0 +1,40 @@
+{
+  "setup_local_fs": {
+    "input_folder":"/home/ubuntu/examples/tmp/input_data_processing",
+    "output_folder":"/home/ubuntu/examples/tmp/output_data_processing"
+  },
+  "setup_webdav_client": {
+    "webdav_options":"/home/ubuntu/examples/cluster_config/example_webdav_option_file.json"
+  },
+  "pullremote": {
+    "remote_origin":"/pnfs/grid.sara.nl/data/projects.nl/eecolidar/01_Escience/test_pipeline/testdata/LAZ/data_processing"
+  },
+  "load": {},
+  "export_targets": {
+    "overwrite": true,
+    "attributes": ["coeff_var_normalized_height"],
+    "is_binary": false
+  },
+  "normalize": {
+    "cell_size": 1
+  },
+  "generate_targets": {
+    "min_x" : -113108.0,
+    "min_y" : 214784.0,
+    "max_x" : 398892.0,
+    "max_y" : 726784.0,
+    "n_tiles_side" : 256,
+    "tile_mesh_size" : 10.0,
+    "validate" : true,
+    "validate_precision" : 0.01
+  },
+  "extract_features": {
+    "feature_names": ["coeff_var_normalized_height"],
+    "volume_type": "cell",
+    "volume_size": 10
+  },
+  "pushremote": {
+    "remote_destination":"/pnfs/grid.sara.nl/data/projects.nl/eecolidar/01_Escience/test_pipeline/output/"
+  },
+  "cleanlocalfs": {}
+}
