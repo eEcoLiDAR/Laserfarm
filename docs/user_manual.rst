@@ -443,7 +443,7 @@ Finally, Python scripts and pipeline configuration files that have been used to 
 local machines or on a virtual `docker-container-based cluster`_ can be found `here`_.
 
 .. _docker-container-based cluster: https://github.com/eEcoLiDAR/dockerTestCluster
-.. _here: https://github.com/eEcoLiDAR/Laserfarm/tree/development/examples
+.. _here: https://github.com/eEcoLiDAR/Laserfarm/tree/master/examples
 
 Current Limitations
 -------------------
