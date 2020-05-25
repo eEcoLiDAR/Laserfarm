@@ -3,6 +3,7 @@
 [![Actions Status](https://github.com/eEcoLiDAR/Laserfarm/workflows/build%20and%20test/badge.svg)](https://github.com/eEcoLiDAR/Laserfarm/actions)
 [![codecov](https://codecov.io/gh/eEcoLiDAR/Laserfarm/branch/master/graph/badge.svg)](https://codecov.io/gh/eEcoLiDAR/Laserfarm)
 [![Documentation Status](https://readthedocs.org/projects/Laserfarm/badge/?version=latest)](https://laserfarm.readthedocs.io/en/latest/?badge=latest)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3842781.svg)](https://doi.org/10.5281/zenodo.3842781)
 
 Laserfarm (Laserchicken Framework for Applications in Research in Macro-ecology) provides a FOSS wrapper to 
 [Laserchicken](https://github.com/eEcoLiDAR/laserchicken) supporting the use of massive LiDAR point cloud data sets for 
@@ -11,19 +12,23 @@ nodes.
 
 ## Installation
 
-The package can be downloaded using `git`:
-```shell script
-git clone git@github.com:eEcoLiDAR/Laserfarm.git
-```
-It requires the [PDAL](https://pdal.io) and [GDAL](https://gdal.org) libraries and the PDAL Python 
-bindings. These packages are most easily installed through `conda` from the `conda-forge` channel. The 
-remaining dependencies can be retrieved and installed using `pip`:
+Laserfarm requires the [PDAL](https://pdal.io) and [GDAL](https://gdal.org) libraries and the PDAL Python 
+bindings. These packages are most easily installed through `conda` from the `conda-forge` channel:
 ```shell script
 conda install pdal python-pdal gdal -c conda-forge
-cd Laserfarm && pip install . 
 ```
-Alternatively, a new environment with the package and all its dependencies can be created from the
-YAML file provided:
+Laserfarm can then be downloaded and installed using `pip`:
+```shell script
+pip install laserfarm
+```
+or using `git` + `pip`:
+```shell script
+git clone git@github.com:eEcoLiDAR/Laserfarm.git
+cd Laserfarm
+pip install .
+```
+In order to setup a new conda environment with Laserfarm and all its dependencies, the YAML file provided can be 
+employed:
 ```shell script
 conda env create -f environment.yml
 ```
