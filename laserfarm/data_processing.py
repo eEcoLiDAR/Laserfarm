@@ -3,9 +3,9 @@ import logging
 import numpy as np
 import pathlib
 
+import laserchicken.keys
 from laserchicken import build_volume, compute_features, \
     compute_neighborhoods, load, export, register_new_feature_extractor
-import laserchicken.keys
 from laserchicken.feature_extractor.base_feature_extractor import \
     FeatureExtractor
 from laserchicken.feature_extractor.feature_extraction import \
@@ -13,6 +13,7 @@ from laserchicken.feature_extractor.feature_extraction import \
 from laserchicken.filter import select_above, select_below, select_equal, \
     select_polygon
 from laserchicken.io import io_handlers
+from laserchicken.kd_tree import initialize_cache
 from laserchicken.normalize import normalize
 from laserchicken.utils import create_point_cloud, add_to_point_cloud, \
     get_point
@@ -36,7 +37,8 @@ class DataProcessing(PipelineRemoteData):
                          'export_point_cloud',
                          'generate_targets',
                          'extract_features',
-                         'export_targets')
+                         'export_targets',
+                         'clear_cache')
         self.point_cloud = create_point_cloud([], [], [])
         self.targets = create_point_cloud([], [], [])
         self.grid = Grid()
@@ -234,6 +236,12 @@ class DataProcessing(PipelineRemoteData):
         self._export(self.targets, expath, attributes, multi_band_files,
                      file_handle, **export_opts)
         logger.info('... exporting completed.')
+        return self
+
+    def clear_cache(self):
+        """ Clear KDTree's cached by Laserchicken. """
+        logger.info('Clearing cached KDTrees ...')
+        initialize_cache()
         return self
 
     @staticmethod
