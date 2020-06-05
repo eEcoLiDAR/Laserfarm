@@ -117,7 +117,7 @@ class TestToyMacroPipeline(unittest.TestCase):
         self.assertTrue(os.path.isfile(self._outcome_file_path))
         with open(self._outcome_file_path, 'r') as f:
             res = [line.split()[-1] for line in f.readlines()]
-        self.assertListEqual(res, ['Completed']*2)
+        self.assertListEqual(res, ['finished']*2)
 
     def test_runInvalidPipeline(self):
         a, b = ShortIOPipeline(), ShortIOPipeline()
@@ -140,5 +140,5 @@ class TestToyMacroPipeline(unittest.TestCase):
         self.assertTrue(os.path.isfile(self._outcome_file_path))
         with open(self._outcome_file_path, 'r') as f:
             res = [line.split()[-1] for line in f.readlines()]
-        self.assertEqual(res[0], 'Completed')
-        self.assertNotEqual(res[1], 'Completed')
+        self.assertEqual(res[0], 'finished')
+        self.assertNotEqual(res[1], 'finished')

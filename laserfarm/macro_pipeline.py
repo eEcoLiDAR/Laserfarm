@@ -35,6 +35,7 @@ class MacroPipeline(object):
     def __init__(self):
         self._tasks = list()
         self.errors = list()
+        self.outcome = list()
         self.client = None
 
     @property
@@ -107,12 +108,14 @@ class MacroPipeline(object):
                    for task in self.tasks]
         map_key_to_index = {future.key: n for n, future in enumerate(futures)}
         self.errors = [None] * len(self.tasks)
+        self.outcome = [future.status for future in futures]
         for future, result in as_completed(futures,
                                            with_results=True,
                                            raise_errors=False):
+            idx = map_key_to_index[future.key]
+            self.outcome[idx] = future.status
             exc = future.exception()
             if exc is not None:
-                idx = map_key_to_index[future.key]
                 self.errors[idx] = (type(exc), exc)
             future.release()
 
@@ -124,18 +127,20 @@ class MacroPipeline(object):
         :param to_file: file path
         """
         fd = sys.stdout if to_file is None else open(to_file, 'w')
-        for nt, (err, task) in enumerate(zip(self.errors, self.tasks)):
+        for nt, (out, err, task) in enumerate(zip(self.outcome,
+                                                  self.errors,
+                                                  self.tasks)):
             if err is None:
-                outcome = 'Completed'
+                outcome = out
             else:
-                outcome = 'Error: {}, {}'.format(err[0].__name__, err[1])
+                outcome = '{}: {}, {}'.format(out, err[0].__name__, err[1])
             fd.write('{:03d} {:30s} {}\n'.format(nt+1, task.label, outcome))
         if to_file is not None:
             fd.close()
 
     def get_failed_pipelines(self):
-        return [task for err, task in zip(self.errors, self.tasks)
-                if err is not None]
+        return [task for out, task in zip(self.outcome, self.tasks)
+                if out != 'finished']
 
     def shutdown(self):
         address = self.client.scheduler.address  # get address
