@@ -2,7 +2,7 @@ import logging
 import sys
 import traceback
 
-from dask.distributed import Client, LocalCluster, SSHCluster
+from dask.distributed import Client, LocalCluster, SSHCluster, as_completed
 
 from laserfarm.pipeline import Pipeline
 
@@ -78,15 +78,11 @@ class MacroPipeline(object):
 
     @staticmethod
     def _run_task(f):
-        exctype, value = (None, None)
         try:
-            _ = f()
+            f()
         except:
-            # sys.exc_info() provides info about current exception,
-            # thus it must remain in the except block!
             traceback.print_exc()
-            exctype, value = sys.exc_info()[:2]
-        return (exctype, value)
+            raise
 
     def setup_cluster(self, mode='local', cluster=None, **kwargs):
         if self.client is not None:
@@ -109,7 +105,16 @@ class MacroPipeline(object):
         """ Run the macro pipeline. """
         futures = [self.client.submit(self._run_task, task.run)
                    for task in self.tasks]
-        self.errors = self.client.gather(futures)
+        map_key_to_index = {future.key: n for n, future in enumerate(futures)}
+        self.errors = [None] * len(self.tasks)
+        for future, result in as_completed(futures,
+                                           with_results=True,
+                                           raise_errors=False):
+            exc = future.exception()
+            if exc is not None:
+                idx = map_key_to_index[future.key]
+                self.errors[idx] = (type(exc), exc)
+            future.release()
 
     def print_outcome(self, to_file=None):
         """
@@ -120,7 +125,7 @@ class MacroPipeline(object):
         """
         fd = sys.stdout if to_file is None else open(to_file, 'w')
         for nt, (err, task) in enumerate(zip(self.errors, self.tasks)):
-            if err == (None, None):
+            if err is None:
                 outcome = 'Completed'
             else:
                 outcome = 'Error: {}, {}'.format(err[0].__name__, err[1])
@@ -130,7 +135,7 @@ class MacroPipeline(object):
 
     def get_failed_pipelines(self):
         return [task for err, task in zip(self.errors, self.tasks)
-                if err != (None, None)]
+                if err is not None]
 
     def shutdown(self):
         address = self.client.scheduler.address  # get adress
