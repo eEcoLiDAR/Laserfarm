@@ -134,7 +134,7 @@ class TestToyMacroPipeline(unittest.TestCase):
         mp.setup_cluster(cluster=self.cluster)
         mp.run()
         self.assertListEqual(mp.get_failed_pipelines(), [b])
-        self.assertListEqual(list(mp.errors[0]), [None, None])
+        self.assertIs(mp.errors[0], None)
         self.assertTrue(mp.errors[1][0], IsADirectoryError)
         mp.print_outcome(to_file=self._outcome_file_path)
         self.assertTrue(os.path.isfile(self._outcome_file_path))
