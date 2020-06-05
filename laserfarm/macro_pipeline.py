@@ -138,6 +138,6 @@ class MacroPipeline(object):
                 if err is not None]
 
     def shutdown(self):
-        address = self.client.scheduler.address  # get adress
+        address = self.client.scheduler.address  # get address
         self.client.close()
         Client(address).shutdown()
