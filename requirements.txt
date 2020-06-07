@@ -4,7 +4,7 @@ fire
 lazperf
 numpy
 pylas
-laserchicken
+laserchicken>=0.4.1
 plyfile
 pytest
 webdavclient3
