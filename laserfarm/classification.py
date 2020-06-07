@@ -85,7 +85,8 @@ class Classification(PipelineRemoteData):
                                           feature_name='ground_type',
                                           value=ground_type,
                                           array_mask=pc_mask)
-
+        # Clear the cached KDTree
+        laserchicken.kd_tree.initialize_cache()
         return self
 
     def export_point_cloud(self, filename='', overwrite=False):

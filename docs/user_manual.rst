@@ -18,6 +18,7 @@ and in how these tasks can be implemented for large-scale macro-ecology calculat
 notebooks provided (see :ref:`Examples`).
 
 .. _Retiling:
+
 Raw Data Re-tiling
 ------------------
 
@@ -82,6 +83,8 @@ provided as a JSON configuration file, the pipeline can be executed in the follo
 .. code-block:: shell
 
     laserfarm retiling --input_file=point_cloud.LAZ - config --from_file=retiling_config.json - run
+
+.. _DataProcessing:
 
 Point-Cloud Data Processing
 ---------------------------
@@ -202,6 +205,19 @@ and:
     laserfarm data_processing apply_filter --help
 
 .. _manual: https://laserchicken.readthedocs.io/en/latest
+
+.. NOTE::
+    ``laserchicken`` computes and caches the k-d tree of the point cloud in order to efficiently querying point-cloud
+    points in the filter (with polygons), normalization and feature extraction tasks. The cache can be cleared using the
+    ``clear_cache`` method in the point-cloud data processing pipeline, e.g. by setting:
+
+    .. code-block:: python
+
+        input_dict = {
+            ...
+            'clear_cache: {},
+            ...
+        }
 
 GeoTIFF Export
 --------------
@@ -387,6 +403,11 @@ the example above, the computing cluster consists of two local processes (two 'w
 (recommended for all pipelines, and required for the feature extraction tasks that involve ``laserchicken``). Each of
 the workers takes care of the execution of one task at a time until all tasks are completed.
 
+.. NOTE::
+    When performing macro-pipeline calculations including ``DataProcessing`` pipelines (see :ref:`DataProcessing`), it
+    is important to include the ``clear_cache`` task in the input to avoid the cache to fill up the memory of the
+    workers.
+
 In order to distribute tasks to a cluster deployed over compute nodes using SSH, the script above can be modified in the
 following way:
 
@@ -423,7 +444,8 @@ Any other deployed Dask cluster can be used to distribute tasks within ``MacroPi
 .. NOTE::
     No command line support is provided in Laserfarm for macro-pipeline calculations.
 
-.. _Examples
+.. _Examples:
+
 Examples
 --------
 

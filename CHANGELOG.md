@@ -6,4 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2020-06-07
+### Added:
+- The KDTree's cached by Laserchicken is cleared in the data_processing (optional) and classification pipelines. 
+
+### Changed:
+- Dask's futures are released as soon as finished, freeing memory of the workers
+
 ## [0.1.0] - 2020-05-25
