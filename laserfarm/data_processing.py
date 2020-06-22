@@ -31,6 +31,7 @@ class DataProcessing(PipelineRemoteData):
 
     def __init__(self, input=None, label=None, tile_index=(None, None)):
         self.pipeline = ('add_custom_feature',
+                         'add_custom_features',
                          'load',
                          'normalize',
                          'apply_filter',
@@ -76,6 +77,17 @@ class DataProcessing(PipelineRemoteData):
         _check_parameters_for_extractor(extractor, parameters)
         logger.info('Setting up feature extractor {}'.format(extractor_name))
         register_new_feature_extractor(extractor(**parameters))
+        return self
+
+    def add_custom_features(self, custom_feature_list):
+        """
+        Add a list of customized features to be computed with laserchicken
+        (also see add_custom_feature).
+
+        :param custom_feature_list: list of extractor names and parameters
+        """
+        for custom_feature in custom_feature_list:
+            self.add_custom_feature(**custom_feature)
         return self
 
     def load(self, **load_opts):
