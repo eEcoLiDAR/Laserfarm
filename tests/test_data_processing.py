@@ -56,6 +56,20 @@ class TestAddCustomFeature(unittest.TestCase):
                                              non_existent_param=3)
 
 
+class TestAddCustomFeatures(unittest.TestCase):
+
+    def setUp(self):
+        self.pipeline = DataProcessing()
+
+    def test_validInput(self):
+        features = [{'extractor_name': 'BandRatioFeatureExtractor',
+                     'lower_limit': low,
+                     'upper_limit': up} for low, up in ((None, 50), (0, 2))]
+        self.pipeline.add_custom_features(features)
+        self.assertTrue(hasattr(self.pipeline.features, 'band_ratio_z<50'))
+        self.assertTrue(hasattr(self.pipeline.features, 'band_ratio_0<z<2'))
+
+
 class TestLoad(unittest.TestCase):
 
     _test_dir = 'test_tmp_dir'

@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2020-06-22
+### Added:
+- A method for setting up multiple custom features is added to the data processing pipeline. 
+
+
 ## [0.1.1] - 2020-06-07
 ### Added:
 - The KDTree's cached by Laserchicken is cleared in the data_processing (optional) and classification pipelines. 
