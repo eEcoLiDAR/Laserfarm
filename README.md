@@ -15,8 +15,8 @@ A full run of the pipeline encompases:
 
 (1) retiling
 (2) target generation
-(3) normalization
+(3) normalisation
 (4) feature extraction
-(5) geotiff creation
+(5) GeoTiff creation
 
 With the scripts for each steps being provided in the corresponding sub-directories.
