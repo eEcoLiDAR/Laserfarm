@@ -23,7 +23,7 @@ authors:
     family-names: Koma
     given-names: Zsófia
 cff-version: "1.0.3"
-date-released: 2020-06-07
+date-released: 2020-11-27
 doi: "10.5281/zenodo.3842780"
 keywords:
   - "airborne laser scanning"
@@ -32,5 +32,5 @@ keywords:
 license: "Apache-2.0"
 message: "If you use this software, please cite it using these metadata."
 title: "Laserfarm: Laserchicken Framework for Applications in Research in Macro-ecology"
-version: "0.1.1"
+version: "0.1.2"
 ...
