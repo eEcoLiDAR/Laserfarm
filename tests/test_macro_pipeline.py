@@ -60,7 +60,10 @@ class TestSetupClientMacroPipeline(unittest.TestCase):
         mp.setup_cluster(cluster=cluster)
         self.assertEqual(mp.client.status, 'running')
         mp.client.cluster.close()
-        self.assertEqual(mp.client.cluster.status, 'closed')
+        status = mp.client.cluster.status
+        if hasattr(status, "value"):
+            status = status.value
+        self.assertEqual(status, 'closed')
 
     def test_localClusterFromMethod(self):
         mp = MacroPipeline()
@@ -68,7 +71,10 @@ class TestSetupClientMacroPipeline(unittest.TestCase):
                          threads_per_worker=1)
         self.assertEqual(mp.client.status, 'running')
         mp.client.cluster.close()
-        self.assertEqual(mp.client.cluster.status, 'closed')
+        status = mp.client.cluster.status
+        if hasattr(status, "value"):
+            status = status.value
+        self.assertEqual(status, 'closed')
 
     def test_invalidCluster(self):
         mp = MacroPipeline()
