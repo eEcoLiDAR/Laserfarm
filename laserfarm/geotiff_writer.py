@@ -2,9 +2,8 @@ import logging
 import os
 import plyfile
 import numpy
-import gdal
 import time
-from osgeo import osr
+from osgeo import osr, gdal
 from laserfarm import utils
 from laserfarm.pipeline_remote_data import PipelineRemoteData
 
