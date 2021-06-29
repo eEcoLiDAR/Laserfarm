@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##[Unreleased]
 
+## [0.1.4] - 2021-06-29
+### Fixed:
+- Token authentication can be now used for WebDAV remote data access
 
-## [0.1.3] - 2020-01-04
+## [0.1.3] - 2021-01-04
 ### Fixed:
 - Fix import of the GDAL library
 
