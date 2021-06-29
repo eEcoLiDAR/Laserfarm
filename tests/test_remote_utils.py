@@ -54,9 +54,15 @@ class TestGetWdclient(unittest.TestCase):
         client = get_wdclient(options_filepath)
         self.assertIsInstance(client, Client)
 
-    def test_invalidOptions(self):
+    def test_webdavLoginIsNotProvided(self):
         options = self.options
         _ = options.pop('webdav_login')
+        with self.assertRaises(RuntimeError):
+            _ = get_wdclient(options)
+
+    def test_bothWebdavTokenAndLoginAreProvided(self):
+        options = self.options
+        options['webdav_token'] = 'token123'
         with self.assertRaises(RuntimeError):
             _ = get_wdclient(options)
 
