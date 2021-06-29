@@ -59,20 +59,19 @@ def check_options(options):
 
     keys = options.keys()
     failure = False
-    if 'webdav_login' not in keys:
-        logger.error('missing "webdav_login" key. \
+    if ('webdav_login' not in keys) ^ ('webdav_password' not in keys):
+        logger.error('missing "webdav_login" or "webdav_password" key. \
                       Please note that if you are using \
                       an authentication file the arguments \
                       must be specified there.')
         failure = True
-    if 'webdav_password' not in keys:
-        logger.error('missing "webdav_password" key.\
-                      please note that if you are using \
-                      an authentication file the arguments \
-                      must be specified there.')
-        failure = True
+    if 'webdav_token' in keys:
+        if 'webdav_login' in keys:
+            logger.error('either token or username/password authentication \
+                          should be employed.')
+            failure = True
     if 'webdav_hostname' not in keys:
-        logger.error('missing "webdav_password" key.')
+        logger.error('missing "webdav_hostname" key.')
         failure = True
 
     if failure:
