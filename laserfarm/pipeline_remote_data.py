@@ -62,7 +62,7 @@ class PipelineRemoteData(Pipeline):
         remote_path = pathlib.Path(remote_origin)
         local_path = self.input_path
         if self.input_path.absolute() != self.input_folder.absolute():
-            remote_path = remote_path.joinpath(self.input_path.name)
+            remote_path = remote_path / self.input_path.name
             if self.input_path.suffix:
                 local_path = self.input_folder
         logger.info('Pulling from WebDAV {} ...'.format(remote_path))
