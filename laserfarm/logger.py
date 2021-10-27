@@ -60,10 +60,12 @@ class Logger(object):
         for n, handler in enumerate(self.logger.handlers):
             if isinstance(handler, logging.StreamHandler) and stream:
                 mask[n] = False
+                handler.close()
             if isinstance(handler, logging.FileHandler) and file:
                 mask[n] = False
                 logger.debug('Terminating stream to logfile: '
                              '{}'.format(handler.baseFilename))
+                handler.close()
                 self._redirect_std_streams(False)
         self.logger.handlers = [h for n, h in enumerate(self.logger.handlers)
                                 if mask[n]]
