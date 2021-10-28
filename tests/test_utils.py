@@ -94,12 +94,16 @@ class TestGetArgsFromConfigFile(unittest.TestCase):
 
 class TestShellExecuteCmd(unittest.TestCase):
     def test_onlyStdout(self):
-        res = shell_execute_cmd("echo $PWD")
-        self.assertTupleEqual(res, (0, '{}\n\n'.format(os.getcwd())))
+        s = "HelloWorld"
+        res = shell_execute_cmd(f"echo {s}")
+        self.assertEqual(res[0], 0)
+        self.assertEqual(res[1].split()[0], s)
 
     def test_onlyStderr(self):
-        res = shell_execute_cmd("echo $PWD 1>&2")
-        self.assertTupleEqual(res, (0, '\n{}\n'.format(os.getcwd())))
+        s = "HelloWorld"
+        res = shell_execute_cmd(f"echo {s} 1>&2")
+        self.assertEqual(res[0], 0)
+        self.assertEqual(res[1].split()[0], s)
 
     def test_nonzeroReturncode(self):
         res = shell_execute_cmd("exit 1")

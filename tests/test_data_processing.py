@@ -14,18 +14,26 @@ class TestInitializeDataProcessing(unittest.TestCase):
     def test_initDefault(self):
         dp = DataProcessing()
         self.assertIsInstance(dp.input_path, pathlib.Path)
-        self.assertEqual(dp.input_path.absolute().as_posix(), os.getcwd())
+        self.assertEqual(
+            dp.input_path.absolute().as_posix(),
+            pathlib.Path.cwd().as_posix()
+        )
 
     def test_initRelativePath(self):
         filepath = 'dir/file.dat'
         dp = DataProcessing(input=filepath)
-        self.assertEqual(dp.input_path.absolute().as_posix(),
-                         os.path.join(os.getcwd(), filepath))
+        self.assertEqual(
+            dp.input_path.absolute().as_posix(),
+            (pathlib.Path.cwd() / filepath).as_posix()
+        )
 
     def test_initAbsolutePath(self):
-        filepath = '/dir/file.dat'
+        filepath = pathlib.Path('/dir/file.dat')
         dp = DataProcessing(input=filepath)
-        self.assertEqual(dp.input_path.absolute().as_posix(), filepath)
+        self.assertEqual(
+            dp.input_path.absolute().as_posix(),
+            filepath.as_posix()
+        )
 
 
 class TestAddCustomFeature(unittest.TestCase):
