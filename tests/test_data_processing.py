@@ -32,7 +32,7 @@ class TestInitializeDataProcessing(unittest.TestCase):
         dp = DataProcessing(input=filepath)
         self.assertEqual(
             dp.input_path.absolute().as_posix(),
-            filepath.as_posix()
+            filepath.absolute().as_posix()
         )
 
 
