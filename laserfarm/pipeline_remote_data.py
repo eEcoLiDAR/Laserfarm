@@ -42,9 +42,13 @@ class PipelineRemoteData(Pipeline):
             output_folder = tmp_path / '_'.join([self.label, 'output'])
         check_dir_exists(output_folder, should_exist=True, mkdir=True)
         self.output_folder = output_folder
-        logger.info('Output dir set to {}'.format(self.output_folder))
+        logger.info(
+            'Output dir set to {}'.format(self.output_folder.as_posix())
+        )
         if self.logger is not None:
-            self.logger.start_log_to_file(directory=self.output_folder.as_posix())
+            self.logger.start_log_to_file(
+                directory=self.output_folder.as_posix()
+            )
         return self
 
     def setup_webdav_client(self, webdav_options):
@@ -65,7 +69,9 @@ class PipelineRemoteData(Pipeline):
             remote_path = remote_path / self.input_path.name
             if self.input_path.suffix:
                 local_path = self.input_folder
-        logger.info('Pulling from WebDAV {} ...'.format(remote_path))
+        logger.info(
+            'Pulling from WebDAV {} ...'.format(remote_path.as_posix())
+        )
         pull_from_remote(self._wdclient,
                          local_path.as_posix(),
                          remote_path.as_posix())
