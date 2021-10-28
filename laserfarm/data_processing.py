@@ -383,5 +383,5 @@ def _get_output_file_dict(path,
 def _remove_illegal_chars(string):
     # file paths on Windows cannot contain the following characters
     for char in [">", "<", "/", ":" '"', "\\", "|", "?", "*"]:
-        string.replace(char, "")
+        string = string.replace(char, "")
     return string
