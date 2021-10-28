@@ -460,6 +460,16 @@ class TestExportTargets(unittest.TestCase):
         self.assertListEqual(['x', 'y', 'z', feature],
                              _get_attributes_in_PLY_file(path))
 
+    def test_exportSingleBandFileWithFeatureWithIllegalCharacters(self):
+        self.pipeline.output_folder = self._test_dir
+        feature = 'x<0'
+        self.pipeline.export_targets(attributes=[feature],
+                                     multi_band_files=False)
+        output_name = os.path.join('x0', self._output_name)
+        output_path = os.path.join(self._test_dir, output_name)
+        self.assertListEqual(['x', 'y', 'z', feature],
+                             _get_attributes_in_PLY_file(output_path))
+
     def test_addExportOptions(self):
         self.pipeline.output_folder = self._test_dir
         self.pipeline.export_targets(is_binary=True)
