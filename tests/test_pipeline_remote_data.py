@@ -82,16 +82,17 @@ class TestPullRemote(unittest.TestCase):
     def test_withInputPath(self, pull_from_remote):
         client = Client({})
         input_folder = pathlib.Path(self._test_dir)
-        remote_origin = '/path/to/remote'
+        remote_origin = pathlib.Path('/path/to/remote')
         input_path = self.pipeline.input_folder.joinpath(self._test_filename)
         self.pipeline._wdclient = client
         self.pipeline.input_folder = input_folder
         self.pipeline.input_path = input_path
         self.pipeline.pullremote('/path/to/remote')
-        pull_from_remote.assert_called_once_with(client,
-                                                 input_folder.as_posix(),
-                                                 os.path.join(remote_origin,
-                                                              input_path.name))
+        pull_from_remote.assert_called_once_with(
+            client,
+            input_folder.as_posix(),
+            (remote_origin/self._test_filename).as_posix()
+        )
 
     def test_webdavClientNotSet(self):
         remote_origin = '/path/to/remote'
