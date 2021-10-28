@@ -35,6 +35,7 @@ class TestSetupLocalFS(unittest.TestCase):
         self.pipeline.logger.config(filename=self._test_filename,
                                     level='DEBUG')
         self.pipeline.setup_local_fs(self._test_dir, self._test_dir)
+        self.pipeline.logger.terminate()
         self.assertTrue(os.path.isfile(self._test_filepath))
 
     def test_inputDirectoryNonexistent(self):

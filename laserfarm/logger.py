@@ -59,18 +59,10 @@ class Logger(object):
         handlers = self.logger.handlers[:]
         for handler in handlers:
             if isinstance(handler, logging.StreamHandler) and stream:
-                handler.acquire()
-                handler.flush()
-                handler.close()
-                handler.release()
                 self.logger.removeHandler(handler)
             if isinstance(handler, logging.FileHandler) and file:
                 logger.debug('Terminating stream to logfile: '
                              '{}'.format(handler.baseFilename))
-                handler.acquire()
-                handler.flush()
-                handler.close()
-                handler.release()
                 self.logger.removeHandler(handler)
                 self._redirect_std_streams(False)
         logging.shutdown()
