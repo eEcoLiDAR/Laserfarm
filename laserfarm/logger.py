@@ -73,7 +73,7 @@ class Logger(object):
                 handler.release()
                 self.logger.removeHandler(handler)
                 self._redirect_std_streams(False)
-
+        logging.shutdown()
 
     def _redirect_std_streams(self, redirect):
         if redirect:
