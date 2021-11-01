@@ -105,10 +105,11 @@ def create_test_point_cloud(nx_values=10, grid_spacing=1., offset=0., log=True):
     z = np.random.uniform(-0.5, 0.5, x.size)
     feature_1 = np.zeros_like(x, dtype='int32')
     feature_2 = np.full_like(x, np.nan)
+    feature_3 = np.full_like(x, 0.)
 
     point_cloud = {'vertex': {}}
-    for name, array in zip(['x', 'y', 'z', 'feature_1', 'feature_2'],
-                           [x, y, z, feature_1, feature_2]):
+    for name, array in zip(['x', 'y', 'z', 'feature_1', 'feature_2', 'x<0'],
+                           [x, y, z, feature_1, feature_2, feature_3]):
         point_cloud['vertex'][name] = {'data': array,
                                        'type': array.dtype.name}
     if log:

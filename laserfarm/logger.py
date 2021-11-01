@@ -56,17 +56,16 @@ class Logger(object):
 
     def remove_handlers(self, stream=False, file=False):
         """ Remove handler instances. """
-        mask = [True for h in self.logger.handlers]
-        for n, handler in enumerate(self.logger.handlers):
+        handlers = self.logger.handlers[:]
+        for handler in handlers:
             if isinstance(handler, logging.StreamHandler) and stream:
-                mask[n] = False
+                self.logger.removeHandler(handler)
             if isinstance(handler, logging.FileHandler) and file:
-                mask[n] = False
                 logger.debug('Terminating stream to logfile: '
                              '{}'.format(handler.baseFilename))
+                self.logger.removeHandler(handler)
                 self._redirect_std_streams(False)
-        self.logger.handlers = [h for n, h in enumerate(self.logger.handlers)
-                                if mask[n]]
+        logging.shutdown()
 
     def _redirect_std_streams(self, redirect):
         if redirect:
