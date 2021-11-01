@@ -356,7 +356,7 @@ def _get_output_file_dict(path,
         if features and not multi_band_files:
             files = {}
             for feature in features:
-                sub_path = p / feature
+                sub_path = p / _remove_illegal_chars(feature)
                 check_dir_exists(sub_path, should_exist=True, mkdir=True)
                 file_path = (sub_path / file_handle).with_suffix(format)
                 files.update({file_path.as_posix(): [feature]})
@@ -378,3 +378,10 @@ def _get_output_file_dict(path,
         for file in files.keys():
             check_file_exists(file, should_exist=False)
     return files
+
+
+def _remove_illegal_chars(string):
+    # file paths on Windows cannot contain the following characters
+    for char in [">", "<", "/", ":" '"', "\\", "|", "?", "*"]:
+        string = string.replace(char, "")
+    return string

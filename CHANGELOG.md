@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##[Unreleased]
 
+## [0.1.5] - 2021-11-01
+### Fixed:
+- Compatibility issues (mainly path and logging related) to run on Windows
+
 ## [0.1.4] - 2021-06-29
 ### Fixed:
 - Token authentication can be now used for WebDAV remote data access
