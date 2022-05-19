@@ -34,6 +34,13 @@ def check_dir_exists(path, should_exist, mkdir=False):
         raise NotADirectoryError('Path {} is not a directory!'.format(str(p)))
 
 
+def remove_illegal_chars(path):
+    # file paths on Windows cannot contain the following characters
+    for char in [">", "<", "/", ":" '"', "\\", "|", "?", "*"]:
+        path = path.replace(char, "")
+    return path
+
+
 def _string_to_path(path):
     if isinstance(path, str):
         p = pathlib.Path(path)
