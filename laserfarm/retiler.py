@@ -1,7 +1,8 @@
 import logging
 import os
 import pdal
-import pylas
+import laspy
+import lazrs
 import json
 
 from laserfarm.grid import Grid
@@ -117,7 +118,7 @@ class Retiler(PipelineRemoteData):
 
 def _get_details_pc_file(filename):
     try:
-        with pylas.open(filename) as file:
+        with laspy.open(filename) as file:
             count = file.header.point_count
             mins = file.header.mins
             maxs = file.header.maxs

@@ -2,8 +2,9 @@ asyncssh
 dask[complete]
 fire
 lazperf
+lazrs
 numpy
-pylas
+laspy
 laserchicken>=0.4.1
 plyfile
 pytest
