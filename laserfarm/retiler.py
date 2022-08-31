@@ -2,7 +2,6 @@ import logging
 import os
 import pdal
 import laspy
-import lazrs
 import json
 
 from laserfarm.grid import Grid
