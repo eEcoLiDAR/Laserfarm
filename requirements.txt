@@ -1,7 +1,6 @@
 asyncssh
 dask[complete]
 fire
-lazperf
 numpy
 laspy[lazrs]
 laserchicken>=0.4.1
