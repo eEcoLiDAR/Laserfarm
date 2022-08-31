@@ -16,44 +16,44 @@ nodes.
 
 Laserfarm requires the [PDAL](https://pdal.io) and [GDAL](https://gdal.org) libraries and the PDAL Python 
 bindings. These packages are most easily installed through `conda` from the `conda-forge` channel:
-```shell script
+```shell
 conda install pdal python-pdal gdal -c conda-forge
 ```
 Laserfarm can then be downloaded and installed using `pip`:
-```shell script
+```shell
 pip install laserfarm
 ```
 or using `git` + `pip`:
-```shell script
+```shell
 git clone git@github.com:eEcoLiDAR/Laserfarm.git
 cd Laserfarm
 pip install .
 ```
 In order to setup a new conda environment with Laserfarm and all its dependencies, the YAML file provided can be 
 employed:
-```shell script
+```shell
 conda env create -f environment.yml
 ```
 
-# Documentation
+## Documentation
 
 The project's full documentation can be found [here](https://laserfarm.readthedocs.io/en/latest/).
 
-# Applications and Current Limitations
+## Applications and Current Limitations
 
 This package has been tested on data provided in a metric-based 2D-projected Cartesian coordinate system, i.e. the 
-*[Actueel Hoogtebestand Nederland](https://www.pdok.nl/introductie/-/article/actueel-hoogtebestand-nederland-ahn3-)*. 
+[Actueel Hoogtebestand Nederland](https://www.pdok.nl/introductie/-/article/actueel-hoogtebestand-nederland-ahn3-). 
 While some of the tools of Laserfarm could be applied to data in an ellipsoidal latitude/longitude coordinate system 
 as well, this has not been tested and it is generally expected to fail. 
 
-# Contributing
+## Contributing
 
 If you want to contribute to the development of Laserfarm,
 have a look at the  [contribution guidelines](CONTRIBUTING.md).
 
-# License
+## License
 
-Copyright (c) 2020, Netherlands eScience Center
+Copyright (c) 2022, Netherlands eScience Center
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
