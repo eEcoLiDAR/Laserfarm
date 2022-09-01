@@ -23,5 +23,6 @@ have a look at the  `contribution guidelines`_.
    :maxdepth: 2
    :caption: Contents:
 
+   readme 
    user_manual
 
