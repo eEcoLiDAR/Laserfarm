@@ -72,6 +72,13 @@ def shell_execute_cmd(command, verbacious=False):
     return rcode, out_err
 
 
+def remove_illegal_chars(string):
+    # file paths on Windows cannot contain the following characters
+    for char in [">", "<", "/", ":" '"', "\\", "|", "?", "*"]:
+        string = string.replace(char, "")
+    return string
+
+
 class DictToObj(object):
     def __init__(self, dictionary):
         for key, value in dictionary.items():
