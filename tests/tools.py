@@ -1,5 +1,5 @@
 import os
-import pylas
+import laspy
 import unittest
 
 import numpy as np
@@ -143,6 +143,6 @@ def write_PLY_targets(directory, indices, grid_spacing=10., nx_values=10,
 
 
 def get_number_of_points_in_LAZ_file(filename):
-    with pylas.open(filename) as f:
+    with laspy.open(filename) as f:
         count = f.header.point_count
     return count
