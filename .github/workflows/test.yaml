@@ -25,7 +25,7 @@ jobs:
         conda-channels: 'conda-forge'
     - run: conda --version
     - run: which python
-    - run: conda install pdal python-pdal gdal
+    - run: conda install pdal python-pdal gdal shapely
     - name: Install the package
       env:
         CONDA_PREFIX: /usr/share/miniconda
