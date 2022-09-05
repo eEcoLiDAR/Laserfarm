@@ -21,7 +21,7 @@ from laserchicken.utils import create_point_cloud, add_to_point_cloud, \
 from laserfarm.grid import Grid
 from laserfarm.pipeline_remote_data import PipelineRemoteData
 from laserfarm.utils import check_path_exists, check_file_exists, \
-    check_dir_exists, remove_illegal_chars, DictToObj
+    check_dir_exists, DictToObj
 
 logger = logging.getLogger(__name__)
 
@@ -356,7 +356,7 @@ def _get_output_file_dict(path,
         if features and not multi_band_files:
             files = {}
             for feature in features:
-                sub_path = p / remove_illegal_chars(feature)
+                sub_path = p / feature
                 check_dir_exists(sub_path, should_exist=True, mkdir=True)
                 file_path = (sub_path / file_handle).with_suffix(format)
                 files.update({file_path.as_posix(): [feature]})

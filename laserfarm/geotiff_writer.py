@@ -6,7 +6,7 @@ import time
 
 from osgeo import osr, gdal
 
-from laserfarm.utils import check_dir_exists, remove_illegal_chars
+from laserfarm.utils import check_dir_exists
 from laserfarm.pipeline_remote_data import PipelineRemoteData
 
 logger = logging.getLogger(__name__)
@@ -216,7 +216,7 @@ def _make_geotiff_per_band(infiles, outfile, band_export, data_directory,
             RasterData[indexY, indexX] = terrainDataOneBand[:, 0]
 
             # Write the single band to geotiff
-            outfile_band = outfile + "_BAND_" + remove_illegal_chars(band_name)
+            outfile_band = outfile + "_BAND_" + band_name
             _writeGeoTiff(RasterData, band_name, geoTransform, outfile_band,
                           ncols, nrows, 1, EPSG)
             ct1 = time.time()
