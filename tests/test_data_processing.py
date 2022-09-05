@@ -47,7 +47,7 @@ class TestAddCustomFeature(unittest.TestCase):
                                          upper_limit=50,
                                          data_key='z')
         self.assertTrue(hasattr(self.pipeline.features,
-                                'band_ratio_z<50'))
+                                'band_ratio_z_50'))
 
     def test_nonexistentExtractorName(self):
         with self.assertRaises(ValueError):
@@ -74,8 +74,8 @@ class TestAddCustomFeatures(unittest.TestCase):
                      'lower_limit': low,
                      'upper_limit': up} for low, up in ((None, 50), (0, 2))]
         self.pipeline.add_custom_features(features)
-        self.assertTrue(hasattr(self.pipeline.features, 'band_ratio_z<50'))
-        self.assertTrue(hasattr(self.pipeline.features, 'band_ratio_0<z<2'))
+        self.assertTrue(hasattr(self.pipeline.features, 'band_ratio_z_50'))
+        self.assertTrue(hasattr(self.pipeline.features, 'band_ratio_0_z_2'))
 
 
 class TestLoad(unittest.TestCase):
@@ -459,16 +459,6 @@ class TestExportTargets(unittest.TestCase):
         path = os.path.join(self._test_dir, output_name)
         self.assertListEqual(['x', 'y', 'z', feature],
                              _get_attributes_in_PLY_file(path))
-
-    def test_exportSingleBandFileWithFeatureWithIllegalCharacters(self):
-        self.pipeline.output_folder = self._test_dir
-        feature = 'x<0'
-        self.pipeline.export_targets(attributes=[feature],
-                                     multi_band_files=False)
-        output_name = os.path.join('x0', self._output_name)
-        output_path = os.path.join(self._test_dir, output_name)
-        self.assertListEqual(['x', 'y', 'z', feature],
-                             _get_attributes_in_PLY_file(output_path))
 
     def test_addExportOptions(self):
         self.pipeline.output_folder = self._test_dir
