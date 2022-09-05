@@ -1,7 +1,7 @@
 from pathlib import Path
 import unittest
 import numpy as np
-import pylas
+import laspy
 
 from laserfarm.grid import Grid
 
@@ -168,7 +168,7 @@ class TestRealGridLowPrecisionRoundedOrigin(TestRealGridValid):
 
 
 def _read_points_from_file(filename):
-    file = pylas.read(filename)
+    file = laspy.read(filename)
     return np.column_stack((file.x, file.y))
 
 
