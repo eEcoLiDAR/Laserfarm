@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ##[Unreleased]
 
+## [0.2.0] - 2022-09-13
+### Fixed:
+- Fixed remaining compatibility issues with Windows (e.g. in GeoTIFF writer)
+- Dropped deprecated pylas dependency (with lazperf) - use laspy (with lazrs) instead
+
+### Added:
+- Test suit runs on Windows/Mac and different Python versions
+- Installations instructions are provided on readthedocs as well
+
+### Changed:
+- Following updates in laserchicken 0.6.0, features including "<" have been renamed.
+
 ## [0.1.5] - 2021-11-01
 ### Fixed:
 - Compatibility issues (mainly path and logging related) to run on Windows

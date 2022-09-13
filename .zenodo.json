@@ -1,34 +1,36 @@
 {
-    "creators": [
-        {
-            "affiliation": "Netherlands eScience Center",
-            "name": "Grootes, Meiert W."
-        },
-        {
-            "affiliation": "Netherlands eScience Center",
-            "name": "Ku, Ou"
-        },
-        {
-            "affiliation": "Netherlands eScience Center",
-            "name": "Nattino, Francesco"
-        },
-        {
-            "affiliation": "Netherlands eScience Center",
-            "name": "Bogaardt, Laurens"
-        },
-        {
-            "affiliation": "Institute for Biodiversity and Ecosystem Dynamics, University of Amsterdam",
-            "name": "Koma, Zsófia"
-        }
-    ],
-    "description": "Laserfarm provides a FOSS wrapper to Laserchicken, supporting the use of massive LiDAR point cloud data sets for macro-ecology, from data preparation to scheduling and execution of distributed processing across a cluster of compute nodes.",
-    "keywords": [
-        "airborne laser scanning",
-        "point cloud",
-        "distributed computing"
-    ],
-    "license": {
-        "id": "Apache-2.0"
+  "creators": [
+    {
+      "affiliation": "Netherlands eScience Center",
+      "name": "Grootes, Meiert W."
     },
-    "title": "Laserfarm: Laserchicken Framework for Applications in Research in Macro-ecology"
+    {
+      "affiliation": "Netherlands eScience Center",
+      "name": "Ku, Ou"
+    },
+    {
+      "affiliation": "Netherlands eScience Center",
+      "name": "Nattino, Francesco"
+    },
+    {
+      "affiliation": "Netherlands eScience Center",
+      "name": "Bogaardt, Laurens"
+    },
+    {
+      "affiliation": "Institute for Biodiversity and Ecosystem Dynamics, University of Amsterdam",
+      "name": "Koma, Zsófia"
+    }
+  ],
+  "description": "Laserfarm provides a FOSS wrapper to Laserchicken, supporting the use of massive LiDAR point cloud data sets for macro-ecology, from data preparation to scheduling and execution of distributed processing across a cluster of compute nodes.",
+  "keywords": [
+    "airborne laser scanning",
+    "point cloud",
+    "distributed computing"
+  ],
+  "license": {
+    "id": "Apache-2.0"
+  },
+  "publication_date": "2022-09-13",
+  "title": "Laserfarm: Laserchicken Framework for Applications in Research in Macro-ecology",
+  "version": "0.2.0"
 }
