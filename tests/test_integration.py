@@ -87,7 +87,7 @@ class TestDataProcessing(TestDerivedRemoteDataPipeline):
     _log_filename = 'data_processing.log'
     _output_point_cloud = 'point_cloud.laz'
     _tile_index = (101, 101)
-    _features = ['point_density', 'band_ratio_z<0.0']
+    _features = ['point_density', 'band_ratio_z_0.0']
 
     def setUp(self):
         os.mkdir(self._test_dir)

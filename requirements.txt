@@ -3,7 +3,7 @@ dask[complete]
 fire
 numpy
 laspy[lazrs]
-laserchicken>=0.4.1
+laserchicken>=0.6.0
 plyfile
 pytest
 webdavclient3

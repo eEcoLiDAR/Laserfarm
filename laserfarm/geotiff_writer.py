@@ -3,8 +3,10 @@ import os
 import plyfile
 import numpy
 import time
+
 from osgeo import osr, gdal
-from laserfarm import utils
+
+from laserfarm.utils import check_dir_exists
 from laserfarm.pipeline_remote_data import PipelineRemoteData
 
 logger = logging.getLogger(__name__)
@@ -36,7 +38,7 @@ class GeotiffWriter(PipelineRemoteData):
             - Length of a single band
             - x and y resolution
         """
-        utils.check_dir_exists(self.input_path, should_exist=True)
+        check_dir_exists(self.input_path, should_exist=True)
 
         # Get list of input tiles
         self.InputTiles = [TileFile
@@ -155,7 +157,7 @@ class GeotiffWriter(PipelineRemoteData):
         :param EPSG: (Optional) EPSG code of the spatial reference system of
         the input data. Default 28992.
         """
-        utils.check_dir_exists(self.output_folder, should_exist=True)
+        check_dir_exists(self.output_folder, should_exist=True)
         outfilestem = os.path.join(self.output_folder.as_posix(),
                                    output_handle)
         for subTiffNumber in range(len(self.subtilelists)):
