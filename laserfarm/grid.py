@@ -54,12 +54,12 @@ class Grid(object):
     @property
     def grid_mins(self):
         """ Lower grid boundaries. """
-        return np.array([self.min_x, self.min_y], dtype=np.float)
+        return np.array([self.min_x, self.min_y], dtype=float)
 
     @property
     def grid_maxs(self):
         """ Upper grid boundaries. """
-        return np.array([self.max_x, self.max_y], dtype=np.float)
+        return np.array([self.max_x, self.max_y], dtype=float)
 
     @property
     def grid_width(self):
@@ -79,7 +79,7 @@ class Grid(object):
         :param py: Y coordinate(s) of the point(s)
         """
         self._check_finite_extent()
-        point_cart = np.array([px, py], dtype=np.float).T
+        point_cart = np.array([px, py], dtype=float).T
         point_dir = (point_cart - self.grid_mins) / self.tile_width
         indices = np.floor(point_dir).astype('int')
         # If point falls outside the edge of the grid raise warning
@@ -122,7 +122,7 @@ class Grid(object):
             indices = np.array([tile_index_x, tile_index_y], dtype=np.int).T
             mask = indices == self.get_tile_index(px, py)
         else:
-            point_cart = np.array([px, py], dtype=np.float).T
+            point_cart = np.array([px, py], dtype=float).T
             tile_mins, tile_maxs = self.get_tile_bounds(tile_index_x,
                                                         tile_index_y)
             mask = np.logical_and(tile_mins - point_cart <= precision,
