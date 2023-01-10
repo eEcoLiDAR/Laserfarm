@@ -100,7 +100,7 @@ class Grid(object):
         :param tile_index_x: Tile index along X
         :param tile_index_y: Tile index along Y
         """
-        tile_index = np.array([tile_index_x, tile_index_y], dtype=np.int)
+        tile_index = np.array([tile_index_x, tile_index_y], dtype=int)
         tile_mins = tile_index * self.tile_width + self.grid_mins
         tile_maxs = tile_mins + self.tile_width
         return tile_mins, tile_maxs
@@ -119,7 +119,7 @@ class Grid(object):
         the point(s) belong to the tile
         """
         if precision is None:
-            indices = np.array([tile_index_x, tile_index_y], dtype=np.int).T
+            indices = np.array([tile_index_x, tile_index_y], dtype=int).T
             mask = indices == self.get_tile_index(px, py)
         else:
             point_cart = np.array([px, py], dtype=float).T
