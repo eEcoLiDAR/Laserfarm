@@ -1,0 +1,11 @@
+asyncssh
+dask[complete]
+fire
+numpy
+laspy[lazrs]
+laserchicken>=0.6.0
+plyfile
+pytest
+webdavclient3
+PyShp
+shapely
