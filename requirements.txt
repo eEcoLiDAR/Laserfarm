@@ -3,9 +3,9 @@ dask[complete]
 fire
 numpy
 laspy[lazrs]
-laserchicken>=0.6.0
 plyfile
 pytest
 webdavclient3
 PyShp
 shapely
+git+https://github.com/QCDIS/laserchicken.git
