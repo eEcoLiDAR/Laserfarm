@@ -8,4 +8,4 @@ pytest
 webdavclient3
 PyShp
 shapely
-git+https://github.com/QCDIS/laserchicken.git
+laserchicken @ git+https://github.com/QCDIS/laserchicken.git
