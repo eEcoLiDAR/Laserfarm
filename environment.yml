@@ -9,6 +9,7 @@ dependencies:
   - pdal
   - python-pdal
   - gdal
+  - gcc
   - shapely  # needed to install the correct version of geos
   - pip
   - pip:
