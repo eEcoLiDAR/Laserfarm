@@ -1,7 +1,6 @@
 asyncssh
 dask[complete]
 fire
-numpy
 laspy[lazrs]
 plyfile
 pytest

@@ -9,6 +9,7 @@ dependencies:
   - pdal
   - python-pdal
   - gdal
+  - numpy
   - gcc=12.1.0
   - cxx-compiler
   - libgcc=5.2.0
