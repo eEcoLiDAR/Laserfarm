@@ -9,7 +9,7 @@ dependencies:
   - pdal
   - python-pdal
   - gdal
-  - gcc
+  - gcc=12.1.0
   - cxx-compiler
   - libgcc=5.2.0
   - shapely  # needed to install the correct version of geos
