@@ -5,12 +5,13 @@ channels:
   - defaults
 
 dependencies:
-  - python>=3.7
+  - python>=3.8
   - pdal
   - python-pdal
   - gdal
   - gcc
-  - libcxx
+  - cxx-compiler
+  - libgcc
   - shapely  # needed to install the correct version of geos
   - pip
   - pip:
