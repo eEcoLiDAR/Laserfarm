@@ -11,7 +11,7 @@ dependencies:
   - gdal
   - gcc
   - cxx-compiler
-  - libgcc
+  - libgcc=5.2.0
   - shapely  # needed to install the correct version of geos
   - pip
   - pip:
