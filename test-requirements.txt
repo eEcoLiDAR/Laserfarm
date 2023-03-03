@@ -1,4 +1,5 @@
 asyncssh
+scipy
 dask[complete]
 fire
 laspy[lazrs]
