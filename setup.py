@@ -9,7 +9,7 @@ def read(file_name):
 
 version = {}
 exec(read('laserfarm/__version__.py'), version)
-# required = read('requirements.txt').splitlines()
+required = read('requirements.txt').splitlines()
 
 
 setup(
@@ -23,7 +23,7 @@ setup(
     keywords=['Python', 'Point cloud'],
     url='https://github.com/eEcoLiDAR/Laserfarm',
     packages=find_packages(exclude=["tests"]),
-    install_requires=[],
+    install_requires=required,
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
     classifiers=[
