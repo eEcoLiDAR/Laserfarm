@@ -1,0 +1,11 @@
+asyncssh
+dask[complete]
+fire
+numpy
+laspy[lazrs]
+plyfile
+pytest
+webdavclient3
+PyShp
+shapely
+laserchicken@ git+https://github.com/QCDIS/laserchicken.git
