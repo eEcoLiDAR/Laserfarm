@@ -1,0 +1,43 @@
+name: Sync with Original Repo
+on:
+  schedule:
+  - cron:  "0 0 * * Sun"
+
+
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Fetch upstream
+      run: |
+        git remote add upstream https://github.com/eEcoLiDAR/Laserfarm.git
+        git fetch upstream
+
+    - name: Check if there are changes
+      id: has_changes
+      run: echo "::set-output name=changed::$(git rev-parse HEAD != upstream/master)"
+
+    - name: Create new branch
+      run: |
+        git checkout -b update-upstream-${{ github.run_number }}
+      if: steps.has_changes.outputs.changed == 'true'
+      
+    - name: Merge upstream changes
+      run: |
+        git merge upstream/master --no-edit
+      if: steps.has_changes.outputs.changed == 'true'
+
+    - name: Create pull request
+      uses: peter-evans/create-pull-request@v3
+      if: steps.has_changes.outputs.changed == 'true'
+      with:
+        title: 'Update from upstream repository'
+        commit-message: 'Merge latest changes from upstream repository'
+        branch: 'update-upstream'
+        base: 'master'
+        delete-branch: true
