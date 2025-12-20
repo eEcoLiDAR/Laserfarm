@@ -60,7 +60,7 @@ laserfarm = "laserfarm.main:main"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov --cov-report term -p no:logging"
+addopts = "--cov=laserfarm --cov-report=term --cov-report=xml -p no:logging"
 testpaths = [
     "tests",
 ]
