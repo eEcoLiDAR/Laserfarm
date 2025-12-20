@@ -2,8 +2,14 @@ name: build and test
 
 on:
   push:
-  schedule:
-    - cron: '0 0 1 * *'
+    paths:
+      - 'laserfarm/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'setup.py'
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
