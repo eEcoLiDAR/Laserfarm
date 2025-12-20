@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "laserfarm"
+version = "0.3.0"
+dependencies = [
+    "asyncssh",
+    "dask[complete]",
+    "fire",
+    "numpy",
+    "laspy[lazrs]",
+    "laserchicken>=0.6.0",
+    "plyfile",
+    "webdavclient3",
+    "PyShp",
+    "shapely",
+]
+description = "Laserchicken Framework for Applications in Research in Macro-ecology"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+    {name = "Netherlands eScience Center", email = "team-atlas@esciencecenter.nl"},
+]
+keywords = ["Python", "Point cloud"]
+classifiers=[
+    'Development Status :: 2 - Pre-Alpha',
+    'Intended Audience :: Developers',
+    'Natural Language :: English',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+]
+
+[project.urls]
+repository = "https://github.com/eEcoLiDAR/Laserfarm"
+documentation = "https://laserfarm.readthedocs.io"
+changelog = "https://github.com/eEcoLiDAR/Laserfarm/blob/master/CHANGELOG.md"
+doi = "10.5281/zenodo.3842780"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "pycodestyle",
+]
+docs = [
+    "sphinx",
+    "m2r2",
+]
+
+[tool.setuptools]
+packages = ["laserfarm"]
+
+[project.scripts]
+laserfarm = "laserfarm.main:main"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov --cov-report term -p no:logging"
+testpaths = [
+    "tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["laserfarm"]
