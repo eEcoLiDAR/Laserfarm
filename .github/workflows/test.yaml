@@ -2,11 +2,8 @@ name: build and test
 
 on:
   push:
-    paths:
-      - 'laserfarm/**'
-      - 'tests/**'
-      - 'pyproject.toml'
-      - 'setup.py'
+    branches:
+      - master
   pull_request:
     branches:
       - master
