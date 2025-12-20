@@ -31,11 +31,15 @@ jobs:
         conda-remove-defaults: "true"
     - run: conda --version
     - run: which python
+      shell: bash -el {0}
     - run: conda install pdal python-pdal gdal shapely
+      shell: bash -el {0}
     - name: Install the package
       run: pip install -e .[dev]
+      shell: bash -el {0}
     - name: Test with pytest
       run: pytest
+      shell: bash -el {0}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
