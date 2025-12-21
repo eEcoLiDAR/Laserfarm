@@ -5,13 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ##[Unreleased]
+### Added:
+- Added possibility to override SRS in retiling
+
 ### Changed:
 - Updated support for Python >=3.10,<3.14
 - Project metadata moved to pyproject.toml
 - Test/docs requirements moved to "dev" and "docs" optional dependencies
 - Updated testing workflow on github action
 
-### Fixed
+### Fixed:
 - Replaced deprecated numpy data types
 - Updated config for readthedocs
 
