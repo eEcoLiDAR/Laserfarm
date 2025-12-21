@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ##[Unreleased]
+### Changed:
+- Updated support for Python >=3.10,<3.14
+- Project metadata moved to pyproject.toml
+- Test/docs requirements moved to "dev" and "docs" optional dependencies
+- Updated testing workflow on github action
+
+### Fixed
+- Replaced deprecated numpy data types
+- Updated config for readthedocs
 
 ## [0.2.0] - 2022-09-13
 ### Fixed:
@@ -32,11 +41,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.2] - 2020-11-27
 ### Added:
-- A method for setting up multiple custom features is added to the data processing pipeline. 
+- A method for setting up multiple custom features is added to the data processing pipeline.
 
 ## [0.1.1] - 2020-06-07
 ### Added:
-- The KDTree's cached by Laserchicken is cleared in the data_processing (optional) and classification pipelines. 
+- The KDTree's cached by Laserchicken is cleared in the data_processing (optional) and classification pipelines.
 
 ### Changed:
 - Dask's futures are released as soon as finished, freeing memory of the workers
