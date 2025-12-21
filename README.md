@@ -7,14 +7,14 @@
 [![PyPI](https://img.shields.io/pypi/v/laserfarm.svg)](https://pypi.python.org/pypi/laserfarm)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4523/badge)](https://bestpractices.coreinfrastructure.org/projects/4523)
 
-Laserfarm (Laserchicken Framework for Applications in Research in Macro-ecology) provides a FOSS wrapper to 
-[Laserchicken](https://github.com/eEcoLiDAR/laserchicken) supporting the use of massive LiDAR point cloud data sets for 
-macro-ecology, from data preparation to scheduling and execution of distributed processing across a cluster of compute 
+Laserfarm (Laserchicken Framework for Applications in Research in Macro-ecology) provides a FOSS wrapper to
+[Laserchicken](https://github.com/eEcoLiDAR/laserchicken) supporting the use of massive LiDAR point cloud data sets for
+macro-ecology, from data preparation to scheduling and execution of distributed processing across a cluster of compute
 nodes.
 
 ## Installation
 
-Laserfarm requires the [PDAL](https://pdal.io) and [GDAL](https://gdal.org) libraries and the PDAL Python 
+Laserfarm requires the [PDAL](https://pdal.io) and [GDAL](https://gdal.org) libraries and the PDAL Python
 bindings. These packages are most easily installed through `conda` from the `conda-forge` channel:
 ```shell
 conda install pdal python-pdal gdal -c conda-forge
@@ -29,7 +29,7 @@ git clone git@github.com:eEcoLiDAR/Laserfarm.git
 cd Laserfarm
 pip install .
 ```
-In order to setup a new conda environment with Laserfarm and all its dependencies, the YAML file provided can be 
+In order to setup a new conda environment with Laserfarm and all its dependencies, the YAML file provided can be
 employed:
 ```shell
 conda env create -f environment.yml
@@ -41,10 +41,10 @@ The project's full documentation can be found [here](https://laserfarm.readthedo
 
 ## Applications and Current Limitations
 
-This package has been tested on data provided in a metric-based 2D-projected Cartesian coordinate system, i.e. the 
-[Actueel Hoogtebestand Nederland](https://www.pdok.nl/introductie/-/article/actueel-hoogtebestand-nederland-ahn3-). 
-While some of the tools of Laserfarm could be applied to data in an ellipsoidal latitude/longitude coordinate system 
-as well, this has not been tested and it is generally expected to fail. 
+This package has been tested on data provided in a metric-based 2D-projected Cartesian coordinate system, i.e. the
+[Actueel Hoogtebestand Nederland](https://www.pdok.nl/introductie/-/article/actueel-hoogtebestand-nederland-ahn3-).
+While some of the tools of Laserfarm could be applied to data in an ellipsoidal latitude/longitude coordinate system
+as well, this has not been tested and it is generally expected to fail.
 
 ## Contributing
 
@@ -53,7 +53,7 @@ have a look at the  [contribution guidelines](CONTRIBUTING.md).
 
 ## License
 
-Copyright (c) 2022, Netherlands eScience Center
+Copyright (c) 2025, Netherlands eScience Center
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
