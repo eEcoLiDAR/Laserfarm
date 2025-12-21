@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "laserfarm"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
     "asyncssh",
     "dask[complete]",
@@ -39,7 +39,7 @@ classifiers=[
 repository = "https://github.com/eEcoLiDAR/Laserfarm"
 documentation = "https://laserfarm.readthedocs.io"
 changelog = "https://github.com/eEcoLiDAR/Laserfarm/blob/master/CHANGELOG.md"
-doi = "10.5281/zenodo.3842780"
+doi = "https://doi.org/10.5281/zenodo.3842780"
 
 [project.optional-dependencies]
 dev = [
