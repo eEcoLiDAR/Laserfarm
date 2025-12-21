@@ -38,7 +38,7 @@ class Retiler(PipelineRemoteData):
         self.grid.setup(min_x, min_y, max_x, max_y, n_tiles_side)
         return self
 
-    def split_and_redistribute(self):
+    def split_and_redistribute(self, override_srs=None):
         """
         Split the input file using PDAL and organize the tiles in subfolders
         using the location on the input grid as naming scheme.
@@ -47,7 +47,7 @@ class Retiler(PipelineRemoteData):
         logger.info('Splitting file {} with PDAL ...'.format(self.input_path))
         _run_PDAL_splitter(self.input_path, self.output_folder,
                            self.grid.grid_mins, self.grid.grid_maxs,
-                           self.grid.n_tiles_side)
+                           self.grid.n_tiles_side, override_srs)
         logger.info('... splitting completed.')
         tiles = [f for f in self.output_folder.iterdir()
                  if (f.is_file()
@@ -135,16 +135,27 @@ def _get_tile_name(x_index, y_index):
 
 
 def _run_PDAL_splitter(filename, tiled_temp_folder, tiling_mins, tiling_maxs,
-                       n_tiles_side):
+                       n_tiles_side, override_srs=None):
     length_PDAL_tile = ((tiling_maxs[0] - tiling_mins[0]) /
                         float(n_tiles_side))
 
     outfile_with_placeholder = "_#".join([filename.stem, filename.suffix])
     outfilepath = tiled_temp_folder.joinpath(outfile_with_placeholder)
-
+    if override_srs is not None:
+        # Reading LAS files with point format 6-10 will throw an error if WKT
+        # flag is not set - we can bypass it here via overriding the SRS
+        readers = {
+            "type": "readers.las",
+            "filename": filename.as_posix(),
+            "nosrs": True,
+            "override_srs": override_srs,
+        }
+    else:
+        # If no options are needed, only the filepath is sufficient
+        readers = filename.as_posix()
     PDAL_pipeline_dict = {
         "pipeline": [
-            filename.as_posix(),
+            readers,
             {
                 "type": "filters.splitter",
                 "origin_x": "{}".format(tiling_mins[0]),
