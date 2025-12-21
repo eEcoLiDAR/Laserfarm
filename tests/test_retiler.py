@@ -3,6 +3,8 @@ import pathlib
 import shutil
 import unittest
 
+import laspy
+
 from laserfarm.retiler import Retiler
 
 
@@ -27,6 +29,16 @@ class TestSplitAndRedistribute(unittest.TestCase):
         self.assertListEqual([d for d in sorted(os.listdir(self._test_dir))
                               if d.startswith('tile_')],
                              ["tile_101_101", "tile_101_102"])
+
+    def test_overrideSRS(self):
+        self.pipeline.input_path = pathlib.Path('testdata').joinpath(self._input_file)
+        self.pipeline.output_folder = pathlib.Path(self._test_dir)
+        self.pipeline.grid.setup(*self._grid_input)
+        self.pipeline.split_and_redistribute(override_srs="EPSG:28992")
+        for filepath in pathlib.Path(self._test_dir).glob("*/*.LAZ"):
+            with laspy.open(filepath) as file:
+                epsg = file.header.parse_crs().to_epsg()
+                self.assertEqual(epsg, 28992)
 
     def test_inputFileNotSet(self):
         self.pipeline.output_folder = pathlib.Path(self._test_dir)

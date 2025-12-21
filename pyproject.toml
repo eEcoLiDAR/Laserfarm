@@ -46,6 +46,7 @@ dev = [
     "pytest>=6.0",
     "pytest-cov",
     "pycodestyle",
+    "pyproj",
 ]
 docs = [
     "sphinx",
