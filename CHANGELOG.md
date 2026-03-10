@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added:
 - API reference added to the documentation
 
+### Fixed:
+- Laserchicken now requires Python >=3.11
+
 ## [0.3.1] - 2025-12-21
 ### Fixed:
 - Fixed DOI link in pyproject.toml

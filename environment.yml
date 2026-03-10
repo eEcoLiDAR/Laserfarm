@@ -4,12 +4,10 @@ channels:
   - conda-forge
 
 dependencies:
-  - python>=3.10,<3.14
+  - python>=3.11,<3.14
   - pdal
   - python-pdal
   - gdal
-  - shapely  # needed to install the correct version of geos
   - pip
   - pip:
-      - -r requirements.txt
       - .
